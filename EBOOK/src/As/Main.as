@@ -30,7 +30,13 @@ package As
 			ctrlZ_mc.addEventListener(MouseEvent.CLICK, ctrlZ);
 			ctrlY_mc.addEventListener(MouseEvent.CLICK, ctrlY);
 			eraser_mc.addEventListener(MouseEvent.CLICK, eraserStart);
+			memo_mc.addEventListener(MouseEvent.CLICK, memoStart);
 			
+			
+		}
+		
+		private function memoStart(e:MouseEvent):void 
+		{
 			var _m:Memo = new Memo();
 			_m.x = 200;
 			_m.y = 200;

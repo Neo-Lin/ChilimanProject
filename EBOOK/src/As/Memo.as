@@ -1,5 +1,6 @@
 package As 
 {
+	import caurina.transitions.Tweener;
 	import com.foxaweb.pageflip.PageFlip;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -18,6 +19,7 @@ package As
 		private var p0color:uint = 0x00ffcc33;
 		private var p1color:uint = 0x00ffbb33;
 		private var scaleWH:uint = 40;
+		private var scaleShape:Sprite=new Sprite();
 		private var horizontal:Boolean = true;
 		private var _render:Shape = new Shape();
 		private var initRenderW:Number = 200;
@@ -26,73 +28,83 @@ package As
 		private var page0:BitmapData= new BitmapData(initRenderW, initRenderH, false, p0color); 
 		private var page1:BitmapData = new BitmapData(initRenderW, initRenderH, false, p1color); 
 		private var pixel:BitmapData; 
-		private var _sp:Sprite = new Sprite();
-		private var changeWH:Boolean = false;
-		private var testBM:Bitmap;
+		private var pixelBM:Bitmap;
+		private var pixelS:Sprite = new Sprite();
+		private var renderArray:Array = new Array();
 		
 		public function Memo() 
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
-			
 		}
 		
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
+			
+			//用來偵測滑鼠點擊位置像素值的對照點陣圖
 			pixel = new BitmapData(initRenderW, initRenderH)
+			pixelBM = new Bitmap(pixel);
+			pixelBM.visible = false;
+			pixelS.addChild(pixelBM);
+			addChild(pixelS);
 			
-			testBM = new Bitmap(pixel);
-			/*//撕除點在右上或右下角
-			_render.x=100;
-			_render.y=50;*/
-			/*//撕除點在左上或左下角
-			_render.x=0;
-			_render.y=(pixel.height/2)/2;*/
-			addChild(_render);
+			//右下角放大圖標
+			scaleShape.graphics.beginFill(0xff8800, 1);
+            scaleShape.graphics .moveTo(15,0);
+            scaleShape.graphics .lineTo(0,15);
+            scaleShape.graphics .lineTo(15,15);
+            scaleShape.graphics .lineTo(15,0);
+            scaleShape.graphics.endFill();
+			scaleShape.x = page0.width;
+			scaleShape.y = page0.height;
+			addChild(scaleShape);
 			
-			addChild(testBM);
+			addChild(_render);	//顯示便利貼
 			
-			
-			stage.addEventListener(MouseEvent.MOUSE_DOWN, bitmapPgD);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, bitmapPgD);
 			stage.addEventListener(MouseEvent.MOUSE_UP, bitmapPgU);
-			goFlip();
+			goFlip();	//繪製便利貼翻頁效果
 			
 			pixel.draw(_render);
 		}
 		
 		private function bitmapPgU(e:MouseEvent):void 
-		{
+		{	
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, bitmapPgM);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, goChangeWH);
 			this.stopDrag();
-			changeWH = false;
-			if (_render.mouseX > page0.width * 1.8) {
-				trace("jjjjjj");
+			scaleShape.visible = true;
+			if (page0.width > page0.height) {  //寬型便利貼撕除
+				if (renderArray[1].x > page0.width * .9 || renderArray[2].x > page0.width * .9) {  //撕除
+					Tweener.addTween(this, { y:this.y + 20, alpha:0, time:1, onComplete:kill } );
+				}
+			}else {  //長型便利貼撕除
+				if (renderArray[1].y > page0.height * .9 || renderArray[2].y > page0.height * .9) {  //撕除
+					Tweener.addTween(this, { y:this.y + 20, alpha:0, time:1, onComplete:kill } );
+				}
 			}
 		}
 		
 		private function bitmapPgD(e:MouseEvent):void 
 		{ 
-			//pixel.draw(_sp);
-			trace(page0.getPixel(mouseX,mouseY).toString(16),_render.mouseX,this.mouseX);
-			if (pixel.getPixel(mouseX-(_render.transform.pixelBounds.right-this.x-_render.transform.pixelBounds.width),Math.abs(int(mouseY))).toString(16) == p1color.toString(16)) {
+			//trace(pixel.getPixel(pixelS.mouseX,pixelS.mouseY).toString(16),_render.mouseX,this.mouseX);
+			
+			if (pixel.getPixel(pixelS.mouseX,pixelS.mouseY).toString(16) == p1color.toString(16)) { //顏色符合撕除角
+				scaleShape.visible = false;
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, bitmapPgM);
 				goFlip(_render.mouseX,_render.mouseY);
-			}else if (_render.mouseX > page0.width - 10 && _render.mouseY > page0.height - 10) {
+			}else if (_render.mouseX > page0.width && _render.mouseY > page0.height) { //放大縮小角
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, goChangeWH);
-				//changeWH = true;
-			}else {
+			}else { //移動便利貼
 				this.startDrag();
+				scaleShape.visible = false;
 			}
-			trace(Math.abs(int(mouseY)));
-			trace(pixel.getPixel(mouseX-(_render.transform.pixelBounds.right-this.x-_render.transform.pixelBounds.width),Math.abs(int(mouseY))).toString(16));
-			//stage.addEventListener(MouseEvent.MOUSE_MOVE, bitmapPgM);
+			
 		}
 		
 		private function goChangeWH(e:MouseEvent):void 
-		{	//trace("goChangeWH");
-			
+		{	
 			//縮小要有限度
 			if (_render.mouseX < scaleWH && _render.mouseY < scaleWH) {
 				page0 = new BitmapData(scaleWH, scaleWH, false, p0color);
@@ -109,44 +121,46 @@ package As
 			}
 			
 			if (page0.width > page0.height) {
-				pixel = new BitmapData(page0.width * 2, page0.width * 2 + page0.height);
 				horizontal = true;  //末端在右邊
-				_render.x = 0;
-				_render.y=pixel.height/2 - page0.height/2;
 			}else {
-				pixel = new BitmapData(page0.height * 2 + page0.width, page0.height * 2);
 				horizontal = false;  //末端在下邊
-				_render.x = pixel.width / 2 - page0.height / 2;
-				_render.y = 0;
 			}
+			scaleShape.x = renderArray[0].x;
+			scaleShape.y = renderArray[0].y;
 			
 			goFlip();
-			pixel.draw(_sp);
-			testBM.bitmapData = pixel;
-			trace(page0.width, _render.width, _sp.width, pixel.width);
+			updatePixel();
 		}
 		
 		private function bitmapPgM(e:MouseEvent):void 
 		{
-			//trace(mouseX, _render.mouseX);
-			//撕除點在右下角
-			//if(_render.mouseX < _render.width - 10 || _render.mouseY < _render.height - 10) goFlip(_render.mouseX,_render.mouseY);
-			if (changeWH) {
-				//goChangeWH();
-			}else if (mouseX > 10 || mouseY > _render.y + 10) { //撕除點在左上角
+			if (mouseX > 10 || mouseY > _render.y + 10) { 
 				goFlip(_render.mouseX,_render.mouseY);
 			}
+			updatePixel();
+		}
+		
+		//更新對照點陣圖
+		private function updatePixel():void {
 			pixel.dispose();
 			renderMatrix.tx = this.x - _render.transform.pixelBounds.x;
 			renderMatrix.ty = this.y - _render.transform.pixelBounds.y;
 			pixel = new BitmapData(_render.transform.pixelBounds.width, _render.transform.pixelBounds.height);
 			pixel.draw(_render,renderMatrix);
-			testBM.bitmapData = pixel;
-			//testBM.x = _render.transform.pixelBounds.x - this.x;
-			//testBM.y = _render.transform.pixelBounds.y - this.y;
-			//testBM.y = 100;
-			trace(pixel.width,pixel.height);
-			trace(_render.transform.pixelBounds.x,_render.transform.pixelBounds.y,_render.transform.pixelBounds.right,_render.transform.pixelBounds.bottom);
+			pixelBM.bitmapData = pixel;
+			pixelS.x = _render.transform.pixelBounds.x - this.x;
+			pixelS.y = _render.transform.pixelBounds.y - this.y;
+		}
+		
+		//移除便利貼
+		private function kill():void {
+			stage.removeEventListener(MouseEvent.MOUSE_DOWN, bitmapPgD);
+			stage.removeEventListener(MouseEvent.MOUSE_UP, bitmapPgU);
+			page0.dispose();
+			page1.dispose();
+			pixel.dispose();
+			Tweener.removeAllTweens();
+			parent.removeChild(this);
 		}
 		
 		private function goFlip(_x:Number = 20, _y:Number = 20):void {
@@ -157,11 +171,13 @@ package As
 									page1.height,
 									horizontal,					// in horizontal mode
 									1);					// sensibility to one 
-           
+           //trace(o.pPoints);
 			PageFlip.drawBitmapSheet(o,					// computeflip returned object
 									_render,					// target
 									page0,		// bitmap page 0
 									page1);		// bitmap page 1
+			
+			renderArray = o.pPoints;
 		}
 		
 	}
