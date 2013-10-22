@@ -7,6 +7,7 @@ package As
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	/**
 	 * ...
@@ -18,9 +19,12 @@ package As
 		private var p1color:uint = 0x00ffbb33;
 		private var scaleWH:uint = 40;
 		private var horizontal:Boolean = true;
-		private var _render:Shape=new Shape();
-		private var page0:BitmapData= new BitmapData(200, 40, false, p0color); 
-		private var page1:BitmapData = new BitmapData(200, 40, false, p1color); 
+		private var _render:Shape = new Shape();
+		private var initRenderW:Number = 200;
+		private var initRenderH:Number = 40;
+		private var renderMatrix:Matrix = new Matrix();
+		private var page0:BitmapData= new BitmapData(initRenderW, initRenderH, false, p0color); 
+		private var page1:BitmapData = new BitmapData(initRenderW, initRenderH, false, p1color); 
 		private var pixel:BitmapData; 
 		private var _sp:Sprite = new Sprite();
 		private var changeWH:Boolean = false;
@@ -36,20 +40,17 @@ package As
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			if (page0.width > page0.height) {
-				pixel = new BitmapData(page0.width * 2, page0.width * 2)
-			}else {
-				pixel = new BitmapData(page0.height * 2, page0.height * 2)
-			}
+			pixel = new BitmapData(initRenderW, initRenderH)
+			
 			testBM = new Bitmap(pixel);
 			/*//撕除點在右上或右下角
 			_render.x=100;
 			_render.y=50;*/
-			//撕除點在左上或左下角
+			/*//撕除點在左上或左下角
 			_render.x=0;
-			_render.y=(pixel.height/2)/2;
-			_sp.addChild(_render);
-			addChild(_sp);
+			_render.y=(pixel.height/2)/2;*/
+			addChild(_render);
+			
 			addChild(testBM);
 			
 			
@@ -57,7 +58,7 @@ package As
 			stage.addEventListener(MouseEvent.MOUSE_UP, bitmapPgU);
 			goFlip();
 			
-			pixel.draw(_sp);
+			pixel.draw(_render);
 		}
 		
 		private function bitmapPgU(e:MouseEvent):void 
@@ -75,7 +76,7 @@ package As
 		{ 
 			//pixel.draw(_sp);
 			trace(page0.getPixel(mouseX,mouseY).toString(16),_render.mouseX,this.mouseX);
-			if (pixel.getPixel(mouseX,mouseY).toString(16) == p1color.toString(16)) {
+			if (pixel.getPixel(mouseX-(_render.transform.pixelBounds.right-this.x-_render.transform.pixelBounds.width),Math.abs(int(mouseY))).toString(16) == p1color.toString(16)) {
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, bitmapPgM);
 				goFlip(_render.mouseX,_render.mouseY);
 			}else if (_render.mouseX > page0.width - 10 && _render.mouseY > page0.height - 10) {
@@ -84,7 +85,9 @@ package As
 			}else {
 				this.startDrag();
 			}
-			
+			trace(Math.abs(int(mouseY)));
+			trace(pixel.getPixel(mouseX-(_render.transform.pixelBounds.right-this.x-_render.transform.pixelBounds.width),Math.abs(int(mouseY))).toString(16));
+			//stage.addEventListener(MouseEvent.MOUSE_MOVE, bitmapPgM);
 		}
 		
 		private function goChangeWH(e:MouseEvent):void 
@@ -133,8 +136,17 @@ package As
 			}else if (mouseX > 10 || mouseY > _render.y + 10) { //撕除點在左上角
 				goFlip(_render.mouseX,_render.mouseY);
 			}
-			
-			pixel.draw(_sp);
+			pixel.dispose();
+			renderMatrix.tx = this.x - _render.transform.pixelBounds.x;
+			renderMatrix.ty = this.y - _render.transform.pixelBounds.y;
+			pixel = new BitmapData(_render.transform.pixelBounds.width, _render.transform.pixelBounds.height);
+			pixel.draw(_render,renderMatrix);
+			testBM.bitmapData = pixel;
+			//testBM.x = _render.transform.pixelBounds.x - this.x;
+			//testBM.y = _render.transform.pixelBounds.y - this.y;
+			//testBM.y = 100;
+			trace(pixel.width,pixel.height);
+			trace(_render.transform.pixelBounds.x,_render.transform.pixelBounds.y,_render.transform.pixelBounds.right,_render.transform.pixelBounds.bottom);
 		}
 		
 		private function goFlip(_x:Number = 20, _y:Number = 20):void {
