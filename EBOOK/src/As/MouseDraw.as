@@ -24,7 +24,6 @@
 			_penType = penType;		//畫筆類型
 			
 			_drawArea.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
-			_drawArea.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 		}
 		
 		private function onMouseDown1(event:MouseEvent):void
@@ -34,13 +33,24 @@
 			_newSprite.graphics.lineStyle(_panWidth);
 			_newSprite.graphics.moveTo(mouseX, mouseY);
 			_drawArea.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+			_drawArea.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
+			_drawArea.addEventListener(MouseEvent.MOUSE_OUT, onMouseUo);
 		}
 		
 		private function onMouseUp1(event:MouseEvent):void
 		{
 			_drawArea.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+			_drawArea.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
+			_drawArea.removeEventListener(MouseEvent.MOUSE_OUT, onMouseUo);
 			if(_newSprite.width > 0) _canvas.canvasAdded();		//如果有畫,請Canvas更新步驟陣列stepArray
 			trace("MouseDraw:", _drawArea.numChildren, _canvas.numChildren);
+		}
+		
+		private function onMouseUo(e:MouseEvent):void 
+		{	trace(mouseY ,_drawArea.height);
+			if (mouseX > _drawArea.width || mouseX < _drawArea.x || mouseY > _drawArea.height || mouseY < _drawArea.y) {
+				onMouseUp1(null);
+			}
 		}
 		
 		private function onMouseMove1(event:MouseEvent):void

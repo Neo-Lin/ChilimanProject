@@ -1,6 +1,5 @@
 package As 
 {
-	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
@@ -10,7 +9,7 @@ package As
 	 * ...
 	 * @author Neo
 	 */
-	public class Canvas extends MovieClip 
+	public class Canvas extends Sprite 
 	{
 		private var nowStep:uint = 0;
 		private var stepArray:Array = new Array();		//新增物件會放入此陣列,對應步驟數nowStep
@@ -61,10 +60,12 @@ package As
 		private function finishDrag(e:MouseEvent):void 
 		{	
 			e.currentTarget.stopDrag();
-			stepArray.push([null]);		//移動並沒有新增物件,所以放入null
-			nowStep ++;
-			var operation:TransformOperation = new TransformOperation(e.currentTarget,PrevX,PrevY,e.currentTarget.x,e.currentTarget.y,true,true);
-			_undo.pushUndo(operation);
+			if (e.currentTarget.x != PrevX || e.currentTarget.y != PrevY) {	 //有移動位置才需要增加undo	
+				stepArray.push([null]);		//移動並沒有新增物件,所以放入null
+				nowStep ++;
+				var operation:TransformOperation = new TransformOperation(e.currentTarget,PrevX,PrevY,e.currentTarget.x,e.currentTarget.y,true,true);
+				_undo.pushUndo(operation);
+			}
 		}
 		//====================================移動繪圖物件
 		
