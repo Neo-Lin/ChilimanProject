@@ -1,4 +1,4 @@
-﻿package As
+package As
 {
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
@@ -32,25 +32,16 @@
 			_newSprite = _s; 
 			_newSprite.graphics.lineStyle(_panWidth);
 			_newSprite.graphics.moveTo(mouseX, mouseY);
-			_drawArea.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
-			_drawArea.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
-			_drawArea.addEventListener(MouseEvent.MOUSE_OUT, onMouseUo);
+			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 		}
 		
 		private function onMouseUp1(event:MouseEvent):void
 		{
-			_drawArea.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
-			_drawArea.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
-			_drawArea.removeEventListener(MouseEvent.MOUSE_OUT, onMouseUo);
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+			stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 			if(_newSprite.width > 0) _canvas.canvasAdded();		//如果有畫,請Canvas更新步驟陣列stepArray
 			trace("MouseDraw:", _drawArea.numChildren, _canvas.numChildren);
-		}
-		
-		private function onMouseUo(e:MouseEvent):void 
-		{	trace(mouseY ,_drawArea.height);
-			if (mouseX > _drawArea.width || mouseX < _drawArea.x || mouseY > _drawArea.height || mouseY < _drawArea.y) {
-				onMouseUp1(null);
-			}
 		}
 		
 		private function onMouseMove1(event:MouseEvent):void
@@ -63,7 +54,6 @@
 		{
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 			_drawArea.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
-			_drawArea.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 		}
 		
 	}

@@ -4,6 +4,7 @@ package As
 	import com.foxaweb.pageflip.PageFlip;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -31,11 +32,14 @@ package As
 		private var pixelBM:Bitmap;
 		private var pixelS:Sprite = new Sprite();
 		private var renderArray:Array = new Array();
+		private var _drawArea:DisplayObjectContainer;
 		
-		public function Memo() 
+		public function Memo(drawArea:DisplayObjectContainer) 
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
+			
+			_drawArea = drawArea;	//可繪圖區域
 		}
 		
 		private function init(e:Event = null):void 
@@ -44,9 +48,8 @@ package As
 			
 			//用來偵測滑鼠點擊位置像素值的對照點陣圖
 			pixel = new BitmapData(initRenderW, initRenderH)
-			pixelBM = new Bitmap(pixel);
-			pixelBM.visible = false;
-			pixelS.addChild(pixelBM);
+			/*pixelBM = new Bitmap(pixel);
+			pixelS.addChild(pixelBM);*/
 			addChild(pixelS);
 			
 			//右下角放大圖標
@@ -75,14 +78,8 @@ package As
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, goChangeWH);
 			this.stopDrag();
 			scaleShape.visible = true;
-			if (page0.width > page0.height) {  //寬型便利貼撕除
-				if (renderArray[1].x > page0.width * .9 || renderArray[2].x > page0.width * .9) {  //撕除
-					Tweener.addTween(this, { y:this.y + 20, alpha:0, time:1, onComplete:kill } );
-				}
-			}else {  //長型便利貼撕除
-				if (renderArray[1].y > page0.height * .9 || renderArray[2].y > page0.height * .9) {  //撕除
-					Tweener.addTween(this, { y:this.y + 20, alpha:0, time:1, onComplete:kill } );
-				}
+			if (this.alpha < 1) {  //便利貼撕除
+				Tweener.addTween(this, { y:this.y + 20, alpha:0, time:1, onComplete:kill } );
 			}
 		}
 		
@@ -138,18 +135,33 @@ package As
 				goFlip(_render.mouseX,_render.mouseY);
 			}
 			updatePixel();
+			
+			if (page0.width > page0.height) {  //寬型便利貼撕除偵測
+				if (renderArray[1].x > page0.width * .9 || renderArray[2].x > page0.width * .9) {  //撕除預告
+					this.alpha = .5;
+				}else {
+					this.alpha = 1;
+				}
+			}else {  //長型便利貼撕除偵測
+				if (renderArray[1].y > page0.height * .9 || renderArray[2].y > page0.height * .9) {  //撕除預告
+					this.alpha = .5;
+				}else {
+					this.alpha = 1;
+				}
+			}
 		}
 		
 		//更新對照點陣圖
 		private function updatePixel():void {
 			pixel.dispose();
-			renderMatrix.tx = this.x - _render.transform.pixelBounds.x;
-			renderMatrix.ty = this.y - _render.transform.pixelBounds.y;
+			renderMatrix.tx = this.x - (_render.transform.pixelBounds.x - _drawArea.transform.pixelBounds.x);
+			renderMatrix.ty = this.y - (_render.transform.pixelBounds.y - _drawArea.transform.pixelBounds.y);
 			pixel = new BitmapData(_render.transform.pixelBounds.width, _render.transform.pixelBounds.height);
 			pixel.draw(_render,renderMatrix);
-			pixelBM.bitmapData = pixel;
-			pixelS.x = _render.transform.pixelBounds.x - this.x;
-			pixelS.y = _render.transform.pixelBounds.y - this.y;
+			//pixelBM.bitmapData = pixel;
+			//trace(_render.transform.pixelBounds.x , this.x, _drawArea.transform.pixelBounds.x);
+			pixelS.x = _render.transform.pixelBounds.x - this.x - _drawArea.transform.pixelBounds.x;
+			pixelS.y = _render.transform.pixelBounds.y - this.y - _drawArea.transform.pixelBounds.y;
 		}
 		
 		//移除便利貼

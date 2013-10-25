@@ -1,9 +1,12 @@
 package As
 {
+	import avmplus.getQualifiedSuperclassName;
+	import flash.display.Loader;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.utils.getDefinitionByName;
+	import flash.net.URLRequest;
 	import net.hires.debug.Stats;
 	
 	/**
@@ -13,8 +16,11 @@ package As
 	public class Main extends Sprite 
 	{
 		private var canvas_mc:Canvas;	//畫布,undo,redo
+		private var floating:Sprite;	//覆蓋在畫布上:便利貼
 		private var rz:RectangleZoom;	//放大功能
 		private var pencil:MouseDraw;	//畫筆功能
+		private var bookLoader:Loader = new Loader();
+		private var bookUrl:URLRequest = new URLRequest("book1.swf");;
 		
 		public function Main():void 
 		{
@@ -27,10 +33,32 @@ package As
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			addChild(new Stats());
 			
+			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
+			bookLoader.load(bookUrl);
+			pdf_mc.addChild(bookLoader);
+			
 			canvas_mc = new Canvas();
 			addChild(canvas_mc);
 			
+			floating = new Sprite();
+			addChild(floating);
+			
 			goEvent();
+		}
+		
+		private function loader_complete(e:Event):void 
+		{
+			var _lmc:MovieClip = e.currentTarget.content as MovieClip;
+			var _n:uint = _lmc.numChildren;		
+			for (var i = 0; i < _n; i++) {
+				var _mc:Object = _lmc.getChildAt(i) as Object;
+				//trace(getQualifiedSuperclassName(_mc));
+				if (getQualifiedSuperclassName(_mc) == "flash.display::InteractiveObject") {
+					trace(_mc.name);
+				}else if (getQualifiedSuperclassName(_mc) == "flash.display::MovieClip") {
+					trace(_mc.name);
+				}
+			}
 		}
 		
 		private function goEvent():void {
@@ -46,10 +74,10 @@ package As
 		private function memoStart(e:MouseEvent):void 
 		{
 			changeTool();
-			var _m:Memo = new Memo();
+			var _m:Memo = new Memo(pdf_mc);
 			_m.x = 200;
 			_m.y = 200;
-			addChild(_m);
+			floating.addChild(_m);
 		}
 		
 		private function eraserStart(e:MouseEvent):void 
@@ -82,8 +110,6 @@ package As
 		private function pickStart(e:MouseEvent):void 
 		{
 			changeTool();
-			canvas_mc.mouseChildren = true;
-			canvas_mc.mouseEnabled = true;
 		}
 		
 		//畫圖
@@ -93,6 +119,8 @@ package As
 			draw_mc.removeEventListener(MouseEvent.CLICK, drawStart);
 			canvas_mc.mouseChildren = false;
 			canvas_mc.mouseEnabled = false;
+			floating.mouseChildren = false;
+			floating.mouseEnabled = false;
 			pencil = new MouseDraw(pdf_mc, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
 			pdf_mc.addChild(pencil);
 			 trace("Main:",pdf_mc.numChildren);
@@ -103,6 +131,10 @@ package As
 		{ trace("zoomInStart!!!", this, rz);
 			changeTool();
 			zoomIn_mc.removeEventListener(MouseEvent.CLICK, zoomInStart);
+			canvas_mc.mouseChildren = false;
+			canvas_mc.mouseEnabled = false;
+			floating.mouseChildren = false;
+			floating.mouseEnabled = false;
 			rz = new RectangleZoom(pdf_mc);
 			this.addChild(rz);	
 			
@@ -129,6 +161,10 @@ package As
 			} 
 			removeEventListener(Event.ENTER_FRAME, goHitTest);
 			goEvent();
+			canvas_mc.mouseChildren = true;
+			canvas_mc.mouseEnabled = true;
+			floating.mouseChildren = true;
+			floating.mouseEnabled = true;
 		}
 	}
 	
