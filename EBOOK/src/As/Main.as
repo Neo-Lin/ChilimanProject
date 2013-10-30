@@ -6,7 +6,9 @@ package As
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.net.SharedObject;
 	import flash.net.URLRequest;
+	import flash.system.Capabilities;
 	import net.hires.debug.Stats;
 	
 	/**
@@ -20,7 +22,9 @@ package As
 		private var rz:RectangleZoom;	//放大功能
 		private var pencil:MouseDraw;	//畫筆功能
 		private var bookLoader:Loader = new Loader();
-		private var bookUrl:URLRequest = new URLRequest("book1.swf");;
+		private var bookUrl:URLRequest = new URLRequest("book1.swf");
+		
+		private var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
 		
 		public function Main():void 
 		{
@@ -32,6 +36,7 @@ package As
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			addChild(new Stats());
+			trace(flash.system.Capabilities.version, Capabilities.isDebugger);
 			
 			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
 			bookLoader.load(bookUrl);
@@ -69,6 +74,31 @@ package As
 			ctrlY_mc.addEventListener(MouseEvent.CLICK, ctrlY);
 			eraser_mc.addEventListener(MouseEvent.CLICK, eraserStart);
 			memo_mc.addEventListener(MouseEvent.CLICK, memoStart);
+			save_mc.addEventListener(MouseEvent.CLICK, saveCanvas);
+		}
+		
+		private function saveCanvas(e:MouseEvent):void 
+		{
+			var _s:Sprite = new Sprite();
+			addChild(_s);
+			_s.x = _s.y = 10;
+			
+			var _a:Array = graphicsDataSharedObject.data.graphicsData;
+			var _i:uint = _a.length;
+			var _j:uint;
+			trace("_a:",_a[0][0],"::::",_i);
+			for (var i:uint = 0; i < _i; i++) {
+				_j = _a[i].length;
+				for (var j:uint = 0; j < _j; j++) {
+					if (_a[i][j][0] == "lineStyle") {
+						_s.graphics.lineStyle(_a[i][j][1]);
+					}else if (_a[i][j][0] == "moveTo") {
+						_s.graphics.moveTo(_a[i][j][1], _a[i][j][2]);
+					}else if (_a[i][j][0] == "lineTo") {
+						_s.graphics.lineTo(_a[i][j][1], _a[i][j][2]);
+					}
+				}
+			}
 		}
 		
 		private function memoStart(e:MouseEvent):void 

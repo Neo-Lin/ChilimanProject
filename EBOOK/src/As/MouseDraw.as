@@ -4,7 +4,7 @@ package As
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.text.TextField;
+	import flash.net.SharedObject;
 	
 	public class MouseDraw extends Sprite
 	{
@@ -13,6 +13,9 @@ package As
 		private var _panWidth:uint;
 		private var _penType:String;
 		private var _newSprite:Sprite;
+		private var graphicsDataArray:Array = new Array();
+		private var graphicsDataTemp:Array;
+		private var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
 		
 		public function MouseDraw(drawArea:DisplayObjectContainer,canvas:Canvas,panWidth:uint,penType:String)
 		{
@@ -32,6 +35,9 @@ package As
 			_newSprite = _s; 
 			_newSprite.graphics.lineStyle(_panWidth);
 			_newSprite.graphics.moveTo(mouseX, mouseY);
+			graphicsDataTemp = new Array();						//將筆畫存成array
+			graphicsDataTemp.push(["lineStyle", _panWidth]);
+			graphicsDataTemp.push(["moveTo", mouseX, mouseY]);
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 		}
@@ -42,11 +48,17 @@ package As
 			stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 			if(_newSprite.width > 0) _canvas.canvasAdded();		//如果有畫,請Canvas更新步驟陣列stepArray
 			trace("MouseDraw:", _drawArea.numChildren, _canvas.numChildren);
+			
+			graphicsDataArray.push(graphicsDataTemp);			//存入Array
+			graphicsDataSharedObject.data.graphicsData = graphicsDataArray;
+			graphicsDataSharedObject.flush();  					//存到使用者PC
+			
 		}
 		
 		private function onMouseMove1(event:MouseEvent):void
 		{
 			_newSprite.graphics.lineTo(mouseX, mouseY);
+			graphicsDataTemp.push(["lineTo", mouseX, mouseY]);
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas
 		}
 		
