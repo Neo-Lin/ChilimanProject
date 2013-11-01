@@ -49,6 +49,19 @@ package As
 			addChild(floating);
 			
 			goEvent();
+			
+			goCheckSave();
+		}
+		
+		//還原存檔的繪圖
+		private function goCheckSave():void 
+		{
+			var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
+			if (graphicsDataSharedObject.data.graphicsData) {
+				pencil = new MouseDraw(graphicsDataSharedObject, pdf_mc, canvas_mc, 10, "a"); //trace("Main:",pdf_mc.numChildren);
+				pdf_mc.addChild(pencil);
+				pencil.reDrawSave();
+			}
 		}
 		
 		private function loader_complete(e:Event):void 
@@ -79,26 +92,7 @@ package As
 		
 		private function saveCanvas(e:MouseEvent):void 
 		{
-			var _s:Sprite = new Sprite();
-			addChild(_s);
-			_s.x = _s.y = 10;
-			
-			var _a:Array = graphicsDataSharedObject.data.graphicsData;
-			var _i:uint = _a.length;
-			var _j:uint;
-			trace("_a:",_a[0][0],"::::",_i);
-			for (var i:uint = 0; i < _i; i++) {
-				_j = _a[i].length;
-				for (var j:uint = 0; j < _j; j++) {
-					if (_a[i][j][0] == "lineStyle") {
-						_s.graphics.lineStyle(_a[i][j][1]);
-					}else if (_a[i][j][0] == "moveTo") {
-						_s.graphics.moveTo(_a[i][j][1], _a[i][j][2]);
-					}else if (_a[i][j][0] == "lineTo") {
-						_s.graphics.lineTo(_a[i][j][1], _a[i][j][2]);
-					}
-				}
-			}
+			canvas_mc.goSave();
 		}
 		
 		private function memoStart(e:MouseEvent):void 
@@ -151,7 +145,7 @@ package As
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
 			floating.mouseEnabled = false;
-			pencil = new MouseDraw(pdf_mc, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
+			pencil = new MouseDraw(graphicsDataSharedObject, pdf_mc, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
 			pdf_mc.addChild(pencil);
 			 trace("Main:",pdf_mc.numChildren);
 		}
