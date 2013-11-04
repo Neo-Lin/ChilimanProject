@@ -36,7 +36,7 @@ package As
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			addChild(new Stats());
-			trace(flash.system.Capabilities.version, Capabilities.isDebugger);
+			trace(Capabilities.version, Capabilities.isDebugger, Capabilities.manufacturer);
 			
 			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
 			bookLoader.load(bookUrl);
@@ -58,9 +58,10 @@ package As
 		{
 			var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
 			if (graphicsDataSharedObject.data.graphicsData) {
-				pencil = new MouseDraw(graphicsDataSharedObject, pdf_mc, canvas_mc, 10, "a"); //trace("Main:",pdf_mc.numChildren);
+				/*pencil = new MouseDraw(graphicsDataSharedObject, pdf_mc, canvas_mc, 10, "a"); //trace("Main:",pdf_mc.numChildren);
 				pdf_mc.addChild(pencil);
-				pencil.reDrawSave();
+				pencil.reDrawSave();*/
+				canvas_mc.reDrawSave();
 			}
 		}
 		

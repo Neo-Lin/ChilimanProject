@@ -29,14 +29,14 @@ package As
 			//如果有存檔的繪圖資料就取出
 			if (so.data.graphicsData) { //trace(so.data.graphicsData,so.data);
 				graphicsDataSharedObject = so;		//SharedObject
-				graphicsDataArray = graphicsDataSharedObject.data.graphicsData;
+				//graphicsDataArray = graphicsDataSharedObject.data.graphicsData;
 			}
 			
 			_drawArea.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
 		}
 		
 		//畫出存檔的繪圖資料
-		public function reDrawSave():void {
+		/*public function reDrawSave():void {
 			_drawArea.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
 			
 			var _i:uint = graphicsDataArray.length;
@@ -62,7 +62,7 @@ package As
 					_canvas.canvasAdded();		//請Canvas更新步驟陣列stepArray
 				}
 			}
-		}
+		}*/
 		
 		private function onMouseDown1(event:MouseEvent):void
 		{
@@ -70,9 +70,9 @@ package As
 			_newSprite = _s; 
 			_newSprite.graphics.lineStyle(_panWidth);
 			_newSprite.graphics.moveTo(mouseX, mouseY);
-			graphicsDataTemp = new Array();						//將所有繪圖動作存成array
+			/*graphicsDataTemp = new Array();						//將所有繪圖動作存成array
 			graphicsDataTemp.push(["lineStyle", _panWidth]);
-			graphicsDataTemp.push(["moveTo", mouseX, mouseY]);
+			graphicsDataTemp.push(["moveTo", mouseX, mouseY]);*/
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
 			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 		}
@@ -84,17 +84,17 @@ package As
 			if(_newSprite.width > 0) _canvas.canvasAdded();		//如果有畫,請Canvas更新步驟陣列stepArray
 			trace("MouseDraw:", _drawArea.numChildren, _canvas.numChildren);
 			
-			graphicsDataTemp.push(["XY", _newSprite.x, _newSprite.y]);
+			/*graphicsDataTemp.push(["XY", _newSprite.x, _newSprite.y]);
 			graphicsDataArray.push(graphicsDataTemp);			//存入Array
 			graphicsDataSharedObject.data.graphicsData = graphicsDataArray;		//存入SharedObject
-			graphicsDataSharedObject.flush();  					//存到使用者PC
+			graphicsDataSharedObject.flush();  					//存到使用者PC*/
 			
 		}
 		
 		private function onMouseMove1(event:MouseEvent):void
 		{
 			_newSprite.graphics.lineTo(mouseX, mouseY);
-			graphicsDataTemp.push(["lineTo", mouseX, mouseY]);
+			//graphicsDataTemp.push(["lineTo", mouseX, mouseY]);
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas
 		}
 		
