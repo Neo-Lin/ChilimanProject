@@ -29,7 +29,7 @@ package As
 		private var rightPressed:Boolean = false;
 		private var directionTxt:String = "r";
 		
-		private var mapClipBmpData:BitmapData;
+		//private var mapClipBmpData:BitmapData;	//已使用場景上的map_mc.mapClipBmpData取代
 		private var userClipBmpData:BitmapData;
 		
 		public function MainGame()
@@ -52,8 +52,8 @@ package As
 			//碰撞用
 			userClipBmpData = new BitmapData(user_mc.width, user_mc.height, true, 0);
 			userClipBmpData.draw(user_mc);
-			mapClipBmpData = new BitmapData(stage.stageWidth, stage.stageHeight, true, 0);
-			mapClipBmpData.draw(map_mc);
+			/*mapClipBmpData = new BitmapData(stage.stageWidth, stage.stageHeight, true, 0);
+			mapClipBmpData.draw(map_mc);*/
 			
 			//初始化壞人及記者
 			badGuyInit();
@@ -62,19 +62,19 @@ package As
 		//初始化壞人,記者,街童(已擺放在場景上)
 		private function badGuyInit():void 
 		{ 
-			var _i:uint = this.numChildren;
+			var _i:uint = NPC_mc.numChildren;
 			for (var i:uint ; i < _i; i++) { //trace(getQualifiedClassName(this.getChildAt(i)),getQualifiedClassName(this.getChildAt(i)) == "As::Badguy",getQualifiedClassName(this.getChildAt(i)) == "As::Reporter",getQualifiedClassName(this.getChildAt(i)) == "As::Tramp");
-				var _mc:MovieClip = this.getChildAt(i) as MovieClip;
+				var _mc:MovieClip = NPC_mc.getChildAt(i) as MovieClip;
 				//壞人
 				if (getQualifiedClassName(_mc) == "As::Badguy") {
-					_mc.startInit(mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.ATTACK, injure);
 					_mc.addEventListener(BadguyEvent.INJURE, hit);
 				}else if (getQualifiedClassName(_mc) == "As::Reporter") { //記者
-					_mc.startInit(mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.CATCH, catching);
 				}else if (getQualifiedClassName(_mc) == "As::Tramp") { //街童
-					_mc.startInit(mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.TOUCH, information);
 				}
 			}
@@ -148,35 +148,51 @@ package As
 		//用碰撞判斷可走區域===子彈位置
 		private function fl_MoveInDirectionOfKey(event:Event)
 		{ 
-			if (upPressed && !mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x, user_mc.y - userSpeed), 255
+			if (upPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x, user_mc.y - userSpeed), 255
 				
 				))
 			{
-				user_mc.y -= userSpeed;
+				if (map_mc.y >= 0 || user_mc.y >= 370) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
+					user_mc.y -= userSpeed;
+				}else {
+					map_mc.y = NPC_mc.y += userSpeed;
+				}
 				//紀錄可樂球方向
 				directionTxt = "u";
 			}
-			if (downPressed && !mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x, user_mc.y + userSpeed), 255
+			if (downPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x, user_mc.y + userSpeed), 255
 				
 				))
 			{
-				user_mc.y += userSpeed;
+				if (map_mc.y <= -768 || user_mc.y <= 370) {	//判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
+					user_mc.y += userSpeed;
+				}else {
+					map_mc.y = NPC_mc.y -= userSpeed;
+				}
 				//紀錄可樂球方向
 				directionTxt = "d";
 			}
-			if (leftPressed && !mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x - userSpeed, user_mc.y), 255
+			if (leftPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x - userSpeed, user_mc.y), 255
 				
 				))
 			{
-				user_mc.x -= userSpeed;
+				if (map_mc.x >= 0 || user_mc.x >= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
+					user_mc.x -= userSpeed;
+				}else {
+					map_mc.x = NPC_mc.x += userSpeed;
+				}
 				//紀錄可樂球方向
 				directionTxt = "l";
 			}
-			if (rightPressed && !mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x + userSpeed, user_mc.y), 255
+			if (rightPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x + userSpeed, user_mc.y), 255
 				
 				))
 			{
-				user_mc.x += userSpeed;
+				if (map_mc.x <= -1024 || user_mc.x <= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
+					user_mc.x += userSpeed;
+				}else {
+					map_mc.x = NPC_mc.x -= userSpeed;
+				}
 				//紀錄可樂球方向
 				directionTxt = "r";
 			}
@@ -286,7 +302,7 @@ package As
 			this.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			this.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 			userClipBmpData.dispose();
-			mapClipBmpData.dispose();
+			map_mc.mapClipBmpData.dispose();
 		}
 	
 	}

@@ -32,7 +32,7 @@ package As
 			
 		}
 		
-		public function canvasAdded(changeFrom:Sprite = null):void 
+		public function canvasAdded():void 
 		{	
 			if (nowStep != stepArray.length) {	//步驟數與陣列數量不相等,表示undo過
 				goClear();
@@ -76,15 +76,6 @@ package As
 				nowStep ++;
 				var operation:TransformOperation = new TransformOperation(e.currentTarget,PrevX,PrevY,e.currentTarget.x,e.currentTarget.y,true,true);
 				_undo.pushUndo(operation);
-				
-				//先寫這邊方便測試,已經可以抓到繪圖的方法,存檔的時候抓目前場景上visible=true的物件取出繪圖方法存到電腦裡
-				/*trace(e.currentTarget.graphics.readGraphicsData());
-				var v:Vector.<IGraphicsData> = e.currentTarget.graphics.readGraphicsData();
-				if (v[1] as GraphicsPath) trace("is!!!!");
-				var p:GraphicsPath = v[1] as GraphicsPath;
-				trace(p.commands,p.data);*/
-				//修改SharedObject裡的物件位置
-				//this.getChildIndex(e.currentTarget as Sprite)
 			}
 		}
 		//====================================移動繪圖物件
@@ -125,79 +116,54 @@ package As
 			}
 		}
 		
+		//劃出存檔的繪圖物件
 		public function reDrawSave():void {
 			graphicsDataArray = graphicsDataSharedObject.data.graphicsData;
-			
-			trace("graphicsDataArray.length:", graphicsDataArray.length);
-			
-			/*var _i:uint = graphicsDataArray.length;
-			var _j:uint;
-			for (var i:uint = 0; i < _i; i++) {
-				_j = graphicsDataArray[i].length;
+			var _i:uint = graphicsDataArray.length;
+			for (var i:uint = 0; i < _i; i++) { //陣列內容:[thickness(筆粗),color,commands(動作代號),data(動作路徑),x,y]
 				var _s:Sprite = new Sprite();
-				for (var j:uint = 0; j < _j; j++) {
-					if (graphicsDataArray[i][j][0] == "lineStyle") {
-						_s.graphics.lineStyle(graphicsDataArray[i][j][1]);
-					}else if (graphicsDataArray[i][j][0] == "moveTo") {
-						_s.graphics.moveTo(graphicsDataArray[i][j][1], graphicsDataArray[i][j][2]);
-					}else if (graphicsDataArray[i][j][0] == "lineTo") {
-						_s.graphics.lineTo(graphicsDataArray[i][j][1], graphicsDataArray[i][j][2]);
-					}else if (graphicsDataArray[i][j][0] == "XY") {
-						_s.x = graphicsDataArray[i][j][1];
-						_s.y = graphicsDataArray[i][j][2];
-					}
-				}
-				if (_s.width > 0) {
-					_canvas.addChild(_s);		//把繪圖物件放入Canvas
-					_canvas.canvasAdded();		//請Canvas更新步驟陣列stepArray
-				}
-			}*/
+				_s.graphics.lineStyle(graphicsDataArray[i][0], graphicsDataArray[i][1]);
+				_s.graphics.drawPath(graphicsDataArray[i][2], graphicsDataArray[i][3]); 
+				_s.x = graphicsDataArray[i][4];
+				_s.y = graphicsDataArray[i][5];
+				addChild(_s);
+				canvasAdded();
+			}
 		}
 		
+		//存檔
 		public function goSave():void 
 		{
+			graphicsDataArray = new Array();
 			var _n:uint = this.numChildren; 
 			for (var i:int = 0; i < _n; i++) {		//取得所有場景物件的IGraphicsData
-				//trace(Sprite(this.getChildAt(i)).graphics.readGraphicsData());
-				var v:Vector.<IGraphicsData> = Sprite(this.getChildAt(i)).graphics.readGraphicsData();
-				var graphicsDataTemp:Array = new Array();
-				var j:uint = v.length;
-				for (var _j:int = 0; _j < j; _j++) {
-					if (v[_j] as GraphicsPath) {	//判斷是否為GraphicsPath
-						var p:GraphicsPath = v[_j] as GraphicsPath;	//取出commands(動作代號)跟data(動作路徑))
-						graphicsDataTemp.push(p.commands,p.data);
-						trace("graphicsDataTemp::::::",p.commands,p.data);
-					}else if (v[_j] as GraphicsStroke) {
-						var gs:GraphicsStroke = v[_j] as GraphicsStroke;
-						if (gs.fill) {		//一組筆劃很奇怪的會帶兩個GraphicsStroke,其中一個才有正確的fill屬性,所以要判斷
-							var gsf:GraphicsSolidFill = gs.fill as GraphicsSolidFill;	//取出thickness(筆粗)跟color)
-							graphicsDataTemp.push(gs.thickness, gsf.color);
-							trace("graphicsDataTemp::::::",gs.thickness, gsf.color);
+				var _s:Sprite = this.getChildAt(i) as Sprite;
+				if (_s.visible == true) {	//若visible == false表示繪圖物件被undo或被橡皮擦掉
+					var v:Vector.<IGraphicsData> = _s.graphics.readGraphicsData();
+					var graphicsDataTemp:Array = new Array();	//一個陣列對應一個繪圖物件,[thickness(筆粗),color,commands(動作代號),data(動作路徑),x,y]
+					var j:uint = v.length;
+					for (var _j:int = 0; _j < j; _j++) {
+						if (v[_j] as GraphicsPath) {	//判斷是否為GraphicsPath
+							var p:GraphicsPath = v[_j] as GraphicsPath;	//取出commands(動作代號)跟data(動作路徑))
+							graphicsDataTemp.push(p.commands,p.data);
+							//trace("graphicsDataTemp::::::",p.commands,p.data);
+						}else if (v[_j] as GraphicsStroke) {
+							var gs:GraphicsStroke = v[_j] as GraphicsStroke;
+							if (gs.fill) {		//一組筆劃很奇怪的會帶兩個GraphicsStroke,其中一個才有正確的fill屬性,所以要判斷
+								var gsf:GraphicsSolidFill = gs.fill as GraphicsSolidFill;	//取出thickness(筆粗)跟color)
+								graphicsDataTemp.push(gs.thickness, gsf.color);
+								//trace("graphicsDataTemp::::::",gs.thickness, gsf.color);
+							}
+							//trace(gs.caps,gs.fill,gs.joints,gs.miterLimit,gs.pixelHinting,gs.scaleMode,gs.thickness);
 						}
-						//trace(gs.caps,gs.fill,gs.joints,gs.miterLimit,gs.pixelHinting,gs.scaleMode,gs.thickness);
 					}
+					graphicsDataTemp.push(_s.x, _s.y);	//取出x跟y
+					graphicsDataArray.push(graphicsDataTemp);	
 				}
-				graphicsDataArray.push(graphicsDataTemp);	
-				trace("graphicsDataArray:",graphicsDataArray.length, graphicsDataArray);
 			}
+			trace("graphicsDataArray:",graphicsDataArray.length, graphicsDataArray);
 			graphicsDataSharedObject.data.graphicsData = graphicsDataArray;
 			graphicsDataSharedObject.flush();	//存入SharedObject
-			
-			/*if (stepArray.length > 0) {
-				graphicsDataArray = graphicsDataSharedObject.data.graphicsData;
-				graphicsDataTemp = graphicsDataArray;
-				trace("1:",stepArray.length);
-				trace("2:",graphicsDataArray.length);
-				trace("3:",graphicsDataTemp.length);
-				var _n:uint = stepArray.length;
-				for (var i:int = _n-1; i >= 0; i--) { trace(stepArray[i]);
-					if (stepArray[i] && !stepArray[i].visible) {	trace("--");
-						graphicsDataTemp.splice(i, 1);
-					}
-				}
-				graphicsDataSharedObject.data.graphicsData = graphicsDataTemp;
-				graphicsDataSharedObject.flush(); 
-			}*/
 		}
 	}
 }

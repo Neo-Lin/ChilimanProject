@@ -58,9 +58,6 @@ package As
 		{
 			var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
 			if (graphicsDataSharedObject.data.graphicsData) {
-				/*pencil = new MouseDraw(graphicsDataSharedObject, pdf_mc, canvas_mc, 10, "a"); //trace("Main:",pdf_mc.numChildren);
-				pdf_mc.addChild(pencil);
-				pencil.reDrawSave();*/
 				canvas_mc.reDrawSave();
 			}
 		}
@@ -146,7 +143,7 @@ package As
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
 			floating.mouseEnabled = false;
-			pencil = new MouseDraw(graphicsDataSharedObject, pdf_mc, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
+			pencil = new MouseDraw(pdf_mc, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
 			pdf_mc.addChild(pencil);
 			 trace("Main:",pdf_mc.numChildren);
 		}

@@ -29,6 +29,9 @@ package As
 		private var _speed:uint = 1;	//亂亂走速度
 		private var setRL:Boolean;
 		
+		private var userMcX:Number;
+		private var userMcY:Number;
+		
 		public function Badguy() 
 		{ 
 			/*mapBD = bd;
@@ -75,9 +78,13 @@ package As
 		
 		//移動角色
 		private function goMove(e:Event):void 
-		{ 
+		{ 	
+			//計算map_mc移動後user_mc.x,y的偏差值
+			userMcX = userMc.x - parent.x;
+			userMcY = userMc.y - parent.y;
+			
 			//偵測追逐區碰撞
-			if (userBD.hitTest(new Point(userMc.x, userMc.y), 255, new Rectangle(this.x-50, this.y-50, 130, 130), new Point(this.x, this.y), 255)) {
+			if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x-50, this.y-50, 130, 130), new Point(this.x, this.y), 255)) {
 				goChase();
 			}
 			
@@ -102,7 +109,7 @@ package As
 			}
 			
 			//偵測攻擊區碰撞
-			if (userBD.hitTest(new Point(userMc.x, userMc.y), 255, new Rectangle(this.x-10, this.y-10, 50, 50), new Point(this.x, this.y), 255)) {
+			if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x-10, this.y-10, 50, 50), new Point(this.x, this.y), 255)) {
 				goAttack();
 			}
 			
@@ -123,14 +130,14 @@ package As
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CHASE, true));
 			this.gotoAndPlay(21);
 			_move = 0;
-			if (userMc.x > this.x+1 && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
+			if (userMcX > this.x+1 && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
 				this.x ++;
-			}else if (userMc.x < this.x && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x - _speed, this.y), 255)) {
+			}else if (userMcX < this.x && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x - _speed, this.y), 255)) {
 				this.x --;
 			}
-			if (userMc.y > this.y+1 && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x, this.y + _speed), 255)) {
+			if (userMcY > this.y+1 && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x, this.y + _speed), 255)) {
 				this.y ++;
-			}else if (userMc.y < this.y && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x, this.y - _speed), 255)) {
+			}else if (userMcY < this.y && !mapBD.hitTest(new Point(0, 0), 255, thisBD, new Point(this.x, this.y - _speed), 255)) {
 				this.y --;
 			}
 		}
