@@ -10,7 +10,7 @@ package As
 		
 		private var HP:uint;
 		private var _caseNum:uint;		//目前進行案件
-		private var _caseArr:Array;		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
+		private var _caseArr:Array = [1,1,1,1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
 		
 		public function SingletonValue(sSingleton:Singleton) 
 		{

@@ -14,7 +14,7 @@ package As.Events
 		public static const PAUSE:String = "pause";//暫停
 		public static const UN_PAUSE:String = "unpause";//暫停
 		
-		public var ChangeSiteName:String;
+		public var ChangeSiteName:String;//要載入的swf名
 		public var HP:uint;
 		
 		public function MainEvent(type:String, bubbles:Boolean, _value = null) 

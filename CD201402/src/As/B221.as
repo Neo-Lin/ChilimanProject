@@ -23,7 +23,7 @@ package As
 			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, addHP);
 			myTime.start();
 			
-			SingletonValue.getInstance().caseArr = [3, 1, 3, 1];  //測試用
+			//SingletonValue.getInstance().caseArr = [3, 1, 3, 1];  //測試用
 			
 			initCaseBtn();
 		}

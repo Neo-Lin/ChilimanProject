@@ -1,6 +1,8 @@
 package As 
 {
+	import As.Events.MainEvent;
 	import flash.display.BitmapData;
+	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -34,29 +36,53 @@ package As
 		private var mapBD:BitmapData;
 		private var userBD:BitmapData;
 		
-		private var userSpeed:uint = 67;
+		private var userSpeed:int = 67;
 		
-		private var nowCh:String = "a";
-		private var nowChNum:uint = 0;
-		private var allGold:Array = new Array();
+		private var nowChNum:uint = 4;
+		private var nowCh:String = "e";				//nowCh = allCh[nowChNum];
+		private var allStar:Array = new Array();	//所有關卡星星位置
+		private var allGold:Array = new Array();	//所有關卡黃金位置
+		private var allCh:Array = new Array();		//所有關卡影格名稱
+		private var allUser:Array = new Array();	//所有關卡可樂球初始位置
+		
 		
 		public function G02() 
-		{
-			allGold = [
+		{	
+		}
+		
+		private function initData():void {
+			allStar = [
 						[[368.4, 355.4], [368.85, 288.5], [434.95, 422.5], [502.05, 288.3]],
-						[[], []],
-						[[], [], []],
-						[[], [], [], []],
-						[[], [], [], [], [], []]
+						[[470, 187.8], [604.3, 187.8]],
+						[[402.1, 187.8], [469.25, 187.8], [536.4, 187.8]],
+						[[267.15, 389.25], [334.3, 389.25], [267.15, 456.4], [334.3, 456.4]],
+						[[268.65, 320.6], [334.3, 186.3], [401.45, 186.3], [604.3, 187.8], [536.55, 522.95], [603.7, 522.95]]
 						]
+						
+			allGold = [
+						[[402.4, 389.4], [402.85, 322.5], [468.95, 456.5], [536.05, 322.3]],
+						[[536.35, 320.75], [469.2, 456.55]],
+						[[469.2, 388.45], [334.5, 322.75], [266.85, 457.05]],
+						[[604, 321.3], [536.35, 388.95], [402.05, 321.25], [266.85, 254.15]],
+						[[402.05, 522.7], [335, 455.55], [402.05, 455.55], [469.2, 455.55], [469.7, 389.9], [401.55, 321.3]]
+						]
+						
+			allCh = ["a", "b", "c", "d", "e"];
+			
+			allUser = [[468.4, 390.35],[201.4, 523.65],[333.1, 255.3],[265.05, 323.85],[404.1, 389.45]]
 		}
 		
 		//進入遊戲
 		override public function EnterGame():void
 		{
-			this.stop();
+			this.gotoAndStop(nowCh);
+			initData();
+			
+			//設定黃金跟可樂球初始位置
+			initGoldAndUser();
 			
 			map_mc.visible = false;
+			map_mc.gotoAndStop(nowCh);
 			mapBD = new BitmapData(map_mc.width, map_mc.height, true, 0);
 			mapBD.draw(map_mc);
 			
@@ -74,38 +100,52 @@ package As
 			ex_btn.addEventListener(MouseEvent.CLICK, goEx);
 		}
 		
+		//設定黃金跟可樂球初始位置
+		private function initGoldAndUser():void 
+		{
+			var _n:uint = numChildren;
+			var _cn:uint = 0;
+			for (var i:uint = 0; i < _n; i++) {	
+				if (getChildAt(i).name.substr(0, 4) == "gold") {
+					getChildAt(i).x = allGold[nowChNum][_cn][0];
+					getChildAt(i).y = allGold[nowChNum][_cn][1];
+					_cn++;
+				}
+			}
+			
+			u_mc.x = user_mc.x = allUser[nowChNum][0];
+			u_mc.y = user_mc.y = allUser[nowChNum][1];
+		}
+		
 		private function reStart(e:MouseEvent):void 
 		{
-			
+			ex_mc.gotoAndStop(1);
+			EnterGame();
 		}
 		
 		private function goEx(e:MouseEvent):void 
 		{
+			Pause(null);
 			ex_mc.visible = true;
 			ex_mc.gotoAndPlay(nowCh);
 		}
 		
 		private function finishEx(e:Event):void 
 		{
+			UnPause(null);
 			ex_mc.gotoAndStop(1);
 		}
 		
 		private function startGame(e:Event):void 
 		{
-			//user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
-		}
-		
-		//
-		private function fl_MoveInDirectionOfKey(event:Event)
-		{ 
-			
 		}
 		
 		//控制人物走動===============================================================
 		private function fl_SetKeyPressed(event:KeyboardEvent):void
 		{
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			switch (event.keyCode)
 			{
 				case Keyboard.UP: 
@@ -155,57 +195,98 @@ package As
 			}
 			
 			//判斷可樂球碰到哪個黃金
-			if (gold1_mc.hitTestPoint(user_mc.x,user_mc.y,true)) { 
-				pushGold("gold1_mc");
-			}else if (gold2_mc.hitTestPoint(user_mc.x,user_mc.y,true)) {
-				pushGold("gold2_mc");
-			}else if (gold3_mc.hitTestPoint(user_mc.x,user_mc.y,true)) {
-				pushGold("gold3_mc");
-			}else if (gold4_mc.hitTestPoint(user_mc.x,user_mc.y,true)) {
-				pushGold("gold4_mc");
+			var _n:uint = allStar[nowChNum].length;
+			for (var j:uint = 1; j <= _n; j++) { //trace(j, "this[\"gold\" + j + \"_mc\"] : " + this["gold" + j + "_mc"] );
+				if (this["gold" + j + "_mc"].hitTestPoint(user_mc.x, user_mc.y, true)) {
+					pushGold("gold" + j + "_mc");
+				}
 			}
 			
 			//可樂球移動並撥放推動畫
 			u_mc.x = user_mc.x;
 			u_mc.y = user_mc.y;
 			u_mc.gotoAndStop(2);
+			
+			//檢查是否過關
+			checkGlod();
 		}
 		
 		//移動黃金或是將可樂球回復原地
 		private function pushGold(string:String):void 
 		{	
-			if (directionTxt == "u") {	//根據directionTxt的質來判斷黃金的移動方向
-				//如果黃金將會超出可移動範圍,就將可樂球回復原位,並且return
-				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x, this[string].y - userSpeed), 255)) {
+			if (directionTxt == "u") {	//根據directionTxt的值來判斷黃金的移動方向
+				//如果黃金將會超出可移動範圍 或 被其他黃金阻擋,就將可樂球回復原位,並且return
+				//trace(this[string].hitTestObject(this[string]),gold3_mc == this[string]);
+				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x, this[string].y - userSpeed), 255) || checkPushGold(this[string])) {
 					user_mc.y += userSpeed;
 					return;
-				}
-				//移動黃金
+				} 
 				this[string].y -= userSpeed;
 			}else if (directionTxt == "d") {
-				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x, this[string].y + userSpeed), 255)) {
+				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x, this[string].y + userSpeed), 255) || checkPushGold(this[string])) {
 					user_mc.y -= userSpeed;
 					return;
 				}
 				this[string].y += userSpeed;
 			}else if (directionTxt == "l") {
-				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x - userSpeed, this[string].y), 255)) {
+				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x - userSpeed, this[string].y), 255) || checkPushGold(this[string])) {
 					user_mc.x += userSpeed;
 					return;
 				}
 				this[string].x -= userSpeed;
 			}else if (directionTxt == "r") {
-				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x + userSpeed, this[string].y), 255)) {
+				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x + userSpeed, this[string].y), 255) || checkPushGold(this[string])) {
 					user_mc.x -= userSpeed;
 					return;
 				}
 				this[string].x += userSpeed;
 			}
-			checkGlod();
+		}
+		
+		//判斷黃金是否被黃金阻擋
+		private function checkPushGold(mc:MovieClip):Boolean 
+		{
+			var _n:uint = allGold[nowChNum].length;
+			var i:uint = 1;
+			if (directionTxt == "u") {
+				for ( ; i <= _n; i++) {	
+					if (this["gold" + i + "_mc"] != mc) { 	
+						if (this["gold" + i + "_mc"].hitTestPoint(mc.x, mc.y - userSpeed, true)) {
+							return true;
+						}
+					}
+				}
+			}else if (directionTxt == "d") {
+				for ( ; i <= _n; i++) {	
+					if (this["gold" + i + "_mc"] != mc) { 	
+						if (this["gold" + i + "_mc"].hitTestPoint(mc.x, mc.y + userSpeed, true)) {
+							return true;
+						}
+					}
+				}
+			}else if (directionTxt == "l") {
+				for ( ; i <= _n; i++) {		
+					if (this["gold" + i + "_mc"] != mc) { 
+						if (this["gold" + i + "_mc"].hitTestPoint(mc.x - userSpeed, mc.y, true)) {
+							return true;
+						}
+					}
+				}
+			}else if (directionTxt == "r") {
+				for ( ; i <= _n; i++) {	
+					if (this["gold" + i + "_mc"] != mc) { 	
+						if (this["gold" + i + "_mc"].hitTestPoint(mc.x + userSpeed, mc.y, true)) {
+							return true;
+						}
+					}
+				}
+			}
+			return false;
 		}
 		
 		private function fl_UnsetKeyPressed(event:KeyboardEvent):void
 		{
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			switch (event.keyCode)
 			{
 				case Keyboard.UP: 
@@ -233,18 +314,53 @@ package As
 		}
 		//===============================================================控制人物走動
 		
+		//檢查是否過關
 		private function checkGlod():void 
 		{
-			var _n:uint = allGold[nowChNum].length;
+			var _n:uint = allStar[nowChNum].length;
+			var _b:Boolean = true;
 			for (var j:uint = 1; j <= _n; j++) {
 				for (var i:uint = 1; i <= _n; i++) {
-					trace(this["gold" + j + "_mc"].hitTestPoint(this["star" + i + "_mc"].x, this["star" + i + "_mc"].y, true));
+					if (this["gold" + j + "_mc"].hitTestPoint(this["star" + i + "_mc"].x, this["star" + i + "_mc"].y, false)) {
+						//只要有true就跳出這個for
+						_b = true;
+						break;
+					}
+					_b = false;
 				}
-				trace("----------");
+				//如果全都是false,跳出這個function
+				if (!_b) {
+					return;
+				}
 			}
-			trace("==========");
+			trace("過關!!");
+			nextCh();
 		}
 		
+		//下一關
+		private function nextCh():void 
+		{
+			if (nowChNum < allCh.length-1) {
+				nowChNum ++;
+				nowCh = allCh[nowChNum];
+				EnterGame();
+			}else {
+				trace("破關!!");
+				Pause(null);
+				this.gotoAndPlay("f");
+			}
+		}
+		
+		//暫停
+		override public function Pause(e:MainEvent):void {
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
+			stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+		}
+		
+		//結束暫停
+		override public function UnPause(e:MainEvent):void {
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
+			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+		}		
 	}
-
 }
