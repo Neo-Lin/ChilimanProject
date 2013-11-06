@@ -11,6 +11,8 @@ package As.Events
 		public static const SAVE :String = "save";//傳值
 		public static const CHANGE_SITE:String = "change";//換場景
 		public static const UPDATE_HP:String = "hp";//血量更新
+		public static const PAUSE:String = "pause";//暫停
+		public static const UN_PAUSE:String = "unpause";//暫停
 		
 		public var ChangeSiteName:String;
 		public var HP:uint;

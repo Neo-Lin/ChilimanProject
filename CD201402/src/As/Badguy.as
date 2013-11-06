@@ -42,6 +42,8 @@ package As
 			reTime(null);*/
 			//在影格上加程式碼
 			this.addFrameScript(0, frame1, 9, frame10, 19, frame10);
+			stage.addEventListener(MainEvent.PAUSE, Pause);
+			stage.addEventListener(MainEvent.UN_PAUSE, UnPause);
 		}
 		
 		//外部傳入BitmapData才開始//地圖BitmapData//攻擊對象BitmapData//攻擊對象MovieClip//子彈MovieCLip
@@ -199,6 +201,19 @@ package As
 				this.addEventListener(Event.ENTER_FRAME, goMove);
 				} } );
 		}
+		
+		//暫停
+		override public function Pause(e:MainEvent):void {
+			trace("Badguy暫停!!");
+			this.removeEventListener(Event.ENTER_FRAME, goMove);
+		}
+		
+		//結束暫停
+		override public function UnPause(e:MainEvent):void {
+			trace("Badguy結束暫停!!");
+			this.addEventListener(Event.ENTER_FRAME, goMove);
+		}
+		
 	}
 
 }

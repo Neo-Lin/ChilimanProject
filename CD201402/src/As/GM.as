@@ -22,6 +22,8 @@ package As
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			addEventListener(Event.REMOVED_FROM_STAGE, kill);
+			stage.addEventListener(MainEvent.PAUSE, Pause);
+			stage.addEventListener(MainEvent.UN_PAUSE, UnPause);
 			// entry point
 			EnterGame();
 		}
@@ -30,7 +32,10 @@ package As
 		public function EnterGame():void { }
 		
 		//暫停
-		public function Pause():void{}
+		public function Pause(e:MainEvent):void { }
+		
+		//結束暫停
+		public function UnPause(e:MainEvent):void{}
 		
 		//過關
 		public function Win():void {}

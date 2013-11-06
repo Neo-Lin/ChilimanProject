@@ -16,15 +16,17 @@ package As
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
+			mapClipBmpData = new BitmapData(this.width, this.height, true, 0);
+			mapClipBmpData.draw(this);
+			//trace( "mapClipBmpData : " + mapClipBmpData );
 		}
 		
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
-			mapClipBmpData = new BitmapData(this.width, this.height, true, 0);
-			mapClipBmpData.draw(this);
-			//trace( "mapClipBmpData : " + mapClipBmpData );
+			
+			
 		}
 		
 	}

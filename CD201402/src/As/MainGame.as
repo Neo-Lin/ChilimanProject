@@ -291,6 +291,21 @@ package As
 		}
 		//===============================================================控制人物走動
 		
+		//暫停
+		override public function Pause(e:MainEvent):void {
+			trace("stage喊暫停!!");
+			user_mc.removeEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+			this.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
+			this.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+		}
+		
+		//結束暫停
+		override public function UnPause(e:MainEvent):void {
+			user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+			this.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
+			this.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+		}
+		
 		//移除
 		override public function kill(e:Event):void
 		{ 
