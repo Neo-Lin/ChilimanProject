@@ -77,6 +77,8 @@ package As
 			SingletonValue.getInstance().caseNum = e.currentTarget.name.charAt(4);	//設定caseNum為目前進行中的案件編號
 			//trace(SingletonValue.getInstance().caseNum);
 			initCaseBtn();
+			//載入
+			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[0][SingletonValue.getInstance().caseNum]));
 		}
 		
 		//恢復可樂球血量

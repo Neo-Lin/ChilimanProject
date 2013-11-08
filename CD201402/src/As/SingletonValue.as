@@ -8,9 +8,11 @@ package As
 	{
 		private static var  _instance:SingletonValue;
 		
+		private var _testMode:Boolean = true;	//測試模式
 		private var HP:uint;
 		private var _caseNum:uint;		//目前進行案件
-		private var _caseArr:Array = [1,1,1,1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
+		private var _caseArr:Array = [1, 1, 1, 1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
+		private var _allGameSwf:Array;
 		
 		public function SingletonValue(sSingleton:Singleton) 
 		{
@@ -59,6 +61,26 @@ package As
 		public function set caseArr(value:Array):void 
 		{
 			_caseArr = value;
+		}
+		
+		public function get allGameSwf():Array 
+		{
+			return _allGameSwf;
+		}
+		
+		public function set allGameSwf(value:Array):void 
+		{
+			_allGameSwf = value;
+		}
+		
+		public function get testMode():Boolean 
+		{
+			return _testMode;
+		}
+		
+		public function set testMode(value:Boolean):void 
+		{
+			_testMode = value;
 		}
 		
 	}

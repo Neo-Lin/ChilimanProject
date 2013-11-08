@@ -94,7 +94,7 @@ package As
 			ex_mc.visible = false;
 			ex_mc.addEventListener("ex", finishEx);
 			ch_mc.gotoAndStop(nowCh);
-			count_mc.addEventListener("count", startGame);
+			count_mc.addEventListener("count", startGame);	//倒數動畫結束後開始遊戲
 			
 			restart_btn.addEventListener(MouseEvent.CLICK, reStart);
 			ex_btn.addEventListener(MouseEvent.CLICK, goEx);
@@ -121,6 +121,7 @@ package As
 		{
 			ex_mc.gotoAndStop(1);
 			EnterGame();
+			startGame(null);
 		}
 		
 		private function goEx(e:MouseEvent):void 
