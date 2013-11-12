@@ -13,6 +13,11 @@ package As
 			
 		}
 		
+		override public function init():void {
+			people = tramp_mc;
+			people.stop();
+		}
+		
 		//追逐
 		override public function goChase():void {
 			

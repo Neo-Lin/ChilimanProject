@@ -4,6 +4,7 @@ package As
 	import flash.display.MovieClip;
 	import flash.events.MouseEvent;
 	import flash.media.Sound;
+	import flash.media.SoundMixer;
 	/**
 	 * ...
 	 * @author Neo
@@ -14,15 +15,17 @@ package As
 		//pass_mc				過關字卡
 		//	pass_btn				確定紐
 		//Abox1_mc - Abox23_mc  答題框
-		//	correct_mc				標點符號,影格標籤對應: a=， b=。 c=「 d=」 e=: f=; g=?
+		//	correct_mc				標點符號,影格標籤對應: a=， b=。 c=「 d=」 e=: f=! g=?
 		//Abtna_btn - Abtng_btn	答題紐
 		//sign_mc				答題紐外觀的標點符號
 		//enter_btn				確定作答紐
 		//==============================
 		var signTag:String;
-		var answer:Array = ["e", "e", "e", "a", "c", "d", "a", "b", "e", "c", "a", "b", "d", "a", "f", "a", "b", "a", "a", "c", "d", "a", "g"];
+		var answer:Array = ["e", "e", "e", "a", "c", "d", "a", "a", "e", "c", "a", "f", "d", "a", "b", "a", "g", "a", "e", "c", "d", "a", "g"];
 		var passNum:uint = 0;	//答對的題數
 		var mySound:Sound;
+		var chk1:Sound = new sound_chk1();
+		var chk2:Sound = new sound_chk2();
 		
 		public function G02_Q() 
 		{
@@ -56,7 +59,7 @@ package As
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[3][SingletonValue.getInstance().caseNum]));
 				return;
 			}
-			
+			//SoundMixer.stopAll();
 			passNum = 0;
 			initSign();
 			var _n:uint = answer.length;
@@ -85,6 +88,7 @@ package As
 		private function changeBox(e:MouseEvent):void 
 		{
 			if (sign_mc.x == mouseX && sign_mc.y == mouseY) {
+				chk2.play();
 				e.currentTarget.correct_mc.gotoAndStop(signTag);
 				initSign();
 			}
@@ -93,6 +97,7 @@ package As
 		//讓使用者選擇的符號跟隨滑鼠
 		private function takeSign(e:MouseEvent):void 
 		{
+			chk1.play();
 			signTag = e.currentTarget.name.substr(4, 1);	
 			sign_mc.gotoAndStop(signTag);
 			stage.addEventListener(MouseEvent.MOUSE_MOVE, goMouse);

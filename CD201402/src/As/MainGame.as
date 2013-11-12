@@ -27,7 +27,9 @@ package As
 		private var downPressed:Boolean = false;
 		private var leftPressed:Boolean = false;
 		private var rightPressed:Boolean = false;
+		private var tempPressed:Boolean;
 		private var directionTxt:String = "r";
+		private var modeTxt:String = "";	//空:走路 a:攻擊 b:被照相 c:被攻擊
 		
 		//private var mapClipBmpData:BitmapData;	//已使用場景上的map_mc.mapClipBmpData取代
 		private var userClipBmpData:BitmapData;
@@ -40,7 +42,7 @@ package As
 		override public function EnterGame():void
 		{
 			//bullet_mc.visible = map_mc.visible = false;
-			ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
+			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
 			
 			//人物走動用
 			stage.stageFocusRect = false;
@@ -57,6 +59,10 @@ package As
 			
 			//初始化壞人及記者
 			badGuyInit();
+			
+			trampTxt_mc.visible = false;	//街童對話框
+			cantPass_mc.visible = false;	//這裡還不能進入
+			map_mc.visible = false;			//碰撞偵測用紅地圖
 		}
 		
 		//初始化壞人,記者,街童(已擺放在場景上)
@@ -96,6 +102,7 @@ package As
 		private function catching(e:BadguyEvent):void 
 		{
 			if (!userInvincible) {
+				modeTxt = "b";
 				stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 				stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 				upPressed = downPressed = rightPressed = leftPressed = false;
@@ -105,6 +112,7 @@ package As
 				Tweener.addTween(user_mc, { time:3, onComplete:function() {
 					stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 					stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+					modeTxt = "";
 					Tweener.addTween(user_mc, { alpha:1, time:2, transition:"easeInBounce", onComplete:function() {
 							userInvincible = false;
 							}} );
@@ -129,6 +137,7 @@ package As
 		private function injure(e:BadguyEvent):void 
 		{
 			if (!userInvincible) {
+				modeTxt = "c";
 				userInvincible = true;
 				user_mc.alpha = 0.2;
 				Tweener.addTween(user_mc, { alpha:1, time:2, transition:"easeInBounce", onComplete:function() {
@@ -148,53 +157,59 @@ package As
 		//用碰撞判斷可走區域===子彈位置
 		private function fl_MoveInDirectionOfKey(event:Event)
 		{ 
-			if (upPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x, user_mc.y - userSpeed), 255
+			if (upPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y - userSpeed), 255
 				
 				))
 			{
 				if (map_mc.y >= 0 || user_mc.y >= 370) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					user_mc.y -= userSpeed;
+					cola_mc.y = user_mc.y -= userSpeed;
 				}else {
-					map_mc.y = NPC_mc.y += userSpeed;
+					mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
 				}
-				//紀錄可樂球方向
 				directionTxt = "u";
-			}
-			if (downPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x, user_mc.y + userSpeed), 255
+				cola_mc.gotoAndStop(directionTxt + modeTxt);
+				MovieClip(cola_mc.getChildAt(1)).play();
+			}else if (downPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y + userSpeed), 255
 				
 				))
 			{
 				if (map_mc.y <= -768 || user_mc.y <= 370) {	//判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					user_mc.y += userSpeed;
+					cola_mc.y = user_mc.y += userSpeed;
 				}else {
-					map_mc.y = NPC_mc.y -= userSpeed;
+					mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
 				}
-				//紀錄可樂球方向
 				directionTxt = "d";
-			}
-			if (leftPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x - userSpeed, user_mc.y), 255
+				cola_mc.gotoAndStop(directionTxt + modeTxt);
+				MovieClip(cola_mc.getChildAt(1)).play();
+			}else if (leftPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x - userSpeed, user_mc.y), 255
 				
 				))
 			{
 				if (map_mc.x >= 0 || user_mc.x >= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					user_mc.x -= userSpeed;
+					cola_mc.x = user_mc.x -= userSpeed;
 				}else {
-					map_mc.x = NPC_mc.x += userSpeed;
+					mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
 				}
-				//紀錄可樂球方向
 				directionTxt = "l";
-			}
-			if (rightPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x, map_mc.y), 255, userClipBmpData, new Point(user_mc.x + userSpeed, user_mc.y), 255
+				cola_mc.gotoAndStop(directionTxt + modeTxt);
+				MovieClip(cola_mc.getChildAt(1)).play();
+			}else if (rightPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x + userSpeed, user_mc.y), 255
 				
 				))
 			{
 				if (map_mc.x <= -1024 || user_mc.x <= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					user_mc.x += userSpeed;
+					cola_mc.x = user_mc.x += userSpeed;
 				}else {
-					map_mc.x = NPC_mc.x -= userSpeed;
+					mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
 				}
-				//紀錄可樂球方向
 				directionTxt = "r";
+				cola_mc.gotoAndStop(directionTxt + modeTxt);
+				MovieClip(cola_mc.getChildAt(1)).play();
+			}else {	//都不符合表示沒有在走路,停止走路動畫
+				cola_mc.gotoAndStop(directionTxt + modeTxt);
+				if (modeTxt == "") {	//如果是走路狀態才停止,攻擊等其他動畫就繼續
+					MovieClip(cola_mc.getChildAt(1)).gotoAndStop(1);
+				}
 			}
 		}
 		
@@ -207,18 +222,26 @@ package As
 				if (directionTxt == "u") { 
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y - 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
+						if(modeTxt == "a") modeTxt = "";
+						tempPressed = true;
 						}});
 				}else if (directionTxt == "d") {
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y + 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
+						if(modeTxt == "a") modeTxt = "";
+						tempPressed = true;
 						}}	);
 				}else if (directionTxt == "l") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x - 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
+						if(modeTxt == "a") modeTxt = "";
+						tempPressed = true; trace(tempPressed,leftPressed,rightPressed,upPressed,downPressed);
 						}}	);
 				}else if (directionTxt == "r") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x + 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
+						if (modeTxt == "a") modeTxt = "";
+						tempPressed = true;
 						}}	);
 				}
 			}
@@ -238,26 +261,37 @@ package As
 				case Keyboard.UP: 
 				{
 					upPressed = true;
+					tempPressed = upPressed;
+					//紀錄可樂球方向
+					modeTxt = "";
 					break;
 				}
 				case Keyboard.DOWN: 
 				{
 					downPressed = true;
+					tempPressed = downPressed;
+					modeTxt = "";
 					break;
 				}
 				case Keyboard.LEFT: 
 				{
 					leftPressed = true;
+					tempPressed = leftPressed;
+					modeTxt = "";
 					break;
 				}
 				case Keyboard.RIGHT: 
 				{
 					rightPressed = true;
+					tempPressed = rightPressed;
+					modeTxt = "";
 					break;
 				}
 				case Keyboard.SPACE: 
 				{
+					upPressed = downPressed = rightPressed = leftPressed = false;
 					attack();
+					modeTxt = "a";
 					break;
 				}
 			}
@@ -312,7 +346,7 @@ package As
 			super.kill(e);
 			Tweener.pauseAllTweens();
 			Tweener.removeAllTweens();  //trace("MainGame kill", Tweener.removeAllTweens(), Tweener.pauseAllTweens());
-			ChangeSide_btn.removeEventListener(MouseEvent.CLICK, goChangeSide);
+			//ChangeSide_btn.removeEventListener(MouseEvent.CLICK, goChangeSide);
 			user_mc.removeEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
 			this.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			this.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);

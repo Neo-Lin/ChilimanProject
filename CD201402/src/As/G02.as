@@ -7,6 +7,7 @@ package As
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import flash.media.Sound;
 	import flash.ui.Keyboard;
 	/**
 	 * ...
@@ -38,12 +39,14 @@ package As
 		
 		private var userSpeed:int = 67;
 		
-		private var nowChNum:uint = 4;
-		private var nowCh:String = "e";				//nowCh = allCh[nowChNum];
+		private var nowChNum:uint = 0;
+		private var nowCh:String;					//nowCh = allCh[nowChNum];
 		private var allStar:Array = new Array();	//所有關卡星星位置
 		private var allGold:Array = new Array();	//所有關卡黃金位置
 		private var allCh:Array = new Array();		//所有關卡影格名稱
 		private var allUser:Array = new Array();	//所有關卡可樂球初始位置
+		private var chk1:Sound = new sound_chk1();
+		private var chk2:Sound = new sound_chk2();
 		
 		
 		public function G02() 
@@ -75,8 +78,15 @@ package As
 		//進入遊戲
 		override public function EnterGame():void
 		{
-			this.gotoAndStop(nowCh);
+			//測試模式
+			if (SingletonValue.getInstance().testMode) {
+				nowChNum = 4;
+				count_mc.gotoAndPlay(76);
+			}
+			
 			initData();
+			nowCh = allCh[nowChNum];
+			this.gotoAndStop(nowCh);
 			
 			//設定黃金跟可樂球初始位置
 			initGoldAndUser();
@@ -96,8 +106,6 @@ package As
 			ch_mc.gotoAndStop(nowCh);
 			count_mc.addEventListener("count", startGame);	//倒數動畫結束後開始遊戲
 			
-			restart_btn.addEventListener(MouseEvent.CLICK, reStart);
-			ex_btn.addEventListener(MouseEvent.CLICK, goEx);
 		}
 		
 		//設定黃金跟可樂球初始位置
@@ -141,6 +149,8 @@ package As
 		{
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+			restart_btn.addEventListener(MouseEvent.CLICK, reStart);
+			ex_btn.addEventListener(MouseEvent.CLICK, goEx);
 		}
 		
 		//控制人物走動===============================================================
@@ -207,6 +217,7 @@ package As
 			u_mc.x = user_mc.x;
 			u_mc.y = user_mc.y;
 			u_mc.gotoAndStop(2);
+			chk1.play();	//移動音效
 			
 			//檢查是否過關
 			checkGlod();
@@ -242,6 +253,7 @@ package As
 				}
 				this[string].x += userSpeed;
 			}
+			chk2.play();	//移動金塊音效
 		}
 		
 		//判斷黃金是否被黃金阻擋
@@ -343,7 +355,6 @@ package As
 		{
 			if (nowChNum < allCh.length-1) {
 				nowChNum ++;
-				nowCh = allCh[nowChNum];
 				EnterGame();
 			}else {
 				trace("破關!!");

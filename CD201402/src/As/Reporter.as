@@ -13,6 +13,11 @@ package As
 			
 		}
 		
+		override public function init():void {
+			people = reporter_mc;
+			people.stop();
+		}
+		
 		//攻擊-纏住!!!
 		override public function goAttack():void 
 		{
