@@ -117,6 +117,7 @@ package As
 				if (getChildAt(i).name.substr(0, 4) == "gold") {
 					getChildAt(i).x = allGold[nowChNum][_cn][0];
 					getChildAt(i).y = allGold[nowChNum][_cn][1];
+					MovieClip(getChildAt(i))._mc.gotoAndStop(1);
 					_cn++;
 				}
 			}
@@ -332,19 +333,23 @@ package As
 		{
 			var _n:uint = allStar[nowChNum].length;
 			var _b:Boolean = true;
+			var b:Boolean = true;
 			for (var j:uint = 1; j <= _n; j++) {
 				for (var i:uint = 1; i <= _n; i++) {
 					if (this["gold" + j + "_mc"].hitTestPoint(this["star" + i + "_mc"].x, this["star" + i + "_mc"].y, false)) {
 						//只要有true就跳出這個for
+						this["gold" + j + "_mc"]._mc.gotoAndStop(2);  //黃金閃閃
 						_b = true;
 						break;
 					}
+					this["gold" + j + "_mc"]._mc.gotoAndStop(1);  //黃金不閃
 					_b = false;
 				}
-				//如果全都是false,跳出這個function
-				if (!_b) {
-					return;
-				}
+				if (!_b) b = _b;
+			}
+			//如果有任一個黃金沒碰到星星,跳出這個function
+			if (!b) {
+				return;
 			}
 			trace("過關!!");
 			nextCh();

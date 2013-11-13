@@ -9,8 +9,8 @@ package As
 		private static var  _instance:SingletonValue;
 		
 		private var _testMode:Boolean = false;	//測試模式
-		private var HP:uint;
-		private var _caseNum:uint;		//目前進行案件
+		private var HP:uint = 80;
+		private var _caseNum:uint = 4;		//目前進行案件0~3,4=無
 		private var _caseArr:Array = [1, 1, 1, 1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
 		private var _allGameSwf:Array;
 		

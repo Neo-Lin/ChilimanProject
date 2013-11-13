@@ -27,7 +27,6 @@ package As
 		private var downPressed:Boolean = false;
 		private var leftPressed:Boolean = false;
 		private var rightPressed:Boolean = false;
-		private var tempPressed:Boolean;
 		private var directionTxt:String = "r";
 		private var modeTxt:String = "";	//空:走路 a:攻擊 b:被照相 c:被攻擊
 		
@@ -43,7 +42,7 @@ package As
 		{
 			//bullet_mc.visible = map_mc.visible = false;
 			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
-			
+			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
 			//人物走動用
 			stage.stageFocusRect = false;
 			stage.focus = stage;
@@ -117,7 +116,7 @@ package As
 							userInvincible = false;
 							}} );
 					}} );
-				changeHP( -10); 
+				changeHP( -5); 
 				trace("被記者纏上了!!!", "HP:", SingletonValue.getInstance().hp);
 			}
 		}
@@ -131,6 +130,7 @@ package As
 			}else {
 				SingletonValue.getInstance().hp += _hp;
 			}
+			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
 		}
 		
 		//遭受攻擊==扣血及暫時無敵
@@ -143,7 +143,7 @@ package As
 				Tweener.addTween(user_mc, { alpha:1, time:2, transition:"easeInBounce", onComplete:function() {
 					userInvincible = false;
 					}} );
-				changeHP( -5);
+				changeHP( -10);
 				trace("HP:",SingletonValue.getInstance().hp);
 			}	
 		}
@@ -157,7 +157,7 @@ package As
 		//用碰撞判斷可走區域===子彈位置
 		private function fl_MoveInDirectionOfKey(event:Event)
 		{ 
-			if (upPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y - userSpeed), 255
+			if (modeTxt != "a" && upPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y - userSpeed), 255
 				
 				))
 			{
@@ -169,7 +169,7 @@ package As
 				directionTxt = "u";
 				cola_mc.gotoAndStop(directionTxt + modeTxt);
 				MovieClip(cola_mc.getChildAt(1)).play();
-			}else if (downPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y + userSpeed), 255
+			}else if (modeTxt != "a" && downPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y + userSpeed), 255
 				
 				))
 			{
@@ -181,7 +181,7 @@ package As
 				directionTxt = "d";
 				cola_mc.gotoAndStop(directionTxt + modeTxt);
 				MovieClip(cola_mc.getChildAt(1)).play();
-			}else if (leftPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x - userSpeed, user_mc.y), 255
+			}else if (modeTxt != "a" && leftPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x - userSpeed, user_mc.y), 255
 				
 				))
 			{
@@ -193,7 +193,7 @@ package As
 				directionTxt = "l";
 				cola_mc.gotoAndStop(directionTxt + modeTxt);
 				MovieClip(cola_mc.getChildAt(1)).play();
-			}else if (rightPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x + userSpeed, user_mc.y), 255
+			}else if (modeTxt != "a" && rightPressed && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x + userSpeed, user_mc.y), 255
 				
 				))
 			{
@@ -223,25 +223,21 @@ package As
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y - 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if(modeTxt == "a") modeTxt = "";
-						tempPressed = true;
 						}});
 				}else if (directionTxt == "d") {
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y + 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if(modeTxt == "a") modeTxt = "";
-						tempPressed = true;
 						}}	);
 				}else if (directionTxt == "l") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x - 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if(modeTxt == "a") modeTxt = "";
-						tempPressed = true; trace(tempPressed,leftPressed,rightPressed,upPressed,downPressed);
 						}}	);
 				}else if (directionTxt == "r") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x + 90, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if (modeTxt == "a") modeTxt = "";
-						tempPressed = true;
 						}}	);
 				}
 			}
@@ -261,7 +257,6 @@ package As
 				case Keyboard.UP: 
 				{
 					upPressed = true;
-					tempPressed = upPressed;
 					//紀錄可樂球方向
 					modeTxt = "";
 					break;
@@ -269,27 +264,23 @@ package As
 				case Keyboard.DOWN: 
 				{
 					downPressed = true;
-					tempPressed = downPressed;
 					modeTxt = "";
 					break;
 				}
 				case Keyboard.LEFT: 
 				{
 					leftPressed = true;
-					tempPressed = leftPressed;
 					modeTxt = "";
 					break;
 				}
 				case Keyboard.RIGHT: 
 				{
 					rightPressed = true;
-					tempPressed = rightPressed;
 					modeTxt = "";
 					break;
 				}
 				case Keyboard.SPACE: 
 				{
-					upPressed = downPressed = rightPressed = leftPressed = false;
 					attack();
 					modeTxt = "a";
 					break;
