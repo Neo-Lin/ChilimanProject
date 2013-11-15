@@ -6,9 +6,11 @@ package As
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.media.Sound;
 	import flash.ui.Keyboard;
+	import flash.utils.Timer;
 	/**
 	 * ...
 	 * @author Neo
@@ -136,6 +138,7 @@ package As
 		private function goEx(e:MouseEvent):void 
 		{
 			Pause(null);
+			ex_mc.gotoAndStop(1);
 			ex_mc.visible = true;
 			ex_mc.gotoAndPlay(nowCh);
 		}
@@ -217,7 +220,7 @@ package As
 			//可樂球移動並撥放推動畫
 			u_mc.x = user_mc.x;
 			u_mc.y = user_mc.y;
-			u_mc.gotoAndStop(2);
+			u_mc.gotoAndStop(3);
 			chk1.play();	//移動音效
 			
 			//檢查是否過關
@@ -351,7 +354,17 @@ package As
 			if (!b) {
 				return;
 			}
-			trace("過關!!");
+			//過關
+			Pause(null);
+			u_mc.gotoAndStop(2);
+			var winTime:Timer = new Timer(1000, 3);		//倒數三秒後下一關
+			winTime.addEventListener(TimerEvent.TIMER_COMPLETE, goNext);
+			winTime.start();
+		}
+		
+		private function goNext(e:TimerEvent):void 
+		{
+			u_mc.gotoAndStop(1);
 			nextCh();
 		}
 		
@@ -361,6 +374,7 @@ package As
 			if (nowChNum < allCh.length-1) {
 				nowChNum ++;
 				EnterGame();
+				startGame(null);
 			}else {
 				trace("破關!!");
 				Pause(null);

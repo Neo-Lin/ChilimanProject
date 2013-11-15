@@ -26,19 +26,36 @@ package As
 		//進入遊戲
 		override public function EnterGame():void {
 			stop();
+			
+			//測試模式
+			if (SingletonValue.getInstance().testMode) {
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+			}
+			
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
-			changeCase_mc.visible = false;		//是否要放棄紀錄挑戰其他案件字卡
-			changeCase_mc.y_btn.addEventListener(MouseEvent.CLICK, changeCase);
-			changeCase_mc.n_btn.addEventListener(MouseEvent.CLICK, noChange);
-			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
 			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, addHP);
 			myTime.start();
 			
+			//是否要放棄紀錄挑戰其他案件字卡
+			changeCase_mc.visible = false;		
+			changeCase_mc.y_btn.addEventListener(MouseEvent.CLICK, changeCase);
+			changeCase_mc.n_btn.addEventListener(MouseEvent.CLICK, noChange);
+			//出發到案發現場
+			goCase_mc.visible = false;		
+			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, goChangeSide);	//前往主遊戲G00
+			
+			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
 			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
+			//四個案件的華生與可樂球對話
+			event1_mc.addEventListener("finish", goCase);
+			event2_mc.addEventListener("finish", goCase);
+			event3_mc.addEventListener("finish", goCase);
+			event4_mc.addEventListener("finish", goCase);
+			event1_mc.visible = event2_mc.visible = event3_mc.visible = event4_mc.visible = false;
 			
 			initCaseBtn();
 		}
-
+		
 		//設定按鈕外觀
 		private function initCaseBtn():void {
 			var _n:uint = SingletonValue.getInstance().caseArr.length;
@@ -128,7 +145,15 @@ package As
 		{
 			trace("案件動畫結束!");
 			eventLoad.unloadAndStop();
-			this.gotoAndStop(eventUrl.url);
+			watson_mc.visible = cola_mc.visible = false;
+			this["event" + eventUrl.url.substr(2, 1) + "_mc"].visible = true;
+			this["event" + eventUrl.url.substr(2, 1) + "_mc"].play();
+		}
+		
+		//出發到案發現場字卡
+		private function goCase(e:Event):void 
+		{
+			goCase_mc.visible = true; 
 		}
 		
 		//恢復可樂球血量
@@ -148,7 +173,7 @@ package As
 		//換場景
 		private function goChangeSide(e:MouseEvent):void 
 		{
-			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "MainGame.swf"));
+			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
 		}
 		
 	}

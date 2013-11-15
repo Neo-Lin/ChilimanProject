@@ -13,7 +13,7 @@ package As
 			
 		}
 		
-		override public function init():void {
+		override public function inits():void {
 			people = tramp_mc;
 			people.stop();
 		}

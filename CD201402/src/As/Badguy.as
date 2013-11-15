@@ -36,7 +36,7 @@ package As
 		private var userMcY:Number;
 		
 		private var zone_mc:Zone = new Zone();
-		private var directionTxt:String = "r";
+		public var directionTxt:String = "r";
 		private var modeTxt:String = "";	//空:走路 a:攻擊 b:被攻擊
 		
 		public function Badguy() 
@@ -47,19 +47,26 @@ package As
 			
 			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
 			reTime(null);*/
+			if (stage) init();
+			else addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+		
+		private function init(e:Event = null):void 
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, init);
 			//在影格上加程式碼
 			this.addFrameScript(0, frame1, 9, frame10, 19, frame10);
 			stage.addEventListener(MainEvent.PAUSE, Pause);
 			stage.addEventListener(MainEvent.UN_PAUSE, UnPause);
-			addChild(zone_mc);
-			init();
+			//addChild(zone_mc);
+			inits();
 		}
 		
-		public function init():void {
+		public function inits():void {
 			people = badguy_mc;
 			people.stop();
 			//trace(people.getChildAt(1));
-			//MovieClip(people.getChildAt(1)).stop();
+			MovieClip(people.getChildAt(1)).stop();
 		}
 		
 		//外部傳入BitmapData才開始//地圖BitmapData//攻擊對象BitmapData//攻擊對象MovieClip//子彈MovieCLip
@@ -108,15 +115,15 @@ package As
 				return;
 			}
 			
-			//偵測攻擊區碰撞
-			if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 30, this.y - 30, 120, 90))) {
-				goAttack();
-				return;
-			}
-			
 			//偵測追逐區碰撞
 			if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 60, this.y - 60, 180, 150))) {
 				goChase();
+				//return;
+			}
+			
+			//偵測攻擊區碰撞
+			if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 30, this.y - 30, 120, 90))) {
+				goAttack();
 				return;
 			}
 			
@@ -165,7 +172,7 @@ package As
 		public function goChase():void 
 		{
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CHASE, true));
-			this.gotoAndPlay(21);
+			//this.gotoAndPlay(21);
 			_move = 0;
 			if (userMcX > this.x+1 && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
 				this.x ++;

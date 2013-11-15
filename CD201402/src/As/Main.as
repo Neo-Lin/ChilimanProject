@@ -23,7 +23,7 @@ package As
 		private var G:Array = ["G01.swf", "G02.swf", "G03.swf", "G04.swf"];										//遊戲
 		private var allGameSwf:Array = [INTO, QEX, Q, GEX, G, EVENTS];
 		private var myLoader:Loader = new Loader();
-		private var myUrl:URLRequest = new URLRequest("221B.swf");
+		private var myUrl:URLRequest = new URLRequest("221B_EX.swf");
 		
 		public function Main():void
 		{

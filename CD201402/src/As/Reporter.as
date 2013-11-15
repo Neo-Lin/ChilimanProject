@@ -1,6 +1,7 @@
 package As 
 {
 	import As.Events.BadguyEvent;
+	import flash.display.MovieClip;
 	/**
 	 * ...記者
 	 * @author Neo
@@ -13,7 +14,7 @@ package As
 			
 		}
 		
-		override public function init():void {
+		override public function inits():void {
 			people = reporter_mc;
 			people.stop();
 		}
@@ -22,14 +23,16 @@ package As
 		override public function goAttack():void 
 		{
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CATCH, true));
-			this.gotoAndPlay(11);
+			people.gotoAndStop(directionTxt + "a");
+			MovieClip(people.getChildAt(1)).play();
 		}
 		
 		//被攻擊
 		override public function goInjure():void 
 		{
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CATCH, true));
-			this.gotoAndPlay(11);
+			people.gotoAndStop(directionTxt + "a");
+			MovieClip(people.getChildAt(1)).play();
 		}
 	}
 

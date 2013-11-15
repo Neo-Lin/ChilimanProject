@@ -19,7 +19,7 @@ package As
 	 */
 	public class MainGame extends GM
 	{
-		private var userSpeed:Number = 5;	//人物行走速度
+		private var userSpeed:Number = 10;	//人物行走速度
 		//private var userHp:uint = SingletonValue.getInstance().hp;	//人物HP
 		private var userInvincible:Boolean = false;	//人物無敵狀態
 		//上下左右開關
@@ -32,6 +32,7 @@ package As
 		
 		//private var mapClipBmpData:BitmapData;	//已使用場景上的map_mc.mapClipBmpData取代
 		private var userClipBmpData:BitmapData;
+		private var cola_mc:MovieClip;
 		
 		public function MainGame()
 		{
@@ -49,6 +50,7 @@ package As
 			user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+			cola_mc = NPC_mc.cola_mc;
 			
 			//碰撞用
 			userClipBmpData = new BitmapData(user_mc.width, user_mc.height, true, 0);
@@ -79,6 +81,9 @@ package As
 					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.CATCH, catching);
 				}else if (getQualifiedClassName(_mc) == "As::Tramp") { //街童
+					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+					_mc.addEventListener(BadguyEvent.TOUCH, information);
+				}else if (getQualifiedClassName(_mc) == "As::TrampBoy") { //街童男
 					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.TOUCH, information);
 				}
@@ -162,10 +167,11 @@ package As
 				))
 			{
 				if (map_mc.y >= 0 || user_mc.y >= 370) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					cola_mc.y = user_mc.y -= userSpeed;
+					user_mc.y -= userSpeed;
 				}else {
 					mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
 				}
+				cola_mc.y -= userSpeed;
 				directionTxt = "u";
 				cola_mc.gotoAndStop(directionTxt + modeTxt);
 				MovieClip(cola_mc.getChildAt(1)).play();
@@ -174,10 +180,11 @@ package As
 				))
 			{
 				if (map_mc.y <= -768 || user_mc.y <= 370) {	//判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					cola_mc.y = user_mc.y += userSpeed;
+					user_mc.y += userSpeed;
 				}else {
 					mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
 				}
+				cola_mc.y += userSpeed;
 				directionTxt = "d";
 				cola_mc.gotoAndStop(directionTxt + modeTxt);
 				MovieClip(cola_mc.getChildAt(1)).play();
@@ -186,10 +193,11 @@ package As
 				))
 			{
 				if (map_mc.x >= 0 || user_mc.x >= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					cola_mc.x = user_mc.x -= userSpeed;
+					user_mc.x -= userSpeed;
 				}else {
 					mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
 				}
+				cola_mc.x -= userSpeed;
 				directionTxt = "l";
 				cola_mc.gotoAndStop(directionTxt + modeTxt);
 				MovieClip(cola_mc.getChildAt(1)).play();
@@ -198,10 +206,11 @@ package As
 				))
 			{
 				if (map_mc.x <= -1024 || user_mc.x <= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
-					cola_mc.x = user_mc.x += userSpeed;
+					user_mc.x += userSpeed;
 				}else {
 					mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
 				}
+				cola_mc.x += userSpeed;
 				directionTxt = "r";
 				cola_mc.gotoAndStop(directionTxt + modeTxt);
 				MovieClip(cola_mc.getChildAt(1)).play();
@@ -218,24 +227,24 @@ package As
 		{
 			//用子彈位置判斷是否在使用中
 			if (bullet_mc.x == -20 && bullet_mc.y == -20) {
-				bulletMove(user_mc.x + user_mc.width / 2, user_mc.y + user_mc.height / 2);
+				bulletMove(user_mc.x + user_mc.width / 2, user_mc.y - 35);
 				if (directionTxt == "u") { 
-					Tweener.addTween(bullet_mc, { y:bullet_mc.y - 90, time:.3, transition:"easeOutCirc", onComplete:function() {
+					Tweener.addTween(bullet_mc, { y:bullet_mc.y - 120, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if(modeTxt == "a") modeTxt = "";
 						}});
 				}else if (directionTxt == "d") {
-					Tweener.addTween(bullet_mc, { y:bullet_mc.y + 90, time:.3, transition:"easeOutCirc", onComplete:function() {
+					Tweener.addTween(bullet_mc, { y:bullet_mc.y + 120, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "l") {
-					Tweener.addTween(bullet_mc, { x:bullet_mc.x - 90, time:.3, transition:"easeOutCirc", onComplete:function() {
+					Tweener.addTween(bullet_mc, { x:bullet_mc.x - 120, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "r") {
-					Tweener.addTween(bullet_mc, { x:bullet_mc.x + 90, time:.3, transition:"easeOutCirc", onComplete:function() {
+					Tweener.addTween(bullet_mc, { x:bullet_mc.x + 120, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
 						if (modeTxt == "a") modeTxt = "";
 						}}	);
