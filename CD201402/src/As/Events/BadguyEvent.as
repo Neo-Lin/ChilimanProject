@@ -14,6 +14,9 @@ package As.Events
 		public static const TOUCH:String = "touch";		//碰到其他角色
 		public static const CATCH:String = "catch";		//抓住
 		
+		public static const COVER:String = "cover";		//包住
+		public static const UNCOVER:String = "uncover";	//跳出
+		
 		public function BadguyEvent(type:String, bubbles:Boolean) 
 		{
 			super(type, bubbles);

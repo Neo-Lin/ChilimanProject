@@ -66,7 +66,7 @@ package As
 			people = badguy_mc;
 			people.stop();
 			//trace(people.getChildAt(1));
-			MovieClip(people.getChildAt(1)).stop();
+			//MovieClip(people.getChildAt(1)).stop();
 		}
 		
 		//外部傳入BitmapData才開始//地圖BitmapData//攻擊對象BitmapData//攻擊對象MovieClip//子彈MovieCLip
@@ -98,8 +98,6 @@ package As
 			}
 			//設定移動距離
 			_move = Math.random() * 60 - 30; //trace("_move=",_move);
-			
-			
 		}
 		
 		//移動角色
@@ -115,21 +113,20 @@ package As
 				return;
 			}
 			
-			//偵測追逐區碰撞
-			if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 60, this.y - 60, 180, 150))) {
-				goChase();
-				//return;
-			}
-			
-			//偵測攻擊區碰撞
-			if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 30, this.y - 30, 120, 90))) {
-				goAttack();
+			//偵測碰到其他角色
+			if (userMc.alpha == 1 && userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x, this.y, 60, 30))) {
+				goTouch();
 				return;
 			}
 			
-			//偵測碰到其他角色
-			if (this.hitTestObject(userMc)) {
-				goTouch();
+			//偵測追逐區碰撞
+			if (userMc.alpha == 1 && userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 90, this.y - 90, 240, 210))) {
+				//偵測攻擊區碰撞
+				if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 30, this.y - 30, 120, 90))) {
+					goAttack();
+					return;
+				}
+				goChase();
 				return;
 			}
 			

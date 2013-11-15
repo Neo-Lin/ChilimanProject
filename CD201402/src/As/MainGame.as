@@ -34,6 +34,8 @@ package As
 		private var userClipBmpData:BitmapData;
 		private var cola_mc:MovieClip;
 		
+		private var tempShelter:Array = new Array();
+		
 		public function MainGame()
 		{
 		}
@@ -64,6 +66,7 @@ package As
 			trampTxt_mc.visible = false;	//街童對話框
 			cantPass_mc.visible = false;	//這裡還不能進入
 			map_mc.visible = false;			//碰撞偵測用紅地圖
+			//user_mc.visible = false;		//可樂球碰撞偵測用藍色小塊
 		}
 		
 		//初始化壞人,記者,街童(已擺放在場景上)
@@ -86,7 +89,83 @@ package As
 				}else if (getQualifiedClassName(_mc) == "As::TrampBoy") { //街童男
 					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.TOUCH, information);
+				}else if (_mc.name.substr(0, 7) == "shelter") { //遮蔽物
+					_mc.startInit(user_mc);
+					_mc.addEventListener(BadguyEvent.COVER, goCover);
+					//_mc.addEventListener(BadguyEvent.UNCOVER, unCover);
 				}
+			}
+		}
+		
+		//取消可樂球躲藏
+		private function unCover(e:BadguyEvent):void 
+		{	
+			e.currentTarget.removeEventListener(BadguyEvent.UNCOVER, unCover);
+			user_mc.alpha = 1;
+			cola_mc.visible = true;
+		}
+		
+		//可樂球躲藏
+		private function goCover(e:BadguyEvent):void 
+		{
+			user_mc.alpha = 0;
+			cola_mc.visible = false;
+			//e.currentTarget.addEventListener(BadguyEvent.UNCOVER, unCover);
+			tempShelter.push(e.currentTarget.x, e.currentTarget.y, e.currentTarget.width, e.currentTarget.height);
+			user_mc.removeEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
+		}
+		
+		//判斷穿越遮蔽物後可否通行,可以的話才穿越
+		private function goUnCover(e:KeyboardEvent):void 
+		{
+			if (e.keyCode == Keyboard.UP && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, tempShelter[1] - tempShelter[3]/4), 255
+				
+				))
+			{
+				//user_mc.x += NPC_mc.x;
+				user_mc.y = tempShelter[1] - tempShelter[3] / 4 + NPC_mc.y;
+				cola_mc.y = tempShelter[1] - tempShelter[3] / 4;
+				user_mc.alpha = 1;
+				cola_mc.visible = true;
+				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
+			}else if (e.keyCode == Keyboard.DOWN && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, tempShelter[1] + tempShelter[3]/2), 255
+				
+				))
+			{
+				//user_mc.x += NPC_mc.x;
+				user_mc.y = tempShelter[1] + tempShelter[3] / 2 + NPC_mc.y;
+				cola_mc.y = tempShelter[1] + tempShelter[3] / 2;
+				trace(user_mc.y, cola_mc.y);
+				user_mc.alpha = 1;
+				cola_mc.visible = true;
+				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
+			}else if (e.keyCode == Keyboard.LEFT && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(tempShelter[0] - tempShelter[2]/2, user_mc.y), 255
+				
+				))
+			{
+				user_mc.x = tempShelter[0] - tempShelter[2] / 2 + NPC_mc.x;
+				//user_mc.y += NPC_mc.y;
+				cola_mc.x = tempShelter[0] - tempShelter[2]/2;
+				//cola_mc.y = user_mc.y = tempShelter[1];
+				user_mc.alpha = 1;
+				cola_mc.visible = true;
+				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
+			}else if (e.keyCode == Keyboard.RIGHT && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(tempShelter[0] + tempShelter[2]/2, user_mc.y), 255
+				
+				))
+			{
+				user_mc.x = tempShelter[0] + tempShelter[2]/2 + NPC_mc.x;
+				//user_mc.y += NPC_mc.y;
+				cola_mc.x = tempShelter[0] + tempShelter[2]/2;
+				//cola_mc.y = user_mc.y = tempShelter[1];
+				user_mc.alpha = 1;
+				cola_mc.visible = true;
+				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
 			}
 		}
 		
@@ -111,13 +190,13 @@ package As
 				stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 				upPressed = downPressed = rightPressed = leftPressed = false;
 				userInvincible = true;
-				user_mc.alpha = 0.2;
+				//user_mc.alpha = 0.2;
 				//第一次Tweener鎖住鍵盤3秒,第二次Tweener維持無敵2秒後復原
 				Tweener.addTween(user_mc, { time:3, onComplete:function() {
 					stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 					stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 					modeTxt = "";
-					Tweener.addTween(user_mc, { alpha:1, time:2, transition:"easeInBounce", onComplete:function() {
+					Tweener.addTween(user_mc, { /*alpha:1,*/ time:2, transition:"easeInBounce", onComplete:function() {
 							userInvincible = false;
 							}} );
 					}} );
@@ -144,8 +223,8 @@ package As
 			if (!userInvincible) {
 				modeTxt = "c";
 				userInvincible = true;
-				user_mc.alpha = 0.2;
-				Tweener.addTween(user_mc, { alpha:1, time:2, transition:"easeInBounce", onComplete:function() {
+				//user_mc.alpha = 0.2;
+				Tweener.addTween(user_mc, { /*alpha:1,*/ time:2, transition:"easeInBounce", onComplete:function() {
 					userInvincible = false;
 					}} );
 				changeHP( -10);

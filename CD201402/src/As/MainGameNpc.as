@@ -4,7 +4,7 @@ package As
 	import flash.events.Event;
 	
 	/**
-	 * ...
+	 * ...NPC_mc的人物深度判斷
 	 * @author Neo
 	 */
 	public class MainGameNpc extends MovieClip 
