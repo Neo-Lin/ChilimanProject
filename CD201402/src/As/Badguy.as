@@ -171,22 +171,32 @@ package As
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CHASE, true));
 			//this.gotoAndPlay(21);
 			_move = 0;
-			if (userMcX > this.x+1 && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
+			changeDirection();
+			if (directionTxt == "r") {
 				this.x ++;
-				directionTxt = "r";
-			}else if (userMcX < this.x && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x - _speed, this.y), 255)) {
+			}else if (directionTxt == "l") {
 				this.x --;
-				directionTxt = "l";
 			}
-			if (userMcY > this.y+1 && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y + _speed), 255)) {
+			if (directionTxt == "d") {
 				this.y ++;
-				directionTxt = "d";
-			}else if (userMcY < this.y && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y - _speed), 255)) {
+			}else if (directionTxt == "u") {
 				this.y --;
-				directionTxt = "u";
 			}
 			people.gotoAndStop(directionTxt);
 			MovieClip(people.getChildAt(1)).play();
+		}
+		
+		public function changeDirection():void {
+			if (userMcX > this.x+1 && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
+				directionTxt = "r";
+			}else if (userMcX < this.x && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x - _speed, this.y), 255)) {
+				directionTxt = "l";
+			}
+			if (userMcY > this.y+1 && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y + _speed), 255)) {
+				directionTxt = "d";
+			}else if (userMcY < this.y && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y - _speed), 255)) {
+				directionTxt = "u";
+			}
 		}
 		
 		//碰到
@@ -194,6 +204,7 @@ package As
 		{
 			/*this.dispatchEvent(new BadguyEvent(BadguyEvent.TOUCH, true));
 			trace("Badguy touch!!!");*/
+			goAttack();
 		}
 		
 		//被攻擊
@@ -210,6 +221,7 @@ package As
 		public function goAttack():void 
 		{
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.ATTACK, true));
+			changeDirection();
 			//this.gotoAndPlay(11);
 			people.gotoAndStop(directionTxt + "a");
 			MovieClip(people.getChildAt(1)).play();
@@ -255,13 +267,15 @@ package As
 		
 		//暫停
 		public function Pause(e:MainEvent):void {
-			trace("Badguy暫停!!");
+			//trace("Badguy暫停!!");
 			this.removeEventListener(Event.ENTER_FRAME, goMove);
+			people.gotoAndStop(directionTxt);
+			MovieClip(people.getChildAt(1)).gotoAndStop(1);
 		}
 		
 		//結束暫停
 		public function UnPause(e:MainEvent):void {
-			trace("Badguy結束暫停!!");
+			//trace("Badguy結束暫停!!");
 			this.addEventListener(Event.ENTER_FRAME, goMove);
 		}
 		

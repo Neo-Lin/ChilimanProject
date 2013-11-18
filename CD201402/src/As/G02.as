@@ -49,6 +49,7 @@ package As
 		private var allUser:Array = new Array();	//所有關卡可樂球初始位置
 		private var chk1:Sound = new sound_chk1();
 		private var chk2:Sound = new sound_chk2();
+		private var ya:Sound = new sound_ya();
 		
 		
 		public function G02() 
@@ -357,6 +358,7 @@ package As
 			//過關
 			Pause(null);
 			u_mc.gotoAndStop(2);
+			ya.play();
 			var winTime:Timer = new Timer(1000, 3);		//倒數三秒後下一關
 			winTime.addEventListener(TimerEvent.TIMER_COMPLETE, goNext);
 			winTime.start();

@@ -10,6 +10,7 @@ package As
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.media.Sound;
 	import flash.ui.Keyboard;
 	import flash.utils.getQualifiedClassName;
 	
@@ -35,6 +36,12 @@ package As
 		private var cola_mc:MovieClip;
 		
 		private var tempShelter:Array = new Array();
+		private var tempTramp:MovieClip;
+		
+		private var sb1:Sound = new sound_bad1();
+		private var sb2:Sound = new sound_bad2();
+		//private var sc1:Sound = new sound_cola1();
+		private var sc2:Sound = new sound_cola2();
 		
 		public function MainGame()
 		{
@@ -53,6 +60,7 @@ package As
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 			cola_mc = NPC_mc.cola_mc;
+			cola_mc.a_mc.visible = false;
 			
 			//碰撞用
 			userClipBmpData = new BitmapData(user_mc.width, user_mc.height, true, 0);
@@ -64,8 +72,9 @@ package As
 			badGuyInit();
 			
 			trampTxt_mc.visible = false;	//街童對話框
+			trampTxt_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeTrampTxt);
 			cantPass_mc.visible = false;	//這裡還不能進入
-			map_mc.visible = false;			//碰撞偵測用紅地圖
+			//map_mc.visible = false;			//碰撞偵測用紅地圖
 			//user_mc.visible = false;		//可樂球碰撞偵測用藍色小塊
 		}
 		
@@ -98,74 +107,68 @@ package As
 		}
 		
 		//取消可樂球躲藏
-		private function unCover(e:BadguyEvent):void 
+		private function unCover():void 
 		{	
-			e.currentTarget.removeEventListener(BadguyEvent.UNCOVER, unCover);
 			user_mc.alpha = 1;
 			cola_mc.visible = true;
+			user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
 		}
 		
 		//可樂球躲藏
 		private function goCover(e:BadguyEvent):void 
-		{
+		{	
 			user_mc.alpha = 0;
 			cola_mc.visible = false;
+			user_mc.x = e.currentTarget.x + NPC_mc.x;
+			user_mc.y = e.currentTarget.y + NPC_mc.y;
+			cola_mc.x = e.currentTarget.x;
+			cola_mc.y = e.currentTarget.y;
 			//e.currentTarget.addEventListener(BadguyEvent.UNCOVER, unCover);
-			tempShelter.push(e.currentTarget.x, e.currentTarget.y, e.currentTarget.width, e.currentTarget.height);
+			tempShelter = [e.currentTarget.x, e.currentTarget.y, e.currentTarget.width, e.currentTarget.height];
 			user_mc.removeEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
 		}
 		
-		//判斷穿越遮蔽物後可否通行,可以的話才穿越
+		//判斷跳出遮蔽物後可否通行,可以的話才跳出
 		private function goUnCover(e:KeyboardEvent):void 
 		{
-			if (e.keyCode == Keyboard.UP && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, tempShelter[1] - tempShelter[3]/4), 255
+			if (e.keyCode == Keyboard.UP && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y - user_mc.height), 255
+				
+				))
+			{	
+				user_mc.x -= user_mc.width / 2;
+				user_mc.y = user_mc.y - user_mc.height;
+				cola_mc.x -= user_mc.width / 2;
+				cola_mc.y = cola_mc.y - user_mc.height;
+				unCover();
+			}else if (e.keyCode == Keyboard.DOWN && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, user_mc.y + tempShelter[3] / 2), 255
 				
 				))
 			{
-				//user_mc.x += NPC_mc.x;
-				user_mc.y = tempShelter[1] - tempShelter[3] / 4 + NPC_mc.y;
-				cola_mc.y = tempShelter[1] - tempShelter[3] / 4;
-				user_mc.alpha = 1;
-				cola_mc.visible = true;
-				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
-				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
-			}else if (e.keyCode == Keyboard.DOWN && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x, tempShelter[1] + tempShelter[3]/2), 255
+				user_mc.x -= user_mc.width / 2;
+				user_mc.y = user_mc.y + tempShelter[3] / 2;
+				cola_mc.x -= user_mc.width / 2;
+				cola_mc.y = cola_mc.y + tempShelter[3] / 2;
+				unCover();
+			}else if (e.keyCode == Keyboard.LEFT && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x - tempShelter[2]/2 - user_mc.width, user_mc.y), 255
 				
 				))
-			{
-				//user_mc.x += NPC_mc.x;
-				user_mc.y = tempShelter[1] + tempShelter[3] / 2 + NPC_mc.y;
-				cola_mc.y = tempShelter[1] + tempShelter[3] / 2;
-				trace(user_mc.y, cola_mc.y);
-				user_mc.alpha = 1;
-				cola_mc.visible = true;
-				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
-				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
-			}else if (e.keyCode == Keyboard.LEFT && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(tempShelter[0] - tempShelter[2]/2, user_mc.y), 255
+			{	
+				user_mc.x = user_mc.x - tempShelter[2] / 2 - user_mc.width;
+				user_mc.y += user_mc.height;
+				cola_mc.x = cola_mc.x - tempShelter[2] / 2 - user_mc.width;
+				cola_mc.y += user_mc.height;
+				unCover();
+			}else if (e.keyCode == Keyboard.RIGHT && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(user_mc.x + tempShelter[2]/2, user_mc.y), 255
 				
 				))
-			{
-				user_mc.x = tempShelter[0] - tempShelter[2] / 2 + NPC_mc.x;
-				//user_mc.y += NPC_mc.y;
-				cola_mc.x = tempShelter[0] - tempShelter[2]/2;
-				//cola_mc.y = user_mc.y = tempShelter[1];
-				user_mc.alpha = 1;
-				cola_mc.visible = true;
-				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
-				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
-			}else if (e.keyCode == Keyboard.RIGHT && !map_mc.mapClipBmpData.hitTest(new Point(map_mc.x - 20, map_mc.y - 20), 255, userClipBmpData, new Point(tempShelter[0] + tempShelter[2]/2, user_mc.y), 255
-				
-				))
-			{
-				user_mc.x = tempShelter[0] + tempShelter[2]/2 + NPC_mc.x;
-				//user_mc.y += NPC_mc.y;
-				cola_mc.x = tempShelter[0] + tempShelter[2]/2;
-				//cola_mc.y = user_mc.y = tempShelter[1];
-				user_mc.alpha = 1;
-				cola_mc.visible = true;
-				user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
-				stage.removeEventListener(KeyboardEvent.KEY_DOWN, goUnCover);
+			{	
+				user_mc.x += tempShelter[2]/2;
+				user_mc.y += user_mc.height;
+				cola_mc.x += tempShelter[2]/2;
+				cola_mc.y += user_mc.height;
+				unCover();
 			}
 		}
 		
@@ -178,7 +181,28 @@ package As
 		//遇到街童
 		private function information(e:BadguyEvent):void 
 		{
-			trace("顯示街童對話");
+			//trace("顯示街童對話");
+			tempTramp = e.currentTarget as MovieClip;
+			tempTramp.removeEventListener(BadguyEvent.TOUCH, information);
+			if (getQualifiedClassName(tempTramp) == "As::Tramp") { //街童
+				trampTxt_mc.Tramp_mc.gotoAndStop("Tramp");
+			}else if (getQualifiedClassName(tempTramp) == "As::TrampBoy") { //街童男
+				trampTxt_mc.Tramp_mc.gotoAndStop("TrampBoy");
+			}
+			this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+			trampTxt_mc.visible = true;
+			trampTxt_mc.gotoAndStop(2);
+		}
+		
+		//關閉街童對話框,兩秒後恢復偵聽
+		private function closeTrampTxt(e:MouseEvent):void 
+		{
+			this.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			trampTxt_mc.visible = false;
+			trampTxt_mc.gotoAndStop(1);
+			Tweener.addTween(this, { time:2, onComplete:function() {
+				tempTramp.addEventListener(BadguyEvent.TOUCH, information);
+			}} );
 		}
 		
 		//被纏上==鎖住鍵盤無法移動==扣血及暫時無敵
@@ -190,6 +214,7 @@ package As
 				stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 				upPressed = downPressed = rightPressed = leftPressed = false;
 				userInvincible = true;
+				sb2.play();
 				//user_mc.alpha = 0.2;
 				//第一次Tweener鎖住鍵盤3秒,第二次Tweener維持無敵2秒後復原
 				Tweener.addTween(user_mc, { time:3, onComplete:function() {
@@ -223,6 +248,7 @@ package As
 			if (!userInvincible) {
 				modeTxt = "c";
 				userInvincible = true;
+				sb1.play();
 				//user_mc.alpha = 0.2;
 				Tweener.addTween(user_mc, { /*alpha:1,*/ time:2, transition:"easeInBounce", onComplete:function() {
 					userInvincible = false;
@@ -307,6 +333,7 @@ package As
 			//用子彈位置判斷是否在使用中
 			if (bullet_mc.x == -20 && bullet_mc.y == -20) {
 				bulletMove(user_mc.x + user_mc.width / 2, user_mc.y - 35);
+				sc2.play();
 				if (directionTxt == "u") { 
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y - 120, time:.3, transition:"easeOutCirc", onComplete:function() {
 						bulletMove( -20, -20);
@@ -406,17 +433,20 @@ package As
 		
 		//暫停
 		override public function Pause(e:MainEvent):void {
-			trace("stage喊暫停!!");
+			//trace("stage喊暫停!!");
 			user_mc.removeEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
-			this.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
-			this.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
+			stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+			upPressed = downPressed = rightPressed = leftPressed = false;
+			cola_mc.gotoAndStop(directionTxt);
+			MovieClip(cola_mc.getChildAt(1)).stop();
 		}
 		
 		//結束暫停
 		override public function UnPause(e:MainEvent):void {
 			user_mc.addEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
-			this.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
-			this.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
+			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 		}
 		
 		//移除
@@ -427,8 +457,8 @@ package As
 			Tweener.removeAllTweens();  //trace("MainGame kill", Tweener.removeAllTweens(), Tweener.pauseAllTweens());
 			//ChangeSide_btn.removeEventListener(MouseEvent.CLICK, goChangeSide);
 			user_mc.removeEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
-			this.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
-			this.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
+			stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 			userClipBmpData.dispose();
 			map_mc.mapClipBmpData.dispose();
 		}
