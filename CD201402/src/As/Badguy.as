@@ -28,7 +28,8 @@ package As
 		private var myTime:Timer = new Timer(_time, 1);
 		private var birthTime:Timer = new Timer(5000, 1);	//重生速度
 		private var _move:int;
-		private var _speed:uint = 10;	//亂亂走速度
+		private var _speed:uint = 7;		//亂亂走速度
+		private var chaseSpeed:uint = 5;	//追逐速度
 		private var setRL:Boolean;
 		public var people:MovieClip;
 		
@@ -120,7 +121,7 @@ package As
 			}
 			
 			//偵測追逐區碰撞
-			if (userMc.alpha == 1 && userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 90, this.y - 90, 240, 210))) {
+			if (userMc.alpha == 1 && userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 150, this.y - 150, 360, 330))) {
 				//偵測攻擊區碰撞
 				if (userBD.hitTest(new Point(userMcX, userMcY), 255, new Rectangle(this.x - 30, this.y - 30, 120, 90))) {
 					goAttack();
@@ -172,31 +173,31 @@ package As
 			//this.gotoAndPlay(21);
 			_move = 0;
 			changeDirection();
-			if (directionTxt == "r") {
-				this.x ++;
-			}else if (directionTxt == "l") {
-				this.x --;
-			}
-			if (directionTxt == "d") {
-				this.y ++;
-			}else if (directionTxt == "u") {
-				this.y --;
+			if (directionTxt == "r" && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
+				this.x += chaseSpeed;
+			}else if (directionTxt == "l" && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x - _speed, this.y), 255)) {
+				this.x -= chaseSpeed;
+			}else if (directionTxt == "d" && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y + _speed), 255)) {
+				this.y += chaseSpeed;
+			}else if (directionTxt == "u" && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y - _speed), 255)) {
+				this.y -= chaseSpeed;
 			}
 			people.gotoAndStop(directionTxt);
 			MovieClip(people.getChildAt(1)).play();
 		}
 		
 		public function changeDirection():void {
-			if (userMcX > this.x+1 && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
-				directionTxt = "r";
-			}else if (userMcX < this.x && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x - _speed, this.y), 255)) {
-				directionTxt = "l";
-			}
-			if (userMcY > this.y+1 && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y + _speed), 255)) {
+			if (userMcY > this.y+5) {
 				directionTxt = "d";
-			}else if (userMcY < this.y && !mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y - _speed), 255)) {
+				if (userMcX > this.x+5) {
+					directionTxt = "r";
+				}else if (userMcX < this.x) {
+					directionTxt = "l";
+				}
+			}else if (userMcY < this.y) {
 				directionTxt = "u";
 			}
+			
 		}
 		
 		//碰到
@@ -228,7 +229,7 @@ package As
 		}
 		
 		//死亡==取消所有偵聽==消失==重生Time開始==
-		private function die():void {
+		public function die():void {
 			this.removeEventListener(Event.ENTER_FRAME, goMove);
 			myTime.removeEventListener(TimerEvent.TIMER_COMPLETE, reTime);
 			Tweener.addTween(this, { alpha:0, time:2, onComplete:function() {

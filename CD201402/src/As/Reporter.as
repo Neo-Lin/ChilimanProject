@@ -1,6 +1,7 @@
 package As 
 {
 	import As.Events.BadguyEvent;
+	import caurina.transitions.Tweener;
 	import flash.display.MovieClip;
 	/**
 	 * ...記者
@@ -25,6 +26,9 @@ package As
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CATCH, true));
 			people.gotoAndStop(directionTxt + "a");
 			MovieClip(people.getChildAt(1)).play();
+			Tweener.addTween(this, { time:1, onComplete:function() {
+				die();
+			} } );
 		}
 		
 		//被攻擊
@@ -33,6 +37,9 @@ package As
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CATCH, true));
 			people.gotoAndStop(directionTxt + "a");
 			MovieClip(people.getChildAt(1)).play();
+			Tweener.addTween(this, { time:1, onComplete:function() {
+				die();
+			} } );
 		}
 	}
 

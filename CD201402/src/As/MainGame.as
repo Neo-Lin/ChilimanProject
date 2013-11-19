@@ -34,6 +34,7 @@ package As
 		//private var mapClipBmpData:BitmapData;	//已使用場景上的map_mc.mapClipBmpData取代
 		private var userClipBmpData:BitmapData;
 		private var cola_mc:MovieClip;
+		private var attackZone:uint = 170;		//子彈攻擊距離
 		
 		private var tempShelter:Array = new Array();
 		private var tempTramp:MovieClip;
@@ -50,7 +51,6 @@ package As
 		//進入遊戲
 		override public function EnterGame():void
 		{
-			//bullet_mc.visible = map_mc.visible = false;
 			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
 			//人物走動用
@@ -71,11 +71,14 @@ package As
 			//初始化壞人及記者
 			badGuyInit();
 			
+			//bullet_mc.visible = false;	//子彈
 			trampTxt_mc.visible = false;	//街童對話框
 			trampTxt_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeTrampTxt);
 			cantPass_mc.visible = false;	//這裡還不能進入
-			//map_mc.visible = false;			//碰撞偵測用紅地圖
-			//user_mc.visible = false;		//可樂球碰撞偵測用藍色小塊
+			cantPass_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeCantPass);
+			enter_mc.visible = false;		//建築物進入範圍
+			map_mc.visible = false;		//碰撞偵測用紅地圖
+			user_mc.visible = false;		//可樂球碰撞偵測用藍色小塊
 		}
 		
 		//初始化壞人,記者,街童(已擺放在場景上)
@@ -175,7 +178,7 @@ package As
 		//子彈命中敵人
 		private function hit(e:BadguyEvent):void 
 		{
-			bulletMove( -20, -20);
+			bulletMove( -20, 1560);
 		}
 		
 		//遇到街童
@@ -215,6 +218,7 @@ package As
 				upPressed = downPressed = rightPressed = leftPressed = false;
 				userInvincible = true;
 				sb2.play();
+				cola_mc.lower5_mc.play(); //-5動畫
 				//user_mc.alpha = 0.2;
 				//第一次Tweener鎖住鍵盤3秒,第二次Tweener維持無敵2秒後復原
 				Tweener.addTween(user_mc, { time:3, onComplete:function() {
@@ -235,7 +239,9 @@ package As
 		{
 			if (SingletonValue.getInstance().hp + _hp <= 0) {
 				SingletonValue.getInstance().hp = 0;
-				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "221B.swf"));
+				this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+				cantPass_mc.visible = true;
+				cantPass_mc.gotoAndStop("nohp");
 			}else {
 				SingletonValue.getInstance().hp += _hp;
 			}
@@ -248,7 +254,8 @@ package As
 			if (!userInvincible) {
 				modeTxt = "c";
 				userInvincible = true;
-				sb1.play();
+				sb1.play(); //攻擊音效
+				cola_mc.lower10_mc.play(); //-10動畫
 				//user_mc.alpha = 0.2;
 				Tweener.addTween(user_mc, { /*alpha:1,*/ time:2, transition:"easeInBounce", onComplete:function() {
 					userInvincible = false;
@@ -274,7 +281,7 @@ package As
 				if (map_mc.y >= 0 || user_mc.y >= 370) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.y -= userSpeed;
 				}else {
-					mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
 				}
 				cola_mc.y -= userSpeed;
 				directionTxt = "u";
@@ -287,7 +294,7 @@ package As
 				if (map_mc.y <= -768 || user_mc.y <= 370) {	//判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.y += userSpeed;
 				}else {
-					mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
 				}
 				cola_mc.y += userSpeed;
 				directionTxt = "d";
@@ -300,7 +307,7 @@ package As
 				if (map_mc.x >= 0 || user_mc.x >= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.x -= userSpeed;
 				}else {
-					mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
 				}
 				cola_mc.x -= userSpeed;
 				directionTxt = "l";
@@ -313,7 +320,7 @@ package As
 				if (map_mc.x <= -1024 || user_mc.x <= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.x += userSpeed;
 				}else {
-					mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
 				}
 				cola_mc.x += userSpeed;
 				directionTxt = "r";
@@ -325,33 +332,39 @@ package As
 					MovieClip(cola_mc.getChildAt(1)).gotoAndStop(1);
 				}
 			}
+			//判斷是否碰到可進入建築物的範圍(enter_mc)
+			if (enter_mc.hitTestPoint(user_mc.x, user_mc.y, true)) {	
+				cola_mc.a_mc.visible = true;
+			}else {
+				cola_mc.a_mc.visible = false;
+			}
 		}
 		
 		//攻擊!!!!!
 		private function attack():void
 		{
 			//用子彈位置判斷是否在使用中
-			if (bullet_mc.x == -20 && bullet_mc.y == -20) {
+			if (bullet_mc.x == -20 && bullet_mc.y == 1560 && cola_mc.visible) {
 				bulletMove(user_mc.x + user_mc.width / 2, user_mc.y - 35);
 				sc2.play();
 				if (directionTxt == "u") { 
-					Tweener.addTween(bullet_mc, { y:bullet_mc.y - 120, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, -20);
+					Tweener.addTween(bullet_mc, { y:bullet_mc.y - attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
+						bulletMove( -20, 1560);
 						if(modeTxt == "a") modeTxt = "";
 						}});
 				}else if (directionTxt == "d") {
-					Tweener.addTween(bullet_mc, { y:bullet_mc.y + 120, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, -20);
+					Tweener.addTween(bullet_mc, { y:bullet_mc.y + attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
+						bulletMove( -20, 1560);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "l") {
-					Tweener.addTween(bullet_mc, { x:bullet_mc.x - 120, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, -20);
+					Tweener.addTween(bullet_mc, { x:bullet_mc.x - attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
+						bulletMove( -20, 1560);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "r") {
-					Tweener.addTween(bullet_mc, { x:bullet_mc.x + 120, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, -20);
+					Tweener.addTween(bullet_mc, { x:bullet_mc.x + attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
+						bulletMove( -20, 1560);
 						if (modeTxt == "a") modeTxt = "";
 						}}	);
 				}
@@ -366,7 +379,7 @@ package As
 		
 		//控制人物走動===============================================================
 		private function fl_SetKeyPressed(event:KeyboardEvent):void
-		{
+		{ 
 			switch (event.keyCode)
 			{
 				case Keyboard.UP: 
@@ -395,7 +408,14 @@ package As
 					break;
 				}
 				case Keyboard.SPACE: 
-				{
+				case 229:
+				{	
+					if (cola_mc.a_mc.visible) {
+						this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+						cantPass_mc.visible = true;
+						cantPass_mc.gotoAndStop("cantpass");
+						break;
+					}
 					attack();
 					modeTxt = "a";
 					break;
@@ -430,6 +450,17 @@ package As
 			}
 		}
 		//===============================================================控制人物走動
+		
+		//關閉提示字卡
+		private function closeCantPass(e:MouseEvent):void 
+		{
+			this.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			cantPass_mc.visible = false;
+			cantPass_mc.gotoAndStop(1);
+			if (cantPass_mc.currentLabel == "nohp") { 
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "221B.swf"));
+			}
+		}
 		
 		//暫停
 		override public function Pause(e:MainEvent):void {
