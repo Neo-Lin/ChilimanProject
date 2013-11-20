@@ -5,6 +5,7 @@ package As
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.media.Sound;
 	import flash.net.LocalConnection;
 	import flash.net.URLRequest;
 	import net.hires.debug.Stats;
@@ -40,10 +41,10 @@ package As
 			SingletonValue.getInstance().allGameSwf = allGameSwf;
 			//以下之後需要改成讀取記錄檔======================================
 			//設定一開始血量
-			SingletonValue.getInstance().hp = 85;
+			SingletonValue.getInstance().hp = 0;
 			//設定一開始所有案件狀態
-			SingletonValue.getInstance().caseArr = [1, 1, 2, 1];
-			SingletonValue.getInstance().caseNum = 2;
+			//SingletonValue.getInstance().caseArr = [1, 1, 2, 1];
+			//SingletonValue.getInstance().caseNum = 2;
 			//======================================以上之後需要改成讀取記錄檔
 			stage.addEventListener(MainEvent.CHANGE_SITE, ChangeSide);
 			this.addChild(myLoader);

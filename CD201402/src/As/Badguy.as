@@ -221,11 +221,11 @@ package As
 		//攻擊!!!
 		public function goAttack():void 
 		{
-			this.dispatchEvent(new BadguyEvent(BadguyEvent.ATTACK, true));
 			changeDirection();
 			//this.gotoAndPlay(11);
-			people.gotoAndStop(directionTxt + "a");
+			people.gotoAndStop(directionTxt + "a");	
 			MovieClip(people.getChildAt(1)).play();
+			this.dispatchEvent(new BadguyEvent(BadguyEvent.ATTACK, true));
 		}
 		
 		//死亡==取消所有偵聽==消失==重生Time開始==

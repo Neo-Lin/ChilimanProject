@@ -411,9 +411,7 @@ package As
 				case 229:
 				{	
 					if (cola_mc.a_mc.visible) {
-						this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
-						cantPass_mc.visible = true;
-						cantPass_mc.gotoAndStop("cantpass");
+						checkPass();
 						break;
 					}
 					attack();
@@ -421,6 +419,21 @@ package As
 					break;
 				}
 			}
+		}
+		
+		//檢查要進入哪個場景及是否可以進入
+		private function checkPass():void {
+			this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+			if (enter_mc.enter_221b_mc.hitTestPoint(user_mc.x, user_mc.y, true)) {
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "221B.swf"));
+			}else if (enter_mc["enter_case" + SingletonValue.getInstance().caseNum + "_mc"].hitTestPoint(user_mc.x, user_mc.y, true)) {
+				//若碰到目前案件的進入點,就進入該案件
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[0][SingletonValue.getInstance().caseNum]));
+			}else {
+				cantPass_mc.visible = true;
+				cantPass_mc.gotoAndStop("cantpass");
+			}
+			
 		}
 		
 		private function fl_UnsetKeyPressed(event:KeyboardEvent):void
@@ -455,11 +468,11 @@ package As
 		private function closeCantPass(e:MouseEvent):void 
 		{
 			this.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
-			cantPass_mc.visible = false;
-			cantPass_mc.gotoAndStop(1);
 			if (cantPass_mc.currentLabel == "nohp") { 
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "221B.swf"));
 			}
+			cantPass_mc.visible = false;
+			cantPass_mc.gotoAndStop(1);
 		}
 		
 		//暫停

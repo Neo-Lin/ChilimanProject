@@ -6,7 +6,9 @@ package As
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.media.SoundMixer;
 	import flash.net.URLRequest;
+	import flash.utils.getDefinitionByName;
 	import flash.utils.Timer;
 	/**
 	 * ...
@@ -18,6 +20,7 @@ package As
 		private var caseBtnNum:uint;
 		private var eventLoad:Loader = new Loader();
 		private var eventUrl:URLRequest;
+		private var allBtn:Array;
 		
 		public function B221() 
 		{ 
@@ -53,7 +56,11 @@ package As
 			event4_mc.addEventListener("finish", goCase);
 			event1_mc.visible = event2_mc.visible = event3_mc.visible = event4_mc.visible = false;
 			
+			allBtn = [case0_mc, case1_mc, case2_mc, case3_mc, changeCase_mc.y_btn, changeCase_mc.n_btn];
+			
 			initCaseBtn();
+			setSound();
+			
 		}
 		
 		//設定按鈕外觀
@@ -85,12 +92,14 @@ package As
 		//你要放棄其他案件的紀錄,開始新的案件挑戰嗎?
 		private function checkChange(e:MouseEvent):void 
 		{
+			stopSound("BTNSC");
 			caseBtnNum = e.currentTarget.name.charAt(4);
 			if (SingletonValue.getInstance().caseNum == 4) {
 				changeCase(null);
 			}else {
 				changeCase_mc.visible = true;
 				changeCase_mc.gotoAndStop(SingletonValue.getInstance().caseNum + 1);
+				playSound("TSC", getDefinitionByName("sound_changeCase" + SingletonValue.getInstance().caseNum) as Class);
 			}
 		}
 		
@@ -98,12 +107,14 @@ package As
 		private function noChange(e:MouseEvent):void 
 		{
 			changeCase_mc.visible = false;
+			stopSound("TSC");
 		}
 		
 		//修改caseArr陣列
 		private function changeCase(e:MouseEvent):void 
 		{
 			changeCase_mc.visible = false;
+			stopSound("TSC");
 			//把所有進行中都改成尚未進行
 			var _n:uint = SingletonValue.getInstance().caseArr.length;
 			for (var i = 0; i < _n; i++) { 
@@ -154,6 +165,7 @@ package As
 		private function goCase(e:Event):void 
 		{
 			goCase_mc.visible = true; 
+			playSound("TSC", sound_goCase);
 		}
 		
 		//恢復可樂球血量
@@ -169,6 +181,39 @@ package As
 			}
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
 		}
+		
+		//設定按鈕聲音=============================================================
+		private function setSound():void {
+			playSound("BGSC", sound_bg, 0, 1000);	//背景音樂
+			var _n:uint = allBtn.length;
+			for (var i:uint = 0; i < _n; i++) {	
+				allBtn[i].addEventListener(MouseEvent.MOUSE_OVER, btnPlaySound);
+				allBtn[i].addEventListener(MouseEvent.MOUSE_OUT, btnStopSound);
+			}
+		}
+		
+		private function btnPlaySound(e:MouseEvent):void 
+		{	
+			if (e.currentTarget.name == "case0_mc") {
+				playSound("BTNSC", sound_case0);
+			}else if (e.currentTarget.name == "case1_mc") {
+				playSound("BTNSC", sound_case1);
+			}else if (e.currentTarget.name == "case2_mc") {
+				playSound("BTNSC", sound_case2);
+			}else if (e.currentTarget.name == "case3_mc") {
+				playSound("BTNSC", sound_case3);
+			}else if (e.currentTarget.name == "y_btn") {
+				playSound("BTNSC", sound_y);
+			}else if (e.currentTarget.name == "n_btn") {
+				playSound("BTNSC", sound_n);
+			}
+		}
+		
+		private function btnStopSound(e:MouseEvent):void 
+		{
+			stopSound("BTNSC");
+		}
+		//設定按鈕聲音============================================================
 		
 		//換場景
 		private function goChangeSide(e:MouseEvent):void 

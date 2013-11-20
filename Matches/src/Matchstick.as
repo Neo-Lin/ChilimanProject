@@ -123,7 +123,10 @@ package
 		{
 			txtCard_mc.gotoAndStop("lose");
 			txtCard_mc.visible = true;
+			time_mc.stopTime();
+			nowStep = 0;
 			againNum = 1;
+			nowQ = 5;
 		}
 		
 		//再試一次
@@ -131,6 +134,7 @@ package
 		{
 			txtCard_mc.gotoAndStop("again");
 			txtCard_mc.visible = true;
+			time_mc.stopTime();
 			againNum++;
 			life_mc.gotoAndStop(againNum);
 			nowStep = 0;
@@ -141,6 +145,7 @@ package
 		{
 			txtCard_mc.gotoAndStop("win");
 			txtCard_mc.visible = true;
+			time_mc.stopTime();
 			nowStep = 0;
 			againNum = 1;
 			nowQ++;
@@ -149,16 +154,15 @@ package
 		//下一關或再試一次
 		private function goNextQ(e:MouseEvent):void 
 		{
+			//三次機會都用完或是全部過關就回首頁
 			if (txtCard_mc.currentLabel == "lose" || txtCard_mc.currentLabel == "allWin") {
-				nowStep = 0;
-				againNum = 1;
-				nowQ = 5;
 				this.gotoAndStop("index");
 				start_btn.visible = true;
 				return;
 			}
 			txtCard_mc.visible = false;
 			actionQ();
+			time_mc.startTime();
 		}
 		
 	}

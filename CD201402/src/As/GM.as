@@ -4,6 +4,9 @@ package As
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
 	
 	/**
 	 * ...
@@ -11,6 +14,12 @@ package As
 	 */
 	public class GM extends MovieClip 
 	{
+		private var BGSC:SoundChannel;		//背景音樂面板
+		private var BTNSC:SoundChannel;		//按鈕音樂面板
+		private var ESC:SoundChannel;		//音效音樂面板
+		private var TSC:SoundChannel;		//語音音樂面板
+		private var tmpSnd:Sound;
+		private var tmpST:SoundTransform;
 		
 		public function GM() 
 		{
@@ -26,6 +35,21 @@ package As
 			stage.addEventListener(MainEvent.UN_PAUSE, UnPause);
 			// entry point
 			EnterGame();
+		}
+		
+		//播放音樂
+		public function playSound( SC:String , sound:Class , startTime:Number = 0 , loop:int = 1 , vol:Number = 1 ){
+			tmpSnd = new sound();
+			tmpST = new SoundTransform( vol );
+			this[SC] = tmpSnd.play( startTime , loop , tmpST );
+		}
+		
+		//停止音樂面板
+		public function stopSound( SC:String = null ){
+			if( this[SC] != null ){
+				this[SC].stop();
+				SC = null;
+			}
 		}
 		
 		//進入遊戲
@@ -50,6 +74,10 @@ package As
 		public function kill(e:Event):void 
 		{
 			removeEventListener(Event.REMOVED_FROM_STAGE, kill);
+			stopSound("BTNSC");
+			stopSound("ESC");
+			stopSound("TSC");
+			stopSound("BGSC");
 		}
 	}
 
