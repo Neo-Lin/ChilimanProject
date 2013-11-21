@@ -12,7 +12,11 @@ package As
 		
 		public function Reporter() 
 		{
-			
+			chaseZoneX = 600;
+			chaseZoneY = 300;
+			chaseZoneW = chaseZoneX * 2 + 60;
+			chaseZoneH = chaseZoneY * 2 + 30;
+			//trace(chaseZoneW, chaseZoneH);
 		}
 		
 		override public function inits():void {

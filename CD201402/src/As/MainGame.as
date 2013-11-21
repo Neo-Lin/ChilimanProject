@@ -34,7 +34,7 @@ package As
 		//private var mapClipBmpData:BitmapData;	//已使用場景上的map_mc.mapClipBmpData取代
 		private var userClipBmpData:BitmapData;
 		private var cola_mc:MovieClip;
-		private var attackZone:uint = 170;		//子彈攻擊距離
+		private var attackZone:uint = 200;		//子彈攻擊距離
 		
 		private var tempShelter:Array = new Array();
 		private var tempTramp:MovieClip;
@@ -178,7 +178,7 @@ package As
 		//子彈命中敵人
 		private function hit(e:BadguyEvent):void 
 		{
-			bulletMove( -20, 1560);
+			bulletMove( -20, 1600);
 		}
 		
 		//遇到街童
@@ -281,7 +281,7 @@ package As
 				if (map_mc.y >= 0 || user_mc.y >= 370) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.y -= userSpeed;
 				}else {
-					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
+					mask_mc.y = enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
 				}
 				cola_mc.y -= userSpeed;
 				directionTxt = "u";
@@ -294,7 +294,7 @@ package As
 				if (map_mc.y <= -768 || user_mc.y <= 370) {	//判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.y += userSpeed;
 				}else {
-					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
+					mask_mc.y = enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
 				}
 				cola_mc.y += userSpeed;
 				directionTxt = "d";
@@ -307,7 +307,7 @@ package As
 				if (map_mc.x >= 0 || user_mc.x >= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.x -= userSpeed;
 				}else {
-					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
+					mask_mc.x = enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
 				}
 				cola_mc.x -= userSpeed;
 				directionTxt = "l";
@@ -320,7 +320,7 @@ package As
 				if (map_mc.x <= -1024 || user_mc.x <= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.x += userSpeed;
 				}else {
-					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
+					mask_mc.x = enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
 				}
 				cola_mc.x += userSpeed;
 				directionTxt = "r";
@@ -344,27 +344,27 @@ package As
 		private function attack():void
 		{
 			//用子彈位置判斷是否在使用中
-			if (bullet_mc.x == -20 && bullet_mc.y == 1560 && cola_mc.visible) {
+			if (bullet_mc.x == -20 && bullet_mc.y == 1600 && cola_mc.visible) {
 				bulletMove(user_mc.x + user_mc.width / 2, user_mc.y - 35);
 				sc2.play();
 				if (directionTxt == "u") { 
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y - attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1560);
+						bulletMove( -20, 1600);
 						if(modeTxt == "a") modeTxt = "";
 						}});
 				}else if (directionTxt == "d") {
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y + attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1560);
+						bulletMove( -20, 1600);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "l") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x - attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1560);
+						bulletMove( -20, 1600);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "r") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x + attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1560);
+						bulletMove( -20, 1600);
 						if (modeTxt == "a") modeTxt = "";
 						}}	);
 				}
@@ -428,7 +428,8 @@ package As
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "221B.swf"));
 			}else if (enter_mc["enter_case" + SingletonValue.getInstance().caseNum + "_mc"].hitTestPoint(user_mc.x, user_mc.y, true)) {
 				//若碰到目前案件的進入點,就進入該案件
-				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[0][SingletonValue.getInstance().caseNum]));
+				//this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[0][SingletonValue.getInstance().caseNum]));
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "INTO"));
 			}else {
 				cantPass_mc.visible = true;
 				cantPass_mc.gotoAndStop("cantpass");

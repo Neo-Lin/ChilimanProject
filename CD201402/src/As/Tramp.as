@@ -10,7 +10,10 @@ package As
 		
 		public function Tramp() 
 		{
-			
+			chaseZoneX = 0;
+			chaseZoneY = 0;
+			chaseZoneW = chaseZoneX * 2 + 60;
+			chaseZoneH = chaseZoneY * 2 + 30;
 		}
 		
 		override public function inits():void {
