@@ -97,7 +97,7 @@ package As
 		private function reTime(e:TimerEvent):void 
 		{ 
 			//設定下次移動時間
-			_time = (Math.random() * 4 + 1) * 1000; //trace(_time);
+			_time = (Math.random() * 2) * 1000; //trace(_time);
 			myTime.delay = _time;
 			
 			//設定移動x或移動y
@@ -107,7 +107,7 @@ package As
 				setRL = false;
 			}
 			//設定移動距離
-			_move = Math.random() * 60 - 30; //trace("_move=",_move);
+			_move = Math.random() * 80 - 40; //trace("_move=",_move);
 		}
 		
 		//移動角色
@@ -212,10 +212,12 @@ package As
 			}else {
 				tempDirection2 = "";
 			}
-			if (tempDirection1 == "") {
-				tempDirection1 = tempDirection2;
+			if (tempDirection1 == "" && tempDirection2 == "") {
+				tempDirection1 = tempDirection2 = directionTxt;
+			}else if (tempDirection1 == "") {
+				directionTxt = tempDirection1 = tempDirection2;
 			}else if (tempDirection2 == "") {
-				tempDirection2 = tempDirection1;
+				directionTxt = tempDirection2 = tempDirection1;
 			}
 		}
 		
@@ -303,6 +305,9 @@ package As
 		public function Pause(e:MainEvent):void {
 			//trace("Badguy暫停!!");
 			this.removeEventListener(Event.ENTER_FRAME, goMove);
+			myTime.reset();
+			birthTime.reset();
+			Tweener.pauseAllTweens();
 			people.gotoAndStop(directionTxt);
 			MovieClip(people.getChildAt(1)).gotoAndStop(1);
 		}
@@ -310,7 +315,11 @@ package As
 		//結束暫停
 		public function UnPause(e:MainEvent):void {
 			//trace("Badguy結束暫停!!");
-			this.addEventListener(Event.ENTER_FRAME, goMove);
+			Tweener.resumeAllTweens();
+			myTime.start();
+			birthTime.start();
+			//死亡後會自動重生,若這時暫停就會自動恢復ENTER_FRAME的偵聽而出問題,因此做個是否在重生中的判斷
+			if(!birthTime.hasEventListener(TimerEvent.TIMER_COMPLETE)) this.addEventListener(Event.ENTER_FRAME, goMove);
 		}
 		
 	}

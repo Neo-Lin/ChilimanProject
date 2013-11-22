@@ -35,6 +35,7 @@ package As
 		private var userClipBmpData:BitmapData;
 		private var cola_mc:MovieClip;
 		private var attackZone:uint = 200;		//子彈攻擊距離
+		private var bullet_mc:MovieClip;
 		
 		private var tempShelter:Array = new Array();
 		private var tempTramp:MovieClip;
@@ -67,6 +68,7 @@ package As
 			userClipBmpData.draw(user_mc);
 			/*mapClipBmpData = new BitmapData(stage.stageWidth, stage.stageHeight, true, 0);
 			mapClipBmpData.draw(map_mc);*/
+			bullet_mc = NPC_mc.bullet_mc;
 			
 			//初始化壞人及記者
 			badGuyInit();
@@ -141,7 +143,7 @@ package As
 				))
 			{	
 				user_mc.x -= user_mc.width / 2;
-				user_mc.y = user_mc.y - user_mc.height;
+				user_mc.y = user_mc.y - user_mc.height - 3;
 				cola_mc.x -= user_mc.width / 2;
 				cola_mc.y = cola_mc.y - user_mc.height;
 				unCover();
@@ -178,7 +180,7 @@ package As
 		//子彈命中敵人
 		private function hit(e:BadguyEvent):void 
 		{
-			bulletMove( -20, 1600);
+			bulletMove( -20, 1700);
 		}
 		
 		//遇到街童
@@ -281,7 +283,7 @@ package As
 				if (map_mc.y >= 0 || user_mc.y >= 370) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.y -= userSpeed;
 				}else {
-					mask_mc.y = enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y += userSpeed;
 				}
 				cola_mc.y -= userSpeed;
 				directionTxt = "u";
@@ -294,7 +296,7 @@ package As
 				if (map_mc.y <= -768 || user_mc.y <= 370) {	//判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.y += userSpeed;
 				}else {
-					mask_mc.y = enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y -= userSpeed;
 				}
 				cola_mc.y += userSpeed;
 				directionTxt = "d";
@@ -307,7 +309,7 @@ package As
 				if (map_mc.x >= 0 || user_mc.x >= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.x -= userSpeed;
 				}else {
-					mask_mc.x = enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x += userSpeed;
 				}
 				cola_mc.x -= userSpeed;
 				directionTxt = "l";
@@ -317,10 +319,10 @@ package As
 				
 				))
 			{
-				if (map_mc.x <= -1024 || user_mc.x <= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
+				if (map_mc.x <= -1014 || user_mc.x <= 500) { //判斷地圖移動或人物移動(map_mc已到底或user_mc未到中間)
 					user_mc.x += userSpeed;
-				}else {
-					mask_mc.x = enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
+				}else {  
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x -= userSpeed;
 				}
 				cola_mc.x += userSpeed;
 				directionTxt = "r";
@@ -344,27 +346,27 @@ package As
 		private function attack():void
 		{
 			//用子彈位置判斷是否在使用中
-			if (bullet_mc.x == -20 && bullet_mc.y == 1600 && cola_mc.visible) {
-				bulletMove(user_mc.x + user_mc.width / 2, user_mc.y - 35);
+			if (bullet_mc.x == -20 && bullet_mc.y == 1700 && cola_mc.visible) {
+				bulletMove(cola_mc.x + cola_mc.width / 2, cola_mc.y + 35);
 				sc2.play();
 				if (directionTxt == "u") { 
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y - attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1600);
+						bulletMove( -20, 1700);
 						if(modeTxt == "a") modeTxt = "";
 						}});
 				}else if (directionTxt == "d") {
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y + attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1600);
+						bulletMove( -20, 1700);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "l") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x - attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1600);
+						bulletMove( -20, 1700);
 						if(modeTxt == "a") modeTxt = "";
 						}}	);
 				}else if (directionTxt == "r") {
 					Tweener.addTween(bullet_mc, { x:bullet_mc.x + attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
-						bulletMove( -20, 1600);
+						bulletMove( -20, 1700);
 						if (modeTxt == "a") modeTxt = "";
 						}}	);
 				}

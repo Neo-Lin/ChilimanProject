@@ -24,9 +24,16 @@ package As
 			people.stop();
 		}
 		
+		override public function goChase():void 
+		{
+			super.goChase();
+			see_mc.play();
+		}
+		
 		//攻擊-纏住!!!
 		override public function goAttack():void 
 		{
+			see_mc.play();
 			this.dispatchEvent(new BadguyEvent(BadguyEvent.CATCH, true));
 			people.gotoAndStop(directionTxt + "a");
 			MovieClip(people.getChildAt(1)).play();
