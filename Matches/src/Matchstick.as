@@ -108,6 +108,7 @@ package
 					trace("沒過");
 					if (againNum == 3) {
 						lose();
+						life_mc.gotoAndStop(4);	//燈全滅
 					} else {
 						again();
 					}

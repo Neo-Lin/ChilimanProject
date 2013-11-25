@@ -347,7 +347,7 @@ package As
 		{
 			//用子彈位置判斷是否在使用中
 			if (bullet_mc.x == -20 && bullet_mc.y == 1700 && cola_mc.visible) {
-				bulletMove(cola_mc.x + cola_mc.width / 2, cola_mc.y + 35);
+				bulletMove(cola_mc.x + cola_mc.width / 4, cola_mc.y);
 				sc2.play();
 				if (directionTxt == "u") { 
 					Tweener.addTween(bullet_mc, { y:bullet_mc.y - attackZone, time:.3, transition:"easeOutCirc", onComplete:function() {
@@ -412,10 +412,10 @@ package As
 				case Keyboard.SPACE: 
 				case 229:
 				{	
-					if (cola_mc.a_mc.visible) {
+					/*if (cola_mc.a_mc.visible) {
 						checkPass();
 						break;
-					}
+					}*/
 					attack();
 					modeTxt = "a";
 					break;

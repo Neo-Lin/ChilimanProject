@@ -10,6 +10,7 @@ package As
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.media.Sound;
+	import flash.media.Video;
 	import flash.utils.Timer;
 	
 	/**
@@ -46,6 +47,15 @@ package As
 		private var tempDirection1:String;
 		private var tempDirection2:String;
 		private var tempDirectionTime:uint;
+		private var tempDirection:Number;
+		
+		private var tempBadguyX:Number;		//判斷是否卡住用
+		private var tempBadguyY:Number;
+		private var stopXY:uint;
+		private var tempStopXY:uint;
+		
+		public var onChase:Boolean = false;  //是否在追擊狀態
+		
 		private var modeTxt:String = "";	//空:走路 a:攻擊 b:被攻擊
 		private var sb3:Sound = new sound_bad3();
 		
@@ -137,7 +147,10 @@ package As
 					return;
 				}
 				goChase();
+				onChase = true;
 				return;
+			}else {
+				onChase = false;
 			}
 			
 			//亂亂走
@@ -226,13 +239,58 @@ package As
 			tempDirectionTime++;
 			if (tempDirectionTime == 5) {
 				tempDirectionTime = 0;
-				if (Math.random() * 4 > 2) {
-					directionTxt = tempDirection1;
+				tempDirection = Math.random() * 2;	
+			}
+			if (tempDirection > 1) {
+				directionTxt = tempDirection1;
+			}else {
+				directionTxt = tempDirection2;
+			}
+			
+			//判斷是否卡住
+			if (tempStopXY == 0) {
+				if (tempBadguyX == this.x && tempBadguyY == this.y) {
+					stopXY ++;
 				}else {
-					directionTxt = tempDirection2;
+					tempBadguyX = this.x;
+					tempBadguyY = this.y;
+					stopXY = 0;
 				}
+				if (stopXY > 30) {
+					tempStopXY = stopXY;
+					duck();
+				}
+			}else {
+				duck();
 			}
 		}
+		
+		//躲避左下,左上,右下,右上障礙
+		private function duck():void {
+			if (tempDirection1 == "u" && tempDirection2 == "l") {
+				directionTxt = "r";
+			}else if (tempDirection1 == "d" && tempDirection2 == "l") {
+				directionTxt = "r";
+			}else if (tempDirection1 == "d" && tempDirection2 == "r") {
+				directionTxt = "l";
+			}else if (tempDirection1 == "u" && tempDirection2 == "r") {
+				directionTxt = "d";
+			}else if(tempDirection1 == "d" || tempDirection1 == "u"){
+				if (!mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x + _speed, this.y), 255)) {
+					directionTxt = "r";
+				}else {
+					directionTxt = "l";
+				}
+			}else if(tempDirection2 == "r" || tempDirection2 == "l"){
+				if (!mapBD.hitTest(mapBDPoint, 255, thisBD, new Point(this.x, this.y + _speed), 255)) {
+					directionTxt = "d";
+				}else {
+					directionTxt = "u";
+				}
+			}
+			tempStopXY --;
+		}
+		
 		
 		//碰到
 		public function goTouch():void 

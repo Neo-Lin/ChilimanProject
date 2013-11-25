@@ -3,12 +3,14 @@ package As
 	import As.Events.BadguyEvent;
 	import caurina.transitions.Tweener;
 	import flash.display.MovieClip;
+	import flash.media.Sound;
 	/**
 	 * ...記者
 	 * @author Neo
 	 */
 	public class Reporter extends Badguy 
 	{
+		private var sb4:Sound = new sound_bad4();
 		
 		public function Reporter() 
 		{
@@ -28,6 +30,9 @@ package As
 		{
 			super.goChase();
 			see_mc.play();
+			if (!onChase) {
+				sb4.play();
+			}
 		}
 		
 		//攻擊-纏住!!!
