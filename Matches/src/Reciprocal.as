@@ -36,6 +36,10 @@ package
 			myTime.stop();
 		}
 		
+		public function reStartTime():void {
+			myTime.start();
+		}
+		
 		private function changeTime(e:TimerEvent):void 
 		{
 			second--;
