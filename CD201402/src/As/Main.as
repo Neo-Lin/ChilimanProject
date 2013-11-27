@@ -5,6 +5,7 @@ package As
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.media.Sound;
 	import flash.net.LocalConnection;
 	import flash.net.URLRequest;
@@ -15,20 +16,23 @@ package As
 	 * @author Neo
 	 */
 	public class Main extends Sprite
-	{	//1:顯示, 2:顯示但可以跳過, 3:不顯示, 4:互動內容
+	{	//撥放狀態--1:顯示, 2:顯示但可以跳過, 3:不顯示, 4:互動內容
 		private var INTO:Array = ["G01_INTO.swf", "G02_INTO.swf", "G03_INTO.swf", "G04_INTO.swf"];				//子遊戲開場動畫_swf
-		private var _INTO:Array = ["1", "1", "1", "1"];															//播放狀態
+		private var _INTO:Array = [2, 2, 2, 2];																		//播放狀態
 		private var QEX:Array = ["G01_Q_EX.swf", "G02_Q_EX.swf", "G03_Q_EX.swf", "G04_Q_EX.swf"];				//題庫說明動畫_swf
-		private var _QEX:Array = ["2", "2", "2", "2"];															//播放狀態
+		private var _QEX:Array = [2, 2, 2, 2];																		//播放狀態
 		private var Q:Array =  ["G01_Q.swf", "G02_Q.swf", "G03_Q.swf", "G04_Q.swf"];							//題庫
 		private var GEX:Array = ["G01_G_EX.swf", "G02_G_EX.swf", "G03_G_EX.swf", "G04_G_EX.swf"];				//遊戲說明動畫_swf
-		private var _GEX:Array = ["1", "1", "1", "1"];															//播放狀態
+		private var _GEX:Array = [2, 2, 2, 2];																		//播放狀態
 		private var G:Array = ["G01.swf", "G02.swf", "G03.swf", "G04.swf"];										//遊戲
 		private var EVENTS:Array = ["G01_EVENT.swf", "G02_EVENT.swf", "G03_EVENT.swf", "G04_EVENT.swf"];		//案發過程動畫(221B室按下案件按鈕時載入撥放)
 		private var allGameSwf:Array = [INTO, QEX, Q, GEX, G, EVENTS];
 		private var _allGameSwf:Array = [_INTO, _QEX, null, _GEX];
+		private var allUnitTxt:Array = ["INTO", "QEX", "Q", "GEX", "G"];
 		private var myLoader:Loader = new Loader();
 		private var myUrl:URLRequest = new URLRequest("221B_EX.swf");
+		private var tempSiteName:String;
+		//private var nowUnit:uint; //紀錄目前allGameSwf進行第幾個
 		
 		public function Main():void
 		{
@@ -51,6 +55,7 @@ package As
 			//SingletonValue.getInstance().caseNum = 2;
 			//======================================以上之後需要改成讀取記錄檔
 			stage.addEventListener(MainEvent.CHANGE_SITE, ChangeSide);
+			stage.addEventListener(MainEvent.GAME_FINISH, Win);
 			this.addChild(myLoader);
 			LoadSwf();
 		}
@@ -61,17 +66,24 @@ package As
 			trace("Main: 換場景前: stage.numChildren=", stage.numChildren, "  ///  this.numChildren=" + this.numChildren);
 			trace("Main: ", e.currentTarget, e.target);
 			
-			if (e.ChangeSiteName.search(".swf") > -1) {
+			tempSiteName = e.ChangeSiteName;
+			if (tempSiteName == "INTO") {  //載入子遊戲開場動畫
+				SingletonValue.getInstance().unitNum = 0;
+				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
+			}else if(tempSiteName == "QEX") {	//載入題庫說明動畫
+				SingletonValue.getInstance().unitNum = 1;
+				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
+			}else if(tempSiteName == "Q") {	//載入題庫
+				SingletonValue.getInstance().unitNum = 2;
+			}else if(tempSiteName == "GEX") {	//載入子遊戲說明動畫
+				SingletonValue.getInstance().unitNum = 3;
+				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
+			}else if(tempSiteName == "G") {	//載入子遊戲
+				SingletonValue.getInstance().unitNum = 4;
+			}
+			myUrl = new URLRequest(allGameSwf[SingletonValue.getInstance().unitNum][SingletonValue.getInstance().caseNum]);
+			if (tempSiteName.search(".swf") > -1) {  //直接給路徑
 				myUrl = new URLRequest(e.ChangeSiteName);
-			}else if(e.ChangeSiteName == "INTO") {
-				myUrl = new URLRequest(allGameSwf[0][SingletonValue.getInstance().caseNum]);
-				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
-			}else if(e.ChangeSiteName == "QEX") {
-				myUrl = new URLRequest(allGameSwf[1][SingletonValue.getInstance().caseNum]);
-				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
-			}else if(e.ChangeSiteName == "GEX") {
-				myUrl = new URLRequest(allGameSwf[3][SingletonValue.getInstance().caseNum]);
-				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
 			}
 			myLoader.unloadAndStop();
 			LoadSwf();
@@ -83,11 +95,30 @@ package As
 		{
 			myLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, goINTO);
 			var _mc:MovieClip = e.currentTarget.content as MovieClip;
-			_mc.addFrameScript(_mc.totalFrames-1, function() {
-				//import flash.events.Event;
-				stage.dispatchEvent(new Event("test!!!!!")); 
-				//trace("INFO TRSCE");
-			});
+			//在最後一個影格加程式碼,讓動畫播完可以自動載入下一個swf
+			if(tempSiteName == "INTO") {  //載入子遊戲開場動畫
+				_mc.addFrameScript(_mc.totalFrames - 1, function() {
+					stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "QEX"));
+				});
+			}else if(tempSiteName == "QEX") {	//載入題庫說明動畫
+				_mc.addFrameScript(_mc.totalFrames-1, function() {
+					stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "Q"));
+				});
+			}else if(tempSiteName == "GEX") {	//載入遊戲說明動畫
+				_mc.addFrameScript(_mc.totalFrames-1, function() {
+					stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G"));
+				});
+			}
+			//如果播放狀態是2表示可以點滑鼠跳過
+			if (_allGameSwf[SingletonValue.getInstance().unitNum][SingletonValue.getInstance().caseNum] == 2) {
+				_mc.addFrameScript(1, function() {
+					stage.addEventListener(MouseEvent.CLICK, goNext);
+					function goNext(e:MouseEvent):void {
+						stage.removeEventListener(MouseEvent.CLICK, goNext);	
+						stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  allUnitTxt[SingletonValue.getInstance().unitNum+1]));
+					}
+				});
+			}
 		}
 		
 		//載入swf
@@ -99,7 +130,13 @@ package As
 			
 			trace("Main: LoadSwf載入後:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren);
 		}
-	
+		
+		//過關
+		private function Win(e:MainEvent):void {	
+			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] = 3;
+			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
+		}
+		
 	}
 
 }

@@ -21,6 +21,10 @@ package As
 		private var eventLoad:Loader = new Loader();
 		private var eventUrl:URLRequest;
 		private var allBtn:Array;
+		private var soundArray:Array = [[sound_g1_1, sound_g1_2, sound_g1_3, sound_g1_4, sound_g1_5],
+										[sound_g2_1, sound_g2_2, sound_g2_3, sound_g2_4],
+										[sound_g3_1, sound_g3_2, sound_g3_3, sound_g3_4],
+										[sound_g4_1, sound_g4_2, sound_g4_3]];
 		
 		public function B221() 
 		{ 
@@ -32,7 +36,29 @@ package As
 			
 			//測試模式
 			if (SingletonValue.getInstance().testMode) {
-				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+				//this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+			}
+			//trace(SingletonValue.getInstance().unitNum, SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum])
+			//華生對話,依據進入221B時的狀態播放語音
+			if (SingletonValue.getInstance().caseNum == 4) { //未進行任何案件
+				playSound("TSC", sound_start);
+				watson_mc.gotoAndStop(3);
+			}else if (SingletonValue.getInstance().hp <= 10) { //快掛了
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][1]);
+				watson_mc.gotoAndStop(7);
+			}else if (SingletonValue.getInstance().unitNum == 5) { //沒進去案發現場
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][0]);
+				watson_mc.gotoAndStop(2);
+			}else if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 2) { //沒過關
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][2]);
+				watson_mc.gotoAndStop(5);
+			}else if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //過關
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][3]);
+				watson_mc.gotoAndStop(4);
+				SingletonValue.getInstance().caseNum = 4;  //播完過關語音後將目前進行案件改成無
+			}else if (SingletonValue.getInstance().unitNum == 2) { //只有G01有這狀況
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][4]);
+				watson_mc.gotoAndStop(6);
 			}
 			
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
@@ -47,7 +73,6 @@ package As
 			goCase_mc.visible = false;		
 			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, goChangeSide);	//前往主遊戲G00
 			
-			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
 			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
 			//四個案件的華生與可樂球對話
 			event1_mc.addEventListener("finish", goCase);
@@ -131,6 +156,7 @@ package As
 				SingletonValue.getInstance().caseArr[caseBtnNum] = 2;
 			}
 			SingletonValue.getInstance().caseNum = caseBtnNum;	//設定caseNum為目前進行中的案件編號
+			SingletonValue.getInstance().unitNum = 5;	//設定案件進度,一律都由EVENTS(案發過程動畫)開始
 			//trace(SingletonValue.getInstance().caseNum);
 			initCaseBtn();
 			//載入
@@ -194,6 +220,8 @@ package As
 		
 		private function btnPlaySound(e:MouseEvent):void 
 		{	
+			stopSound("TSC");
+			scComplete();
 			if (e.currentTarget.name == "case0_mc") {
 				playSound("BTNSC", sound_case0);
 			}else if (e.currentTarget.name == "case1_mc") {
@@ -214,6 +242,11 @@ package As
 			stopSound("BTNSC");
 		}
 		//設定按鈕聲音============================================================
+		
+		override public function scComplete(e:Event = null):void 
+		{	
+			watson_mc.gotoAndStop(1);
+		}
 		
 		//換場景
 		private function goChangeSide(e:MouseEvent):void 

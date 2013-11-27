@@ -85,6 +85,7 @@ package As
 			if (SingletonValue.getInstance().testMode) {
 				nowChNum = 4;
 				count_mc.gotoAndPlay(76);
+				//stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
 			}
 			
 			initData();

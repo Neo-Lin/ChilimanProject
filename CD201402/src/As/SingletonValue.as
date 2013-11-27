@@ -8,9 +8,10 @@ package As
 	{
 		private static var  _instance:SingletonValue;
 		
-		private var _testMode:Boolean = false;	//測試模式
+		private var _testMode:Boolean = true;	//測試模式
 		private var HP:uint = 100;
 		private var _caseNum:uint = 4;		//目前進行案件0~3,4=無
+		private var _unitNum:uint = 5;		//目前進行案件進度--0:INTO, 1:QEX, 2:Q, 3:GEX, 4:G, 5:EVENTS
 		private var _caseArr:Array = [1, 1, 1, 1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
 		private var _allGameSwf:Array;
 		
@@ -81,6 +82,16 @@ package As
 		public function set testMode(value:Boolean):void 
 		{
 			_testMode = value;
+		}
+		
+		public function get unitNum():uint 
+		{
+			return _unitNum;
+		}
+		
+		public function set unitNum(value:uint):void 
+		{
+			_unitNum = value;
 		}
 		
 	}

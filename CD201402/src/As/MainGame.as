@@ -53,6 +53,11 @@ package As
 		override public function EnterGame():void
 		{
 			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
+			//測試模式
+			if (SingletonValue.getInstance().testMode) {
+				userInvincible = true;
+			}
+			
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
 			//人物走動用
 			stage.stageFocusRect = false;
@@ -78,7 +83,7 @@ package As
 			trampTxt_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeTrampTxt);
 			cantPass_mc.visible = false;	//這裡還不能進入
 			cantPass_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeCantPass);
-			enter_mc.visible = false;		//建築物進入範圍
+			enter_mc.visible = false;		//建築物入口偵測區
 			map_mc.visible = false;		//碰撞偵測用紅地圖
 			user_mc.visible = false;		//可樂球碰撞偵測用藍色小塊
 		}
@@ -412,10 +417,10 @@ package As
 				case Keyboard.SPACE: 
 				case 229:
 				{	
-					/*if (cola_mc.a_mc.visible) {
+					if (cola_mc.a_mc.visible) {
 						checkPass();
 						break;
-					}*/
+					}
 					attack();
 					modeTxt = "a";
 					break;

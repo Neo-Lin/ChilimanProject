@@ -56,7 +56,7 @@ package As
 		{
 			//測試模式
 			if (SingletonValue.getInstance().testMode) {
-				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[3][SingletonValue.getInstance().caseNum]));
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 				return;
 			}
 			//SoundMixer.stopAll();
@@ -121,7 +121,7 @@ package As
 		private function goPass(e:MouseEvent):void 
 		{
 			trace("過關!!");
-			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[3][SingletonValue.getInstance().caseNum]));
+			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 		}
 	}
 

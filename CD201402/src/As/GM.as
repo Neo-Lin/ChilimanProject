@@ -14,10 +14,10 @@ package As
 	 */
 	public class GM extends MovieClip 
 	{
-		private var BGSC:SoundChannel;		//背景音樂面板
-		private var BTNSC:SoundChannel;		//按鈕音樂面板
-		private var ESC:SoundChannel;		//音效音樂面板
-		private var TSC:SoundChannel;		//語音音樂面板
+		private var BGSC:SoundChannel;		//背景音樂頻道
+		private var BTNSC:SoundChannel;		//按鈕音樂頻道
+		private var ESC:SoundChannel;		//音效音樂頻道
+		private var TSC:SoundChannel;		//語音音樂頻道
 		private var tmpSnd:Sound;
 		private var tmpST:SoundTransform;
 		
@@ -42,12 +42,21 @@ package As
 			tmpSnd = new sound();
 			tmpST = new SoundTransform( vol );
 			this[SC] = tmpSnd.play( startTime , loop , tmpST );
+			this[SC].addEventListener(Event.SOUND_COMPLETE, scComplete);
+		}
+		
+		public function scComplete(e:Event = null):void 
+		{	
+			e.currentTarget.removeEventListener(Event.SOUND_COMPLETE, scComplete);
 		}
 		
 		//停止音樂面板
 		public function stopSound( SC:String = null ){
 			if( this[SC] != null ){
 				this[SC].stop();
+				if (this[SC].hasEventListener(Event.SOUND_COMPLETE)) { 
+					this[SC].removeEventListener(Event.SOUND_COMPLETE, scComplete); 
+				}
 				SC = null;
 			}
 		}
@@ -61,15 +70,9 @@ package As
 		//結束暫停
 		public function UnPause(e:MainEvent):void{}
 		
-		//過關
-		public function Win():void {}
-		
 		//失敗
 		public function Lost():void{}
-		
-		//看手冊(華生筆記)???
-		public function Doc():void { }
-		
+				
 		//移除
 		public function kill(e:Event):void 
 		{
