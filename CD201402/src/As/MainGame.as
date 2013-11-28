@@ -39,6 +39,17 @@ package As
 		
 		private var tempShelter:Array = new Array();
 		private var tempTramp:MovieClip;
+		private var trampSoundAmount:uint; //目前案件的街童語音數量
+		private var trampSoundArray:Array; //街童語音當次需要播放的檔案跟影格
+		private var trampSoundBoy:Array = [[[sound_g1_b1, 2], [sound_g1_b2, 3], [sound_g1_b3, 4]], 
+										   [[sound_g2_b1, 8, sound_g2_c1, 9], [sound_g2_b2, 10, sound_g2_c2, 11], [sound_g2_b3, 12, sound_g2_c3, 13]],
+										   [[sound_g3_b1, 20], [sound_g3_b2, 21], [sound_g3_b3, 22]],
+										   [[sound_g4_b1, 25], [sound_g4_b2, 27]]];
+										   
+		private var trampSoundGirl:Array = [[[sound_g1_g1, 5], [sound_g1_g2, 6], [sound_g1_g3, 7]], 
+											[[sound_g2_g1, 14, sound_g2_c4, 15], [sound_g2_g2, 16, sound_g2_c5, 17], [sound_g2_g3, 18, sound_g2_c6, 19]],
+											[[sound_g3_g1, 23], [sound_g3_g2, 24]],
+											[[sound_g4_g1, 26]]];
 		
 		private var sb1:Sound = new sound_bad1();
 		private var sb2:Sound = new sound_bad2();
@@ -102,10 +113,10 @@ package As
 				}else if (getQualifiedClassName(_mc) == "As::Reporter") { //記者
 					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.CATCH, catching);
-				}else if (getQualifiedClassName(_mc) == "As::Tramp") { //街童
+				}else if (getQualifiedClassName(_mc) == "tramp") { //街童
 					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.TOUCH, information);
-				}else if (getQualifiedClassName(_mc) == "As::TrampBoy") { //街童男
+				}else if (getQualifiedClassName(_mc) == "tramp_boy") { //街童男
 					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.TOUCH, information);
 				}else if (_mc.name.substr(0, 7) == "shelter") { //遮蔽物
@@ -191,22 +202,60 @@ package As
 		//遇到街童
 		private function information(e:BadguyEvent):void 
 		{
-			//trace("顯示街童對話");
-			tempTramp = e.currentTarget as MovieClip;
-			tempTramp.removeEventListener(BadguyEvent.TOUCH, information);
-			if (getQualifiedClassName(tempTramp) == "As::Tramp") { //街童
-				trampTxt_mc.Tramp_mc.gotoAndStop("Tramp");
-			}else if (getQualifiedClassName(tempTramp) == "As::TrampBoy") { //街童男
-				trampTxt_mc.Tramp_mc.gotoAndStop("TrampBoy");
+			if (tempTramp && !tempTramp.hasEventListener(BadguyEvent.TOUCH)) {  //若上一個碰到的街童還沒恢復偵聽就先跳過
+				return;
 			}
 			this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+			tempTramp = e.currentTarget as MovieClip;
+			tempTramp.removeEventListener(BadguyEvent.TOUCH, information);
+			trampTxt_mc.Tramp_mc.visible = false;
+			trampTxt_mc.cola_mc.visible = false;
+			if (getQualifiedClassName(tempTramp) == "tramp") { //街童
+				//亂數選取語音
+				trampSoundAmount = Math.random() * trampSoundGirl[SingletonValue.getInstance().caseNum].length;
+				//複製亂數選取的街童語音陣列,trampSoundPlay負責撥放
+				trampSoundArray = trampSoundGirl[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
+				trampSoundPlay("g");
+			}else if (getQualifiedClassName(tempTramp) == "tramp_boy") { //街童男
+				trampSoundAmount = Math.random() * trampSoundBoy[SingletonValue.getInstance().caseNum].length;
+				trampSoundArray = trampSoundBoy[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
+				trampSoundPlay("b");
+			}
 			trampTxt_mc.visible = true;
-			trampTxt_mc.gotoAndStop(2);
+		}
+		//播放語音,根據碰到的街童性別顯示相對應的動畫
+		private function trampSoundPlay(_s:String = null):void {
+			playSound("TSC", trampSoundArray.shift());
+			trampTxt_mc.gotoAndStop(trampSoundArray.shift());
+			if (_s == "b") { //男性街童
+				trampTxt_mc.Tramp_mc.gotoAndStop("TrampBoy");
+				MovieClip(trampTxt_mc.Tramp_mc.getChildAt(0)).play();
+				trampTxt_mc.Tramp_mc.visible = true;
+			}else if (_s == "g") { //女性街童
+				trampTxt_mc.Tramp_mc.gotoAndStop("Tramp");
+				MovieClip(trampTxt_mc.Tramp_mc.getChildAt(0)).play();
+				trampTxt_mc.Tramp_mc.visible = true;
+			}else {  //顯示可樂球
+				trampTxt_mc.cola_mc.gotoAndStop(1);
+				trampTxt_mc.cola_mc.visible = true;
+			}
+		}
+		//街童語音播完後,判斷可樂球是否需要回答
+		override public function scComplete(e:Event = null):void 
+		{	
+			e.currentTarget.removeEventListener(Event.SOUND_COMPLETE, scComplete);
+			MovieClip(trampTxt_mc.Tramp_mc.getChildAt(0)).gotoAndStop(1);
+			trampTxt_mc.cola_mc.gotoAndStop(2);
+			if (trampSoundArray.length > 0) { //表示可樂球有回答
+				trampTxt_mc.Tramp_mc.visible = false;
+				trampSoundPlay();
+			}
 		}
 		
 		//關閉街童對話框,兩秒後恢復偵聽
 		private function closeTrampTxt(e:MouseEvent):void 
 		{
+			stopSound("TSC");
 			this.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			trampTxt_mc.visible = false;
 			trampTxt_mc.gotoAndStop(1);

@@ -1,5 +1,6 @@
 package As 
 {
+	import As.Events.MainEvent;
 	import flash.display.MovieClip;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
@@ -49,6 +50,10 @@ package As
 			for (var i:uint = 1; i <= topic_mc.totalFrames; i++) {
 				topicArray.push(i);
 			}
+			/*for (var _i:uint = 0; _i < 3; _i++) {
+				//var n:uint = _a.splice(Math.random() * _a.length, 1)[0];
+				this["answer" + (_i + 1) + "_mc"].answer_mc.gotoAndStop("q" + topic_mc.currentFrame + (_i + 1));
+			}*/
 			
 			startTopic();
 		}
@@ -116,6 +121,7 @@ package As
 			}
 			if (topicArray.length <= 0) {
 				trace("挑戰失敗..............");
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
 				return;
 			}
 			linstnerAll();
@@ -136,6 +142,7 @@ package As
 		private function goFinish(e:MouseEvent):void 
 		{
 			trace("恭喜恭喜!!");
+			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 		}
 		
 		//校對用
@@ -156,10 +163,10 @@ package As
 			}else {
 				b_btn.visible = false;
 			}
-			var _a:Array = [1, 2, 3];
+			//var _a:Array = [1, 2, 3];
 			for (var i:uint = 0; i < 3; i++) {
-				var n:uint = _a.splice(Math.random() * _a.length, 1)[0];
-				this["answer" + (i + 1) + "_mc"].answer_mc.gotoAndStop("q" + topic_mc.currentFrame + n);
+				//var n:uint = _a.splice(Math.random() * _a.length, 1)[0];
+				this["answer" + (i + 1) + "_mc"].answer_mc.gotoAndStop("q" + topic_mc.currentFrame + (i + 1));
 			}
 		}
 	}

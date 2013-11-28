@@ -113,9 +113,13 @@ package As
 			if (_allGameSwf[SingletonValue.getInstance().unitNum][SingletonValue.getInstance().caseNum] == 2) {
 				_mc.addFrameScript(1, function() {
 					stage.addEventListener(MouseEvent.CLICK, goNext);
+					_mc.addEventListener(Event.REMOVED_FROM_STAGE, kill);
 					function goNext(e:MouseEvent):void {
-						stage.removeEventListener(MouseEvent.CLICK, goNext);	
+						stage.removeEventListener(MouseEvent.CLICK, goNext);
 						stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  allUnitTxt[SingletonValue.getInstance().unitNum+1]));
+					}
+					function kill(e:Event):void {
+						stage.removeEventListener(MouseEvent.CLICK, goNext);
 					}
 				});
 			}

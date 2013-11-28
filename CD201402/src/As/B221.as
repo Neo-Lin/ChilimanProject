@@ -37,6 +37,7 @@ package As
 			//測試模式
 			if (SingletonValue.getInstance().testMode) {
 				//this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+				eventLoad.addEventListener(MouseEvent.CLICK, goSkip);
 			}
 			//trace(SingletonValue.getInstance().unitNum, SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum])
 			//華生對話,依據進入221B時的狀態播放語音
@@ -56,7 +57,7 @@ package As
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][3]);
 				watson_mc.gotoAndStop(4);
 				SingletonValue.getInstance().caseNum = 4;  //播完過關語音後將目前進行案件改成無
-			}else if (SingletonValue.getInstance().unitNum == 2) { //只有G01有這狀況
+			}else if (SingletonValue.getInstance().unitNum == 2 && SingletonValue.getInstance().caseNum == 0) { //只有G01有這狀況
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][4]);
 				watson_mc.gotoAndStop(6);
 			}
@@ -100,8 +101,9 @@ package As
 				_mc.addEventListener(MouseEvent.CLICK, checkChange);
 				//若案件進行中或再玩一次,取消滑入手指與偵聽滑鼠按下
 				if (_mc.currentFrame == 2 || _mc.currentFrame == 4) {
-					_mc.useHandCursor = false;
+					//_mc.useHandCursor = false;
 					_mc.removeEventListener(MouseEvent.CLICK, checkChange);
+					_mc.addEventListener(MouseEvent.CLICK, goChangeSide);
 				} 
 			} 
 			//判斷最後一個案件是否可執行
@@ -254,6 +256,11 @@ package As
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
 		}
 		
+		//測試模式時用來略過案發動畫
+		private function goSkip(e:MouseEvent):void 
+		{	
+			e.currentTarget.content.dispatchEvent(new Event("finish"));
+		}
 	}
 
 }

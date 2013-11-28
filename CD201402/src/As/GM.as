@@ -45,6 +45,7 @@ package As
 			this[SC].addEventListener(Event.SOUND_COMPLETE, scComplete);
 		}
 		
+		//偵聽音樂播放完畢
 		public function scComplete(e:Event = null):void 
 		{	
 			e.currentTarget.removeEventListener(Event.SOUND_COMPLETE, scComplete);
