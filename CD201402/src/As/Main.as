@@ -45,7 +45,7 @@ package As
 		private function init(e:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			addChild(new Stats());
+			
 			SingletonValue.getInstance().allGameSwf = allGameSwf;
 			//以下之後需要改成讀取記錄檔======================================
 			//設定一開始血量
@@ -58,6 +58,7 @@ package As
 			stage.addEventListener(MainEvent.GAME_FINISH, Win);
 			this.addChild(myLoader);
 			LoadSwf();
+			addChild(new Stats());
 		}
 		
 		//換場景
