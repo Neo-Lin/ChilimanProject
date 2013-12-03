@@ -97,6 +97,16 @@ package As
 			enter_mc.visible = false;		//建築物入口偵測區
 			map_mc.visible = false;		//碰撞偵測用紅地圖
 			user_mc.visible = false;		//可樂球碰撞偵測用藍色小塊
+			
+			if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //過關
+				playSound("TSC", sound_go221);
+			}
+			enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -1020;
+			enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = -770;
+			user_mc.x = 590;
+			user_mc.y = 686;
+			cola_mc.x = 1610;
+			cola_mc.y = 1456;
 		}
 		
 		//初始化壞人,記者,街童(已擺放在場景上)
@@ -243,12 +253,14 @@ package As
 		//街童語音播完後,判斷可樂球是否需要回答
 		override public function scComplete(e:Event = null):void 
 		{	
-			e.currentTarget.removeEventListener(Event.SOUND_COMPLETE, scComplete);
-			MovieClip(trampTxt_mc.Tramp_mc.getChildAt(0)).gotoAndStop(1);
-			trampTxt_mc.cola_mc.gotoAndStop(2);
-			if (trampSoundArray.length > 0) { //表示可樂球有回答
-				trampTxt_mc.Tramp_mc.visible = false;
-				trampSoundPlay();
+			if (trampTxt_mc.visible) {
+				e.currentTarget.removeEventListener(Event.SOUND_COMPLETE, scComplete);
+				MovieClip(trampTxt_mc.Tramp_mc.getChildAt(0)).gotoAndStop(1);
+				trampTxt_mc.cola_mc.gotoAndStop(2);
+				if (trampSoundArray.length > 0) { //表示可樂球有回答
+					trampTxt_mc.Tramp_mc.visible = false;
+					trampSoundPlay();
+				}
 			}
 		}
 		

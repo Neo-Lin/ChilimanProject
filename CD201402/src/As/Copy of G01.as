@@ -24,6 +24,7 @@ package As
 		//danger_mc			警告
 		//line_d_mc			橫的紅外線,只有這條不是程式產生的
 		//life_mc			血條
+		//life_1_mc			扣血圖示
 		//die_mc            失敗視窗
 		//bg_mc				背景
 		//-----------------------------------------
@@ -32,7 +33,7 @@ package As
 		private var leftPressed:Boolean = false;
 		private var rightPressed:Boolean = false;
 		private var moveSpeed:uint = 10;				//可樂球移動速度
-		//private var lineTotalAmount:uint = 5;		//紅外線數量上限
+		private var lineTotalAmount:uint = 0;			//計算紅外線數量
 		private var _time:uint;
 		private var myTime:Timer = new Timer(_time, 1);
 		private var userInvincible:Boolean = false;	//人物無敵狀態
@@ -48,14 +49,23 @@ package As
 			//測試模式
 			if (SingletonValue.getInstance().testMode) {
 				count_mc.gotoAndPlay(76);
+				life_mc.gotoAndStop(5);
+				lineTotalAmount = 17;
 			}
 			count_mc.addEventListener("count", startGame);	//倒數動畫結束後開始遊戲
-			end_mc.visible = false;
+			end_mc.gotoAndStop(1);
+			end_mc.addEventListener("end", goWin);
+			line_d_mc.gotoAndStop(1);
 			danger_mc.visible = false;
+			life_1_mc.visible = false;
 			bg_mc.stop();
 			die_mc.visible = false;
 			die_mc.again_btn.addEventListener(MouseEvent.CLICK, again);
+			die_mc.again_btn.addEventListener(MouseEvent.MOUSE_OVER, btnAgainOver);
+			die_mc.again_btn.addEventListener(MouseEvent.MOUSE_OUT, btnOut);
 			die_mc.exit_btn.addEventListener(MouseEvent.CLICK, exit);
+			die_mc.exit_btn.addEventListener(MouseEvent.MOUSE_OVER, btnExitOver);
+			die_mc.exit_btn.addEventListener(MouseEvent.MOUSE_OUT, btnOut);
 			cola_mc.gotoAndStop(24);
 			cola_mc.addEventListener("jfinish", jFinish);
 			cola_mc.addEventListener("ggfinish", jFinish);
@@ -63,12 +73,24 @@ package As
 			
 		}
 		
+		private function goWin(e:Event):void 
+		{
+			end_mc.stop();
+			bg_mc.stop();
+			cancelAllEventListener();
+			cola_mc.gotoAndStop("happy");
+			
+			Tweener.addTween(this, { time:3, onComplete:function() {
+				this.gotoAndStop(2);
+			} } );
+		}
+		
 		private function reTime(e:TimerEvent):void 
 		{ 
 			//設定下次移動時間
 			_time = (Math.random() * 3 + 1) * 1000; //trace(_time);
 			myTime.delay = _time;
-				trace("reTime");
+			
 			//設定出現那一位置的紅外線
 			var _n:Number = Math.random() * 3; 
 			if (_n < 1) {
@@ -78,7 +100,20 @@ package As
 			}else if(_n > 2) {
 				addLineR();
 			}
+			lineTotalAmount ++;
+			if (lineTotalAmount > 20) {
+				//過關
+				bg_mc.addEventListener("start", endStart);
+				line_d_mc.addEventListener("remove", lineDKill);
+				return;
+			}
 			myTime.start();
+		}
+		
+		private function endStart(e:Event):void 
+		{
+			bg_mc.removeEventListener("start", endStart);
+			end_mc.play();
 		}
 		
 		private function startGame(e:Event):void 
@@ -92,6 +127,7 @@ package As
 			line_d_mc.play();
 			line_d_mc.addEventListener("touch", dTouch);
 			line_d_mc.addEventListener("come", lineCome);
+			line_d_mc.addEventListener("remove", lineDRemove);
 		}
 		
 		private function addAllEventListener():void {
@@ -115,8 +151,9 @@ package As
 			_line.rotation = 90;
 			_line.addEventListener("touch", cTouch);
 			_line.addEventListener("come", lineCome);
+			_line.addEventListener("remove", lineRemove);
 			this.addChild(_line);
-			this.swapChildren(_line, cola_mc);
+			this.setChildIndex(_line, getChildIndex(cola_mc)-1);
 		}
 		private function addLineR():void {
 			var _line:Line_r = new Line_r();
@@ -125,8 +162,9 @@ package As
 			_line.rotation = -90;
 			_line.addEventListener("touch", rTouch);
 			_line.addEventListener("come", lineCome);
+			_line.addEventListener("remove", lineRemove);
 			this.addChild(_line);
-			this.swapChildren(_line, cola_mc);
+			this.setChildIndex(_line, getChildIndex(cola_mc) - 1);
 		}
 		private function addLineL():void {
 			var _line:Line_l = new Line_l();
@@ -135,8 +173,9 @@ package As
 			_line.rotation = 90;
 			_line.addEventListener("touch", lTouch);
 			_line.addEventListener("come", lineCome);
+			_line.addEventListener("remove", lineRemove);
 			this.addChild(_line);
-			this.swapChildren(_line, cola_mc);
+			this.setChildIndex(_line, getChildIndex(cola_mc)-1);
 		}
 		/*private function addLineD():void {
 			var _line:Line_d = new Line_d();
@@ -153,24 +192,40 @@ package As
 		private function cTouch(e:Event):void 
 		{
 			e.currentTarget.removeEventListener("touch", cTouch);
+			e.currentTarget.removeEventListener("come", lineCome);
+			//沒掃中就把紅外線移到可樂球上層
+			this.setChildIndex(e.currentTarget as MovieClip, this.numChildren-1);
 			danger_mc.visible = false;
 			if (!userInvincible && cola_mc.x > 430 && cola_mc.x < 600) {
+				playSound("TSC", sound_cola);
 				colaGG(e);
 			}
 		}
 		private function rTouch(e:Event):void 
 		{
+			e.currentTarget.addEventListener(Event.ENTER_FRAME, goCheckTouch);
 			e.currentTarget.removeEventListener("touch", rTouch);
+			e.currentTarget.removeEventListener("come", lineCome);
+			this.setChildIndex(e.currentTarget as MovieClip, this.numChildren-1);
 			danger_mc.visible = false;
 			if (!userInvincible && cola_mc.x > 670) {
+				playSound("TSC", sound_cola);
 				colaGG(e);
 			}
+		}
+		
+		private function goCheckTouch(e:Event):void 
+		{
+			trace(cola_mc.hitTestObject(e.currentTarget as MovieClip));
 		}
 		private function lTouch(e:Event):void 
 		{
 			e.currentTarget.removeEventListener("touch", lTouch);
+			e.currentTarget.removeEventListener("come", lineCome);
+			this.setChildIndex(e.currentTarget as MovieClip, this.numChildren-1);
 			danger_mc.visible = false;
 			if (!userInvincible && cola_mc.x < 345) {
+				playSound("TSC", sound_cola);
 				colaGG(e);
 			}
 		}
@@ -179,16 +234,19 @@ package As
 			//e.currentTarget.removeEventListener("touch", dTouch);
 			danger_mc.visible = false;
 			if (!userInvincible && cola_mc.currentLabel != "d" && cola_mc.currentLabel != "j") {
+				playSound("TSC", sound_cola);
 				colaGG(e);
 			}else {
 				//跳過就把紅外線移到可樂球上層
-				this.swapChildren(e.currentTarget as MovieClip, cola_mc);
+				this.setChildIndex(e.currentTarget as MovieClip, this.numChildren-1);
 			}
 		}
 		private function colaGG(e:Event):void { 
 			if (e.currentTarget.name != "line_d_mc") {
 				this.removeChild(e.currentTarget as MovieClip);
+				e.currentTarget.removeEventListener("remove", lineRemove);
 			}
+			life_1_mc.visible = true;
 			cancelAllEventListener();
 			life_mc.nextFrame();
 			cola_mc.gotoAndStop("gg");
@@ -198,6 +256,7 @@ package As
 				myTime.stop();
 				this.addChild(die_mc);
 				die_mc.visible = true;
+				playSound("TSC", sound_die);
 				bg_mc.stop();
 				line_d_mc.visible = false;
 				line_d_mc.gotoAndStop(1);
@@ -205,11 +264,15 @@ package As
 				line_d_mc.removeEventListener("come", lineCome);
 				cola_mc.removeEventListener("jfinish", jFinish);
 				cola_mc.removeEventListener("ggfinish", jFinish);
-				for (var i:uint = 0; i < this.numChildren; i++) { trace(i, this.numChildren);
+				for (var i:uint = 0; i < this.numChildren; i++) { 
 					var _mc:MovieClip = this.getChildAt(i) as MovieClip;
-					if (getQualifiedClassName(_mc) == "Line_r" || getQualifiedClassName(_mc) == "Line_l" || getQualifiedClassName(_mc) == "Line_c" ) { trace(getQualifiedClassName(_mc));
+					if (getQualifiedClassName(_mc) == "Line_r" || getQualifiedClassName(_mc) == "Line_l" || getQualifiedClassName(_mc) == "Line_c" ) { 
 						_mc.gotoAndStop(1);
+						_mc.removeEventListener("touch", lTouch);
+						_mc.removeEventListener("touch", cTouch);
+						_mc.removeEventListener("touch", rTouch);
 						_mc.removeEventListener("come", lineCome);
+						_mc.removeEventListener("remove", lineRemove);
 						this.removeChild(_mc);
 						i--;
 					}
@@ -221,13 +284,34 @@ package As
 			//三秒後恢復正常
 			Tweener.addTween(cola_mc, { alpha:1, time:3, transition:"easeInBounce", onComplete:function() {
 				userInvincible = false;
+				life_1_mc.visible = false;
 			} } );
+		}
+		private function lineRemove(e:Event):void 
+		{
+			e.currentTarget.removeEventListener("touch", lTouch);
+			e.currentTarget.removeEventListener("touch", cTouch);
+			e.currentTarget.removeEventListener("touch", rTouch);
+			e.currentTarget.removeEventListener("come", lineCome);
+			e.currentTarget.removeEventListener("remove", lineRemove);
+		}
+		private function lineDRemove(e:Event):void 
+		{
+			this.setChildIndex(line_d_mc, getChildIndex(cola_mc)-1);
+		}
+		private function lineDKill(e:Event):void 
+		{
+			line_d_mc.removeEventListener("touch", dTouch);
+			line_d_mc.removeEventListener("come", lineCome);
+			line_d_mc.removeEventListener("remove", lineDRemove);
+			line_d_mc.removeEventListener("remove", lineDKill);
+			this.removeChild(line_d_mc);
 		}
 		//===================================================判斷可樂球有沒有被掃中
 		
 		//警告
 		private function lineCome(e:Event):void 
-		{
+		{ 
 			this.addChild(danger_mc);
 			danger_mc.visible = true;
 		}
@@ -235,6 +319,7 @@ package As
 		//再來一次
 		private function again(e:MouseEvent):void 
 		{
+			stopSound("TSC");
 			die_mc.visible = false;
 			life_mc.gotoAndStop(1);
 			myTime.start();
@@ -246,7 +331,24 @@ package As
 		//離開
 		private function exit(e:MouseEvent):void 
 		{
-			this.dispatchEvent(new MainEvent(MainEvent.GAME_FINISH, true));
+			stopSound("TSC");
+			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+		}
+		
+		//按鈕音效
+		private function btnOut(e:MouseEvent):void 
+		{
+			stopSound("BTNSC");
+		}
+		private function btnExitOver(e:MouseEvent):void 
+		{
+			stopSound("TSC");
+			playSound("BTNSC", sound_exit);
+		}
+		private function btnAgainOver(e:MouseEvent):void 
+		{
+			stopSound("TSC");
+			playSound("BTNSC", sound_again);
 		}
 		
 		private function fl_MoveInDirectionOfKey(event:Event)

@@ -25,7 +25,8 @@ package As
 		//所有題目陣列,亂數抽取用
 		private var topicArray:Array = new Array();
 		private var tempAnswer:MovieClip;	//紀錄當題的正確答案是哪一個按鈕
-		private var nextTimer:Timer = new Timer(1000, 1);//答完倒數一秒接下一題
+		private var nextTimer:Timer = new Timer(2000, 1);//答完倒數兩秒接下一題
+		private var againTimer:Timer = new Timer(2000, 1);//答錯倒數兩秒回同一題
 		
 		public function G04_Q() 
 		{
@@ -43,6 +44,7 @@ package As
 			
 			totalTopic = lightAll_mc.numChildren;
 			nextTimer.addEventListener(TimerEvent.TIMER_COMPLETE, goNext);
+			againTimer.addEventListener(TimerEvent.TIMER_COMPLETE, goAgain);
 			
 			linstnerAll();
 			
@@ -102,13 +104,13 @@ package As
 				nowTopic++;
 				e.currentTarget.answer_btn.gotoAndStop("O");	//顯示按鈕答對動畫
 				lightAll_mc["light" + nowTopic + "_mc"].gotoAndStop(2);	//亮燈泡
-				
+				nextTimer.start();
 			}else {
 				trace("答錯");
 				e.currentTarget.answer_btn.gotoAndStop("X");
+				againTimer.start();
 			}
-			unLinstnerAll()
-			nextTimer.start();
+			unLinstnerAll();
 		}
 		
 		private function goNext(e:TimerEvent):void 
@@ -116,16 +118,26 @@ package As
 			//檢查答對題數是否滿足過關標準
 			if (nowTopic == totalTopic) {
 				finish_mc.visible = true;
+				finish_mc.nextFrame();
 				tempAnswer.answer_btn.gotoAndStop("mouseOut");
 				return;
 			}
 			if (topicArray.length <= 0) {
 				trace("挑戰失敗..............");
-				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
 				return;
 			}
 			linstnerAll();
 			startTopic();
+		}
+		
+		//答錯倒數兩秒回同一題
+		private function goAgain(e:TimerEvent):void 
+		{
+			for (var i:uint = 1; i <= 3; i++) {
+				this["answer" + i + "_mc"].answer_btn.gotoAndStop("mouseOut");
+			}
+			linstnerAll();
 		}
 		
 		private function mcOver(e:MouseEvent):void 

@@ -387,12 +387,16 @@ package As
 		
 		//暫停
 		override public function Pause(e:MainEvent):void {
+			restart_btn.removeEventListener(MouseEvent.CLICK, reStart);
+			ex_btn.removeEventListener(MouseEvent.CLICK, goEx);
 			stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 		}
 		
 		//結束暫停
 		override public function UnPause(e:MainEvent):void {
+			restart_btn.addEventListener(MouseEvent.CLICK, reStart);
+			ex_btn.addEventListener(MouseEvent.CLICK, goEx);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 		}		
