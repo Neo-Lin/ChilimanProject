@@ -72,7 +72,7 @@ package As
 			changeCase_mc.n_btn.addEventListener(MouseEvent.CLICK, noChange);
 			//出發到案發現場
 			goCase_mc.visible = false;		
-			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, goChangeSide);	//前往主遊戲G00
+			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, firstGoChangeSide);	//前往主遊戲G00
 			
 			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
 			//四個案件的華生與可樂球對話
@@ -254,6 +254,10 @@ package As
 		private function goChangeSide(e:MouseEvent):void 
 		{
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+		}
+		private function firstGoChangeSide(e:MouseEvent):void 
+		{
+			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00_G_EX.swf"));
 		}
 		
 		//測試模式時用來略過案發動畫

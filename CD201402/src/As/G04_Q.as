@@ -110,7 +110,7 @@ package As
 				e.currentTarget.answer_btn.gotoAndStop("X");
 				againTimer.start();
 			}
-			unLinstnerAll();
+			stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
 		}
 		
 		private function goNext(e:TimerEvent):void 
@@ -127,7 +127,7 @@ package As
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
 				return;
 			}
-			linstnerAll();
+			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			startTopic();
 		}
 		
@@ -137,7 +137,7 @@ package As
 			for (var i:uint = 1; i <= 3; i++) {
 				this["answer" + i + "_mc"].answer_btn.gotoAndStop("mouseOut");
 			}
-			linstnerAll();
+			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 		}
 		
 		private function mcOver(e:MouseEvent):void 
@@ -155,6 +155,16 @@ package As
 		{
 			trace("恭喜恭喜!!");
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
+		}
+		
+		//暫停
+		override public function Pause(e:MainEvent):void { 
+			unLinstnerAll();
+		}
+		
+		//結束暫停
+		override public function UnPause(e:MainEvent):void { 
+			linstnerAll();
 		}
 		
 		//校對用

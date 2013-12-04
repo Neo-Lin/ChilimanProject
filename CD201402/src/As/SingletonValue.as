@@ -1,5 +1,6 @@
 package As 
 {
+	import flash.display.Sprite;
 	/**
 	 * ...
 	 * @author Neo
@@ -14,6 +15,7 @@ package As
 		private var _unitNum:uint = 5;		//目前進行案件進度--0:INTO, 1:QEX, 2:Q, 3:GEX, 4:G, 5:EVENTS
 		private var _caseArr:Array = [1, 1, 1, 1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
 		private var _allGameSwf:Array;
+		private var _nowSiteName:String;	//目前所在場景
 		
 		public function SingletonValue(sSingleton:Singleton) 
 		{
@@ -92,6 +94,16 @@ package As
 		public function set unitNum(value:uint):void 
 		{
 			_unitNum = value;
+		}
+		
+		public function get nowSiteName():String 
+		{
+			return _nowSiteName;
+		}
+		
+		public function set nowSiteName(value:String):void 
+		{
+			_nowSiteName = value;
 		}
 		
 	}

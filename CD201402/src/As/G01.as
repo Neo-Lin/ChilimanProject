@@ -52,7 +52,7 @@ package As
 			if (SingletonValue.getInstance().testMode) {
 				count_mc.gotoAndPlay(76);
 				life_mc.gotoAndStop(4);
-				lineTotalAmount = 30;
+				lineTotalAmount = 0;
 			}
 			count_mc.addEventListener("count", startGame);	//倒數動畫結束後開始遊戲
 			end_mc.gotoAndStop(1);
@@ -90,48 +90,64 @@ package As
 		private function reTime(e:TimerEvent):void 
 		{ 
 			//設定下次移動時間
-			_time = (Math.random() + 1) * 1000; //trace(_time);
+			
+			if (lineTotalAmount > 5) {
+				_time = (Math.random() + 1) * 1000; //trace(_time);
+			}else {
+				_time = (Math.random() + 3) * 1000; //trace(_time);
+			}
+				
 			myTime.delay = _time;
 			
 			//設定出現那一位置的紅外線
 			var _n:Number = Math.random();  //trace(_n);
 			if (_n < .2) {
 				lineArrayNum = 0;
-				addLine(lineArray[lineArrayNum][0]);
-				if (_n < .1) {
-					lineArrayNum = 2;
-				}else {
-					lineArrayNum = 1;
+				if(lineTotalAmount > 20){
+					addLine(lineArray[lineArrayNum][0]);
+					if (_n < .1) {
+						lineArrayNum = 2;
+					}else {
+						lineArrayNum = 1;
+					}
 				}
 			}else if(_n > .2 && _n < .4) {
 				lineArrayNum = 1;
-				addLine(lineArray[lineArrayNum][0]);
-				if (_n < .3) {
-					lineArrayNum = 2;
-				}else {
-					lineArrayNum = 3;
+				if(lineTotalAmount > 20){
+					addLine(lineArray[lineArrayNum][0]);
+					if (_n < .3) {
+						lineArrayNum = 2;
+					}else {
+						lineArrayNum = 3;
+					}
 				}
 			}else if(_n > .4 && _n < .6) {
 				lineArrayNum = 2;
-				addLine(lineArray[lineArrayNum][0]);
-				lineArrayNum = 0;
-				addLine(lineArray[lineArrayNum][0]);
-				lineArrayNum = 4;
+				if(lineTotalAmount > 20){
+					addLine(lineArray[lineArrayNum][0]);
+					lineArrayNum = 0;
+					addLine(lineArray[lineArrayNum][0]);
+					lineArrayNum = 4;
+				}
 			}else if(_n > .6 && _n < .8) {
 				lineArrayNum = 3;
-				addLine(lineArray[lineArrayNum][0]);
-				if (_n < .7) {
-					lineArrayNum = 2;
-				}else {
-					lineArrayNum = 1;
+				if(lineTotalAmount > 20){
+					addLine(lineArray[lineArrayNum][0]);
+					if (_n < .7) {
+						lineArrayNum = 2;
+					}else {
+						lineArrayNum = 1;
+					}
 				}
 			}else if(_n > .8) {
 				lineArrayNum = 4;
-				addLine(lineArray[lineArrayNum][0]);
-				if (_n < .9) {
-					lineArrayNum = 3;
-				}else {
-					lineArrayNum = 2;
+				if(lineTotalAmount > 20){
+					addLine(lineArray[lineArrayNum][0]);
+					if (_n < .9) {
+						lineArrayNum = 3;
+					}else {
+						lineArrayNum = 2;
+					}
 				}
 			}
 			addLine(lineArray[lineArrayNum][0]);
@@ -156,7 +172,8 @@ package As
 			bg_mc.play();
 			cola_mc.gotoAndStop(1);
 			addAllEventListener();
-			reTime(null);
+			myTime.delay = 4000;
+			myTime.start();
 			//場景上橫的紅外線偵聽
 			line_d_mc.visible = true;
 			line_d_mc.play();

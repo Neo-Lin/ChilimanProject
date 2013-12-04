@@ -30,7 +30,8 @@ package As
 		private var _allGameSwf:Array = [_INTO, _QEX, null, _GEX];
 		private var allUnitTxt:Array = ["INTO", "QEX", "Q", "GEX", "G"];
 		private var myLoader:Loader = new Loader();
-		private var myUrl:URLRequest = new URLRequest("221B_EX.swf");
+		private var exLoader:Loader = new Loader();
+		private var myUrl:URLRequest = new URLRequest("index.swf");
 		private var tempSiteName:String;
 		//private var nowUnit:uint; //紀錄目前allGameSwf進行第幾個
 		
@@ -56,9 +57,42 @@ package As
 			//======================================以上之後需要改成讀取記錄檔
 			stage.addEventListener(MainEvent.CHANGE_SITE, ChangeSide);
 			stage.addEventListener(MainEvent.GAME_FINISH, Win);
+			stage.addEventListener(MainEvent.LOAD_EX, loadEx);
+			stage.addEventListener(MainEvent.EXIT, goExit);
 			this.addChild(myLoader);
+			this.addChild(toolBar_mc);
 			LoadSwf();
 			addChild(new Stats());
+			
+			else_mc.visible = false;
+		}
+		
+		private function goExit(e:MainEvent):void 
+		{
+			else_mc.gotoAndStop(1);
+			this.addChild(else_mc);
+			else_mc.visible = true;
+		}
+		
+		//主選單的遊戲說明功能
+		private function loadEx(e:MainEvent):void 
+		{
+			if (e.ChangeSiteName.search(".swf") > -1) {  //直接給路徑
+				myUrl = new URLRequest(e.ChangeSiteName);
+			}else if (e.ChangeSiteName == "QEX") {
+				myUrl = new URLRequest(allGameSwf[1][SingletonValue.getInstance().caseNum]);
+			}else if (e.ChangeSiteName == "GEX") {
+				myUrl = new URLRequest(allGameSwf[3][SingletonValue.getInstance().caseNum]);
+			}
+			exLoader.load(myUrl);
+			exLoader.addEventListener(MouseEvent.CLICK, unLoadEx);
+			this.addChild(exLoader);
+			toolBar_mc.gotoAndStop("open");
+		}
+		private function unLoadEx(e:MouseEvent):void 
+		{
+			exLoader.unloadAndStop();
+			removeChild(exLoader);
 		}
 		
 		//換場景
@@ -131,6 +165,18 @@ package As
 		{
 			trace("Main: LoadSw載入前:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren);
 			
+			//主選單顯示狀態--播放動畫時不顯示主選單
+			if(myUrl.url == "221B.swf" || myUrl.url == "G00.swf"){
+				toolBar_mc.visible = true;
+			}else if (SingletonValue.getInstance().unitNum == 0 || 
+				SingletonValue.getInstance().unitNum == 1 || 
+				SingletonValue.getInstance().unitNum == 3 || 
+				SingletonValue.getInstance().unitNum == 5) {
+				toolBar_mc.gotoAndStop("open");
+				toolBar_mc.visible = false;
+			}else {
+				toolBar_mc.visible = true;
+			}
 			myLoader.load(myUrl);
 			
 			trace("Main: LoadSwf載入後:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren);

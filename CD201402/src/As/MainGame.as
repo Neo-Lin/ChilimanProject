@@ -101,12 +101,22 @@ package As
 			if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //過關
 				playSound("TSC", sound_go221);
 			}
-			enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -1020;
-			enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = -770;
-			user_mc.x = 590;
-			user_mc.y = 686;
-			cola_mc.x = 1610;
-			cola_mc.y = 1456;
+			
+			if (SingletonValue.getInstance().caseNum == 0) {
+				
+			} else if (SingletonValue.getInstance().caseNum == 1) {
+				enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -1020;
+				enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = -770;
+				user_mc.x = 590;
+				user_mc.y = 686;
+				cola_mc.x = 1610;
+				cola_mc.y = 1456;
+			} else if (SingletonValue.getInstance().caseNum == 2) {
+				
+			} else if (SingletonValue.getInstance().caseNum == 3) {
+				
+			}
+			
 		}
 		
 		//初始化壞人,記者,街童(已擺放在場景上)
@@ -491,14 +501,17 @@ package As
 		
 		//檢查要進入哪個場景及是否可以進入
 		private function checkPass():void {
-			this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+			
 			if (enter_mc.enter_221b_mc.hitTestPoint(user_mc.x, user_mc.y, true)) {
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "221B.swf"));
 			}else if (enter_mc["enter_case" + SingletonValue.getInstance().caseNum + "_mc"].hitTestPoint(user_mc.x, user_mc.y, true)) {
 				//若碰到目前案件的進入點,就進入該案件
+				//若是破關狀態就不能再進入
+				if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) return;
 				//this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[0][SingletonValue.getInstance().caseNum]));
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "INTO"));
 			}else {
+				this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
 				cantPass_mc.visible = true;
 				cantPass_mc.gotoAndStop("cantpass");
 			}

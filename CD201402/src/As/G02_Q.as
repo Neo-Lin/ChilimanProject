@@ -56,7 +56,10 @@ package As
 		{
 			//測試模式
 			if (SingletonValue.getInstance().testMode) {
-				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
+				pass_mc.visible = true;
+				mySound = new sound_pass();
+				mySound.play();
+				stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
 				return;
 			}
 			//SoundMixer.stopAll();
@@ -78,6 +81,7 @@ package As
 				pass_mc.visible = true;
 				mySound = new sound_pass();
 				mySound.play();
+				stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
 			}else {
 				mySound = new sound_again();
 				mySound.play();
@@ -117,10 +121,21 @@ package As
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, goMouse);
 		}
 		
+		//暫停
+		override public function Pause(e:MainEvent):void { 
+			
+		}
+		
+		//結束暫停
+		override public function UnPause(e:MainEvent):void { 
+			
+		}
+		
 		//過關
 		private function goPass(e:MouseEvent):void 
 		{
 			trace("過關!!");
+			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 		}
 	}

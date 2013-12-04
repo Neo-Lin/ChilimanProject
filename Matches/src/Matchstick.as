@@ -117,7 +117,9 @@ package
 				tempMatch.gotoAndStop("noexist");
 				e.currentTarget.gotoAndStop("exist");
 				takeMatch = false;
-				nowStep++;
+				if (tempMatch != e.currentTarget) {
+					nowStep++;
+				}
 				if (nowStep == allStep[nowQ]) goCheckQ();
 			} else if (!takeMatch && e.currentTarget.currentLabel == "exist") {
 				tempMatch = e.currentTarget as MovieClip;
@@ -210,6 +212,8 @@ package
 		{
 			s_yes.play(0,0,this.soundTransform);
 			winTimer.start();
+			txtCard_mc.gotoAndStop(1);
+			txtCard_mc.visible = true;
 		}
 		private function goWin(e:TimerEvent):void 
 		{
@@ -219,6 +223,7 @@ package
 				time_mc.stopTime();
 				nowStep = 0;
 				againNum = 1;
+				takeMatch = false;
 				nowQ++;
 			}else {	//最後一題
 				txtCard_mc.gotoAndStop("allWin");
