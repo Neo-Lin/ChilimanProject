@@ -15,7 +15,8 @@ package As
 		private var _unitNum:uint = 5;		//目前進行案件進度--0:INTO, 1:QEX, 2:Q, 3:GEX, 4:G, 5:EVENTS
 		private var _caseArr:Array = [1, 1, 1, 1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
 		private var _allGameSwf:Array;
-		private var _nowSiteName:String;	//目前所在場景
+		private var _nowSiteName:String;	//目前所在場景,發出MainEvent.CHANGE_SITE事件時會在MainEvent.as裡改變這個值
+		private var _beforeSiteName:String;	//換場景前的所在場景,發出MainEvent.CHANGE_SITE事件時會在MainEvent.as裡改變這個值
 		
 		public function SingletonValue(sSingleton:Singleton) 
 		{
@@ -104,6 +105,16 @@ package As
 		public function set nowSiteName(value:String):void 
 		{
 			_nowSiteName = value;
+		}
+		
+		public function get beforeSiteName():String 
+		{
+			return _beforeSiteName;
+		}
+		
+		public function set beforeSiteName(value:String):void 
+		{
+			_beforeSiteName = value;
 		}
 		
 	}

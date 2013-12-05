@@ -66,7 +66,7 @@ package As
 			//ChangeSide_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
 			//測試模式
 			if (SingletonValue.getInstance().testMode) {
-				userInvincible = true;
+				//userInvincible = true;
 			}
 			
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
@@ -101,22 +101,52 @@ package As
 			if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //過關
 				playSound("TSC", sound_go221);
 			}
-			
-			if (SingletonValue.getInstance().caseNum == 0) {
-				
-			} else if (SingletonValue.getInstance().caseNum == 1) {
-				enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -1020;
-				enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = -770;
-				user_mc.x = 590;
-				user_mc.y = 686;
-				cola_mc.x = 1610;
-				cola_mc.y = 1456;
-			} else if (SingletonValue.getInstance().caseNum == 2) {
-				
-			} else if (SingletonValue.getInstance().caseNum == 3) {
-				
+			//從建築物出來後設定在門口位置
+			if (SingletonValue.getInstance().beforeSiteName == "G" || SingletonValue.getInstance().beforeSiteName == "Q") {
+				if (SingletonValue.getInstance().caseNum == 0) { //博物館
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -40;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = -770;
+					user_mc.x = 500;
+					user_mc.y = 646;
+					cola_mc.x = 540;
+					cola_mc.y = 1416;
+				} else if (SingletonValue.getInstance().caseNum == 1) { //銀行
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -1020;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = -770;
+					user_mc.x = 590;
+					user_mc.y = 686;
+					cola_mc.x = 1610;
+					cola_mc.y = 1456;
+				} else if (SingletonValue.getInstance().caseNum == 2) { //暗巷
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -1020;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = 0;
+					user_mc.x = 720;
+					user_mc.y = 376;
+					cola_mc.x = 1740;
+					cola_mc.y = 376;
+				} else if (SingletonValue.getInstance().caseNum == 3) { //鐘樓
+					enter_mc.x = mpa_art_mc.x = map_mc.x = NPC_mc.x = -630;
+					enter_mc.y = mpa_art_mc.y = map_mc.y = NPC_mc.y = -540;
+					user_mc.x = 510;
+					user_mc.y = 376;
+					cola_mc.x = 1140;
+					cola_mc.y = 916;
+				}
 			}
-			
+			//右上角提示狀態
+			if (SingletonValue.getInstance().caseNum == 0) { //博物館
+				side_mc.gotoAndStop(1);
+			} else if (SingletonValue.getInstance().caseNum == 1) { //銀行
+				side_mc.gotoAndStop(2);
+			} else if (SingletonValue.getInstance().caseNum == 2) { //暗巷
+				side_mc.gotoAndStop(3);
+			} else if (SingletonValue.getInstance().caseNum == 3) { //鐘樓
+				side_mc.gotoAndStop(4);
+			}
+			//若是破關狀態就顯示221B
+			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //221B
+				side_mc.gotoAndStop(5);
+			}
 		}
 		
 		//初始化壞人,記者,街童(已擺放在場景上)

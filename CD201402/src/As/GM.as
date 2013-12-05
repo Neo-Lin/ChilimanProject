@@ -66,10 +66,12 @@ package As
 		public function EnterGame():void { }
 		
 		//暫停
-		public function Pause(e:MainEvent):void { }
+		public function Pause(e:MainEvent):void { 
+		}
 		
 		//結束暫停
-		public function UnPause(e:MainEvent):void{}
+		public function UnPause(e:MainEvent):void {
+		}
 		
 		//失敗
 		public function Lost():void{}
@@ -78,6 +80,8 @@ package As
 		public function kill(e:Event):void 
 		{
 			removeEventListener(Event.REMOVED_FROM_STAGE, kill);
+			stage.removeEventListener(MainEvent.PAUSE, Pause);
+			stage.removeEventListener(MainEvent.UN_PAUSE, UnPause);
 			stopSound("BTNSC");
 			stopSound("ESC");
 			stopSound("TSC");

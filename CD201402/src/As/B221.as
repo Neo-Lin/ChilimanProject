@@ -74,7 +74,7 @@ package As
 			goCase_mc.visible = false;		
 			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, firstGoChangeSide);	//前往主遊戲G00
 			
-			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
+			SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
 			//四個案件的華生與可樂球對話
 			event1_mc.addEventListener("finish", goCase);
 			event2_mc.addEventListener("finish", goCase);
@@ -107,7 +107,7 @@ package As
 				} 
 			} 
 			//判斷最後一個案件是否可執行
-			if (SingletonValue.getInstance().caseArr.lastIndexOf(1, 2) + SingletonValue.getInstance().caseArr.lastIndexOf(2, 2) >= 0) {
+			if (SingletonValue.getInstance().caseArr.lastIndexOf(1, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(2, 2) >= 0) {
 				_mc.useHandCursor = false;
 				_mc.removeEventListener(MouseEvent.CLICK, checkChange);
 				_mc.gotoAndStop(5);
@@ -171,6 +171,7 @@ package As
 		private function loadEvent():void 
 		{
 			eventLoad.load(eventUrl);
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			eventLoad.contentLoaderInfo.addEventListener(Event.COMPLETE, playEvent);
 			addChild(eventLoad);
 		}
@@ -258,6 +259,17 @@ package As
 		private function firstGoChangeSide(e:MouseEvent):void 
 		{
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00_G_EX.swf"));
+		}
+		
+		//暫停
+		override public function Pause(e:MainEvent):void { 
+			stopSound("TSC");
+			stopSound("BTNSC");
+			watson_mc.gotoAndStop(1);
+		}
+		
+		//結束暫停
+		override public function UnPause(e:MainEvent):void {
 		}
 		
 		//測試模式時用來略過案發動畫

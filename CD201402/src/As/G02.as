@@ -385,6 +385,7 @@ package As
 				trace("破關!!");
 				Pause(null);
 				this.gotoAndPlay("f");
+				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			}
 		}
 		

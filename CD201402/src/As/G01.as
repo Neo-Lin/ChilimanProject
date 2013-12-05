@@ -52,7 +52,7 @@ package As
 			if (SingletonValue.getInstance().testMode) {
 				count_mc.gotoAndPlay(76);
 				life_mc.gotoAndStop(4);
-				lineTotalAmount = 0;
+				lineTotalAmount = 30;
 			}
 			count_mc.addEventListener("count", startGame);	//倒數動畫結束後開始遊戲
 			end_mc.gotoAndStop(1);
@@ -154,6 +154,7 @@ package As
 			lineTotalAmount ++;
 			if (lineTotalAmount > 40) {
 				//過關
+				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 				bg_mc.addEventListener("start", endStart);
 				line_d_mc.addEventListener("remove", lineDKill);
 				return;
@@ -244,6 +245,7 @@ package As
 			}
 		}
 		private function colaGG(e:Event):void { 
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			if (e.currentTarget.name != "line_d_mc") {
 				this.removeChild(e.currentTarget as MovieClip);
 				e.currentTarget.removeEventListener("remove", lineRemove);
@@ -287,6 +289,7 @@ package As
 			userInvincible = true;
 			//三秒後恢復正常
 			Tweener.addTween(cola_mc, { alpha:1, time:3, transition:"easeInBounce", onComplete:function() {
+				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 				userInvincible = false;
 				life_1_mc.visible = false;
 			} } );
@@ -323,6 +326,7 @@ package As
 		//再來一次
 		private function again(e:MouseEvent):void 
 		{
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 			bg_mc.removeEventListener("start", endStart);
 			stopSound("TSC");
 			die_mc.visible = false;
@@ -339,6 +343,42 @@ package As
 			stopSound("TSC");
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
 		}
+		
+		//暫停
+		override public function Pause(e:MainEvent):void {
+			myTime.stop();
+			cancelAllEventListener();
+			bg_mc.stop();
+			line_d_mc.stop();
+			for (var i:uint = 0; i < this.numChildren; i++) { 
+					var _mc:MovieClip = this.getChildAt(i) as MovieClip;
+					if (getQualifiedClassName(_mc) == "Line_r" || 
+						getQualifiedClassName(_mc) == "Line_r_0" || 
+						getQualifiedClassName(_mc) == "Line_l" || 
+						getQualifiedClassName(_mc) == "Line_l_0" || 
+						getQualifiedClassName(_mc) == "Line_c" ) { 
+						_mc.stop();
+					}
+				}
+		}
+		
+		//結束暫停
+		override public function UnPause(e:MainEvent):void {
+			myTime.start();
+			addAllEventListener();
+			bg_mc.play();
+			line_d_mc.play();
+			for (var i:uint = 0; i < this.numChildren; i++) { 
+					var _mc:MovieClip = this.getChildAt(i) as MovieClip;
+					if (getQualifiedClassName(_mc) == "Line_r" || 
+						getQualifiedClassName(_mc) == "Line_r_0" || 
+						getQualifiedClassName(_mc) == "Line_l" || 
+						getQualifiedClassName(_mc) == "Line_l_0" || 
+						getQualifiedClassName(_mc) == "Line_c" ) { 
+						_mc.play();
+					}
+				}
+		}		
 		
 		//按鈕音效
 		private function btnOut(e:MouseEvent):void 

@@ -65,11 +65,14 @@ package As
 			addChild(new Stats());
 			
 			else_mc.visible = false;
+			else_mc.addEventListener("goExitGame", gotoEnd);  	//你真的要離開嗎:選擇是,全過關要再挑戰一次嗎:選不要
+			else_mc.addEventListener("goCloseElse", closeElse);	//你真的要離開嗎:選擇否
+			else_mc.addEventListener("goAgain", allAgain);		//全過關要再挑戰一次嗎:選要
 		}
 		
 		private function goExit(e:MainEvent):void 
 		{
-			else_mc.gotoAndStop(1);
+			else_mc.gotoAndStop(2);
 			this.addChild(else_mc);
 			else_mc.visible = true;
 		}
@@ -84,15 +87,33 @@ package As
 			}else if (e.ChangeSiteName == "GEX") {
 				myUrl = new URLRequest(allGameSwf[3][SingletonValue.getInstance().caseNum]);
 			}
+			exLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, exLoaderAddScript);
 			exLoader.load(myUrl);
 			exLoader.addEventListener(MouseEvent.CLICK, unLoadEx);
 			this.addChild(exLoader);
 			toolBar_mc.gotoAndStop("open");
 		}
-		private function unLoadEx(e:MouseEvent):void 
+		private function exLoaderAddScript(e:Event):void 
+		{
+			exLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, exLoaderAddScript);
+			var _mc:MovieClip = e.currentTarget.content as MovieClip;
+			_mc.addEventListener("exLoaderFinish", closeExLoader);
+			//221B_EX跟G00_G_EX的影格上有載入下一個場景的程式碼,如果是按主選單載入的話,就要取代掉.
+			//其他雖然沒有影格程式碼,但也要知道說明播放完畢
+			_mc.addFrameScript(_mc.totalFrames-1, function() {
+				_mc.dispatchEvent(new Event("exLoaderFinish"));
+				_mc.stop();
+			});
+		}
+		private function closeExLoader(e:Event = null):void 
 		{
 			exLoader.unloadAndStop();
 			removeChild(exLoader);
+			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+		}
+		private function unLoadEx(e:MouseEvent):void 
+		{
+			closeExLoader();
 		}
 		
 		//換場景
@@ -186,6 +207,26 @@ package As
 		private function Win(e:MainEvent):void {	
 			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] = 3;
 			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
+		}
+		
+		//else_mc偵聽事件
+		//你真的要離開嗎:選擇是,全過關要再挑戰一次嗎:選不要
+		private function gotoEnd(e:Event):void 
+		{
+			//播放片尾名單
+		}
+		//你真的要離開嗎:選擇否
+		private function closeElse(e:Event):void 
+		{
+			else_mc.visible = false;
+			else_mc.gotoAndStop(1);
+			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			stage.focus = stage;
+		}
+		//全過關要再挑戰一次嗎:選要
+		private function allAgain(e:Event):void 
+		{
+			
 		}
 		
 	}
