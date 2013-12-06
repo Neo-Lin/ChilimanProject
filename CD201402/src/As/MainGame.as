@@ -209,7 +209,7 @@ package As
 				))
 			{	
 				user_mc.x -= user_mc.width / 2;
-				user_mc.y = user_mc.y - user_mc.height - 3;
+				user_mc.y = user_mc.y - user_mc.height - 23;
 				cola_mc.x -= user_mc.width / 2;
 				cola_mc.y = cola_mc.y - user_mc.height;
 				unCover();

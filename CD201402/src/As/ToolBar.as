@@ -6,6 +6,7 @@ package As
 	import flash.events.MouseEvent;
 	import flash.media.SoundMixer;
 	import flash.media.SoundTransform;
+	import flash.net.SharedObject;
 	
 	/**
 	 * ...
@@ -13,6 +14,9 @@ package As
 	 */
 	public class ToolBar extends GM
 	{
+		private var arrowY:Number;
+		private var st:SoundTransform = new SoundTransform(.5);
+		private var saveDataSharedObject:SharedObject = SharedObject.getLocal("saveData", "/");
 		
 		public function ToolBar() 
 		{
@@ -32,23 +36,71 @@ package As
 			index_btn.addEventListener(MouseEvent.MOUSE_OVER, btnPlaySound);
 			ex_btn.addEventListener(MouseEvent.CLICK, goEx);
 			ex_btn.addEventListener(MouseEvent.MOUSE_OVER, btnPlaySound);
-			sound_btn.addEventListener(MouseEvent.CLICK, goSound);
-			sound_btn.addEventListener(MouseEvent.MOUSE_OVER, btnPlaySound);
-			sound_btn.addEventListener(MouseEvent.MOUSE_OVER, soundOV);
-			sound_btn.addEventListener(MouseEvent.MOUSE_OUT, soundOU);
+			sound_mc.sound_btn.addEventListener(MouseEvent.CLICK, goSound);
+			//sound_mc.addEventListener(MouseEvent.MOUSE_OVER, btnPlaySound);
+			sound_mc.sound_btn.addEventListener(MouseEvent.MOUSE_OVER, soundOV);
+			sound_mc.addEventListener(MouseEvent.ROLL_OUT, soundOU);
 			exit_btn.addEventListener(MouseEvent.CLICK, goExit);
 			exit_btn.addEventListener(MouseEvent.MOUSE_OVER, btnPlaySound);
+			
+			sound_mc.soundBar_mc.visible = false;
+			sound_mc.soundBar_mc.arrow_mc.addEventListener(MouseEvent.MOUSE_DOWN, dragArrow);
+			sound_mc.soundBar_mc.arrow_mc.addEventListener(MouseEvent.MOUSE_UP, stopArrow);
+			
+			//調整控制bar的位置
+			if (saveDataSharedObject.data.volume) {
+				st.volume = saveDataSharedObject.data.volume;
+				sound_mc.soundBar_mc.bar_mc.gotoAndStop(uint(st.volume * 10 + 1));
+				if (st.volume > .5) {
+					sound_mc.soundBar_mc.arrow_mc.y -= 17 * (st.volume * 10 - 5);
+				}else if (st.volume < .5) {
+					sound_mc.soundBar_mc.arrow_mc.y = 17 * (5 - st.volume * 10);
+				}
+			}
+			SoundMixer.soundTransform = st;
 		}
 		
+		//音量控制================================================
+		private function dragArrow(e:MouseEvent):void 
+		{
+			sound_mc.soundBar_mc.arrow_mc.addEventListener(Event.ENTER_FRAME, moveArrow);
+			arrowY = mouseY;
+		}
+		private function moveArrow(e:Event):void 
+		{
+			if (mouseY - arrowY >= 17 && e.currentTarget.y < 85) {
+				arrowY += 17;
+				e.currentTarget.y += 17;
+				sound_mc.soundBar_mc.bar_mc.prevFrame();
+				st.volume -= .1;
+				SoundMixer.soundTransform = st;
+			}else if (mouseY - arrowY <= -17 && e.currentTarget.y > -85) {
+				arrowY -= 17;
+				e.currentTarget.y -= 17;
+				sound_mc.soundBar_mc.bar_mc.nextFrame();
+				st.volume += .1;
+				SoundMixer.soundTransform = st;
+			}
+			
+			saveDataSharedObject.data.volume = st.volume;
+			saveDataSharedObject.flush();	//存入SharedObject
+		}
+		private function stopArrow(e:MouseEvent):void 
+		{
+			sound_mc.soundBar_mc.arrow_mc.removeEventListener(Event.ENTER_FRAME, moveArrow);
+		}
 		private function soundOU(e:MouseEvent):void 
 		{
-			sound_btn.gotoAndStop(1);
+			sound_mc.soundBar_mc.visible = false;
+			sound_mc.soundBar_mc.arrow_mc.removeEventListener(Event.ENTER_FRAME, moveArrow);
 		}
-		
 		private function soundOV(e:MouseEvent):void 
 		{
-			sound_btn.gotoAndStop(2);
+			stopSound("BTNSC");
+			playSound("BTNSC", sound_sound);
+			sound_mc.soundBar_mc.visible = true;
 		}
+		//================================================音量控制
 		
 		//滑鼠離開選單列自動縮回
 		private function goClose(e:MouseEvent = null):void 
@@ -92,10 +144,8 @@ package As
 		}
 		
 		private function goSound(e:MouseEvent):void 
-		{	trace("sound:", e.currentTarget.currentFrame);
-			sound_btn.gotoAndStop(2);
-			var st:SoundTransform = new SoundTransform(.1);
-			SoundMixer.soundTransform = st;
+		{	
+			//sound_mc.soundBar_mc.visible = true;
 		}
 		
 		private function goExit(e:MouseEvent):void 
@@ -130,8 +180,6 @@ package As
 				playSound("BTNSC", sound_index);
 			}else if (e.currentTarget.name == "ex_btn") {
 				playSound("BTNSC", sound_ex);
-			}else if (e.currentTarget.name == "sound_btn") {
-				playSound("BTNSC", sound_sound);
 			}else if (e.currentTarget.name == "exit_btn") {
 				playSound("BTNSC", sound_exit);
 			}

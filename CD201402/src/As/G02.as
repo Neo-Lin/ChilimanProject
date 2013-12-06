@@ -143,6 +143,7 @@ package As
 		private function goEx(e:MouseEvent):void 
 		{
 			Pause(null);
+			restart_btn.addEventListener(MouseEvent.CLICK, reStart);
 			ex_mc.gotoAndStop(1);
 			ex_mc.visible = true;
 			ex_mc.gotoAndPlay(nowCh);

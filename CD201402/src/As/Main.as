@@ -6,9 +6,12 @@ package As
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
 	import flash.media.Sound;
 	import flash.net.LocalConnection;
+	import flash.net.SharedObject;
 	import flash.net.URLRequest;
+	import flash.utils.Timer;
 	import net.hires.debug.Stats;
 	
 	/**
@@ -33,7 +36,11 @@ package As
 		private var exLoader:Loader = new Loader();
 		private var myUrl:URLRequest = new URLRequest("index.swf");
 		private var tempSiteName:String;
+		private var myTime:Timer = new Timer(60000, 30);
+		//private var myTime:Timer = new Timer(6000, 1);
 		//private var nowUnit:uint; //紀錄目前allGameSwf進行第幾個
+		private var needRest:Boolean = false; //紀錄是否需要跳出休息室窗
+		private var saveDataSharedObject:SharedObject = SharedObject.getLocal("saveData", "/");
 		
 		public function Main():void
 		{
@@ -68,7 +75,42 @@ package As
 			else_mc.addEventListener("goExitGame", gotoEnd);  	//你真的要離開嗎:選擇是,全過關要再挑戰一次嗎:選不要
 			else_mc.addEventListener("goCloseElse", closeElse);	//你真的要離開嗎:選擇否
 			else_mc.addEventListener("goAgain", allAgain);		//全過關要再挑戰一次嗎:選要
+			
+			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, goRest);
+			myTime.start();
+			rest_mc.visible = false;
+			rest_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeRest);
 		}
+		
+		//休息一下視窗====================================
+		private function closeRest(e:MouseEvent):void 
+		{
+			rest_mc.visible = false;
+			rest_mc.gotoAndStop(1);
+			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			myTime.start();
+		}
+		private function goRest(e:TimerEvent):void 
+		{
+			//如果有載入說明動畫(使用者自己按的)就關掉
+			exLoader.unloadAndStop();
+			//若在播放說明動畫時就先不顯示,等播放完,載入下一個場景再顯示(goCheckRest)
+			if (SingletonValue.getInstance().nowSiteName == "221B_EX.swf" ||
+				SingletonValue.getInstance().nowSiteName == "G00_G_EX.swf" ||
+				SingletonValue.getInstance().nowSiteName == "GEX" ||
+				SingletonValue.getInstance().nowSiteName == "QEX") {
+					needRest = true;
+			}else {
+				startRest();
+			}
+		}
+		private function startRest():void {
+			addChild(rest_mc);
+			rest_mc.play();
+			rest_mc.visible = true;
+			stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+		}
+		//====================================休息一下視窗
 		
 		private function goExit(e:MainEvent):void 
 		{
@@ -131,20 +173,33 @@ package As
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
 			}else if(tempSiteName == "Q") {	//載入題庫
 				SingletonValue.getInstance().unitNum = 2;
+				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goCheckRest);
 			}else if(tempSiteName == "GEX") {	//載入子遊戲說明動畫
 				SingletonValue.getInstance().unitNum = 3;
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
 			}else if(tempSiteName == "G") {	//載入子遊戲
 				SingletonValue.getInstance().unitNum = 4;
+				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goCheckRest);
 			}
 			myUrl = new URLRequest(allGameSwf[SingletonValue.getInstance().unitNum][SingletonValue.getInstance().caseNum]);
 			if (tempSiteName.search(".swf") > -1) {  //直接給路徑
 				myUrl = new URLRequest(e.ChangeSiteName);
+				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goCheckRest);
 			}
 			myLoader.unloadAndStop();
 			LoadSwf();
 			
 			trace("Main: 換場景後: stage.numChildren=", stage.numChildren, "  ///  this.numChildren=" + this.numChildren);
+		}
+		
+		//檢查是否需要顯示休息室窗
+		private function goCheckRest(e:Event):void 
+		{
+			//若在播放說明動畫時需要顯示30分鐘休息(rest_mc),就在結束說明動畫後播放
+			if (needRest) {
+				startRest();
+				needRest = false;
+			}
 		}
 		
 		private function goINTO(e:Event):void 
@@ -206,13 +261,20 @@ package As
 		//過關
 		private function Win(e:MainEvent):void {	
 			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] = 3;
-			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
+			if (SingletonValue.getInstance().caseNum == 3) { //如果是G04就表示全破了
+				else_mc.gotoAndStop(396); //送可樂豆畫面
+				this.addChild(else_mc);
+				else_mc.visible = true;
+			}else {
+				stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
+			}
 		}
 		
 		//else_mc偵聽事件
 		//你真的要離開嗎:選擇是,全過關要再挑戰一次嗎:選不要
 		private function gotoEnd(e:Event):void 
 		{
+			saveGame();
 			//播放片尾名單
 		}
 		//你真的要離開嗎:選擇否
@@ -229,6 +291,15 @@ package As
 			
 		}
 		
+		private function saveGame():void {
+			saveDataSharedObject.data.hp = SingletonValue.getInstance().hp;
+			saveDataSharedObject.data.caseNum = SingletonValue.getInstance().caseNum;
+			saveDataSharedObject.data.unitNum = SingletonValue.getInstance().unitNum;
+			saveDataSharedObject.data.caseArr = SingletonValue.getInstance().caseArr;
+			saveDataSharedObject.data.nowSiteName = SingletonValue.getInstance().nowSiteName;
+			saveDataSharedObject.data.beforeSiteName = SingletonValue.getInstance().beforeSiteName;
+			saveDataSharedObject.flush();	//存入SharedObject
+		}
 	}
 
 }
