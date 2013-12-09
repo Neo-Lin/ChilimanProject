@@ -9,7 +9,7 @@ package As
 	{
 		private static var  _instance:SingletonValue;
 		
-		private var _testMode:Boolean = true;	//測試模式
+		private var _testMode:Boolean = false;	//測試模式
 		private var HP:uint = 100;
 		private var _caseNum:uint = 4;		//目前進行案件0~3,4=無
 		private var _unitNum:uint = 5;		//目前進行案件進度--0:INTO, 1:QEX, 2:Q, 3:GEX, 4:G, 5:EVENTS

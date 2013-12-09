@@ -18,6 +18,7 @@ package As.Events
 		public static const TOOL_BAR_HIDE:String = "toolBarHide";		//toolBar隱藏
 		public static const TOOL_BAR_SHOW:String = "toolBarShow";		//toolBar顯示
 		public static const EXIT:String = "exit";						//離開光碟
+		public static const START_NEW:String = "startNew";				//刪除存檔重新開始
 		
 		public var ChangeSiteName:String; //要載入的swf名或類型
 		public var HP:uint;

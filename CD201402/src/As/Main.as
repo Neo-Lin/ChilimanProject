@@ -12,7 +12,9 @@ package As
 	import flash.net.SharedObject;
 	import flash.net.URLRequest;
 	import flash.utils.Timer;
+	import mdm.Dialogs;
 	import net.hires.debug.Stats;
+	import mdm.Application;
 	
 	/**
 	 * ...
@@ -57,7 +59,7 @@ package As
 			SingletonValue.getInstance().allGameSwf = allGameSwf;
 			//以下之後需要改成讀取記錄檔======================================
 			//設定一開始血量
-			SingletonValue.getInstance().hp = 100;
+			//SingletonValue.getInstance().hp = 100;
 			//設定一開始所有案件狀態
 			//SingletonValue.getInstance().caseArr = [1, 1, 2, 1];
 			//SingletonValue.getInstance().caseNum = 2;
@@ -66,20 +68,25 @@ package As
 			stage.addEventListener(MainEvent.GAME_FINISH, Win);
 			stage.addEventListener(MainEvent.LOAD_EX, loadEx);
 			stage.addEventListener(MainEvent.EXIT, goExit);
+			stage.addEventListener(MainEvent.START_NEW, goStartNew);
 			this.addChild(myLoader);
 			this.addChild(toolBar_mc);
 			LoadSwf();
-			addChild(new Stats());
+			//addChild(new Stats());
 			
 			else_mc.visible = false;
 			else_mc.addEventListener("goExitGame", gotoEnd);  	//你真的要離開嗎:選擇是,全過關要再挑戰一次嗎:選不要
-			else_mc.addEventListener("goCloseElse", closeElse);	//你真的要離開嗎:選擇否
-			else_mc.addEventListener("goAgain", allAgain);		//全過關要再挑戰一次嗎:選要
+			else_mc.addEventListener("goCloseElse", closeElse);	//你真的要離開嗎:選擇否,刪除記錄重新開始嗎:選不要
+			else_mc.addEventListener("goAgain", allAgain);		//全過關要再挑戰一次嗎 -> 清除存檔從新開始嗎:選要
 			
 			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, goRest);
 			myTime.start();
 			rest_mc.visible = false;
 			rest_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeRest);
+			
+			mdm.Application.init();
+			Dialogs.prompt("Hello World!");
+			mdm.Application.exit();
 		}
 		
 		//休息一下視窗====================================
@@ -88,6 +95,7 @@ package As
 			rest_mc.visible = false;
 			rest_mc.gotoAndStop(1);
 			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			myTime.reset();
 			myTime.start();
 		}
 		private function goRest(e:TimerEvent):void 
@@ -230,6 +238,7 @@ package As
 						stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  allUnitTxt[SingletonValue.getInstance().unitNum+1]));
 					}
 					function kill(e:Event):void {
+						_mc.removeEventListener(Event.REMOVED_FROM_STAGE, kill);
 						stage.removeEventListener(MouseEvent.CLICK, goNext);
 					}
 				});
@@ -255,19 +264,20 @@ package As
 			}
 			myLoader.load(myUrl);
 			
-			trace("Main: LoadSwf載入後:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren);
+			trace("Main: LoadSwf載入後:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren, "SingletonValue.getInstance().nowSiteName:" + SingletonValue.getInstance().nowSiteName);
 		}
 		
 		//過關
 		private function Win(e:MainEvent):void {	
 			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] = 3;
 			if (SingletonValue.getInstance().caseNum == 3) { //如果是G04就表示全破了
-				else_mc.gotoAndStop(396); //送可樂豆畫面
+				else_mc.gotoAndStop(598); //送可樂豆畫面
 				this.addChild(else_mc);
 				else_mc.visible = true;
 			}else {
 				stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
 			}
+			saveGame();
 		}
 		
 		//else_mc偵聽事件
@@ -277,18 +287,45 @@ package As
 			saveGame();
 			//播放片尾名單
 		}
-		//你真的要離開嗎:選擇否
+		//你真的要離開嗎:選擇否,刪除記錄重新開始嗎:選不要
 		private function closeElse(e:Event):void 
 		{
 			else_mc.visible = false;
 			else_mc.gotoAndStop(1);
-			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			stage.focus = stage;
+			if (SingletonValue.getInstance().nowSiteName == "OpenSave.swf") {  //刪除記錄重新開始嗎:選不要
+				SingletonValue.getInstance().hp = saveDataSharedObject.data.hp;
+				SingletonValue.getInstance().caseNum = saveDataSharedObject.data.caseNum;
+				SingletonValue.getInstance().unitNum = saveDataSharedObject.data.unitNum;
+				SingletonValue.getInstance().caseArr = saveDataSharedObject.data.caseArr;
+				SingletonValue.getInstance().nowSiteName = saveDataSharedObject.data.nowSiteName;
+				SingletonValue.getInstance().beforeSiteName = saveDataSharedObject.data.beforeSiteName;
+				stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B.swf"));
+			}else {  //你真的要離開嗎:選擇否
+				stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			}
 		}
-		//全過關要再挑戰一次嗎:選要
+		//全過關要再挑戰一次嗎 -> 清除存檔從新開始嗎:選要
 		private function allAgain(e:Event):void 
 		{
-			
+			else_mc.visible = false;
+			else_mc.gotoAndStop(1);
+			stage.focus = stage;
+			SingletonValue.getInstance().hp = 100;
+			SingletonValue.getInstance().caseNum = 4;
+			SingletonValue.getInstance().unitNum = 5;
+			SingletonValue.getInstance().caseArr = [1,1,1,1];
+			SingletonValue.getInstance().nowSiteName = "";
+			SingletonValue.getInstance().beforeSiteName = "";
+			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
+		}
+		
+		//進入遊戲是否要讀取存檔:選重新開始新遊戲
+		private function goStartNew(e:MainEvent):void 
+		{
+			else_mc.gotoAndStop(396); //刪除紀錄重新開始???
+			this.addChild(else_mc);
+			else_mc.visible = true;
 		}
 		
 		private function saveGame():void {

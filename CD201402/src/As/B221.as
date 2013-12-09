@@ -24,7 +24,7 @@ package As
 		private var soundArray:Array = [[sound_g1_1, sound_g1_2, sound_g1_3, sound_g1_4, sound_g1_5],
 										[sound_g2_1, sound_g2_2, sound_g2_3, sound_g2_4],
 										[sound_g3_1, sound_g3_2, sound_g3_3, sound_g3_4],
-										[sound_g4_1, sound_g4_2, sound_g4_3]];
+										[sound_g4_1, sound_g4_2, sound_g4_3, sound_start]];
 		
 		public function B221() 
 		{ 
@@ -74,7 +74,7 @@ package As
 			goCase_mc.visible = false;		
 			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, firstGoChangeSide);	//前往主遊戲G00
 			
-			SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
+			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
 			//四個案件的華生與可樂球對話
 			event1_mc.addEventListener("finish", goCase);
 			event2_mc.addEventListener("finish", goCase);

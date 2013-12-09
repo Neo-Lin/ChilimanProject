@@ -34,7 +34,9 @@ package As
 		
 		private function newGame(e:MouseEvent):void 
 		{
-			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
+			//stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
+			//打開else_mc跳到你要刪除存檔重新開始嗎頁面
+			stage.dispatchEvent(new MainEvent(MainEvent.START_NEW, true));
 		}
 		
 		private function playBtnSound(e:MouseEvent):void 
