@@ -39,7 +39,13 @@ package As
 				//this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
 				eventLoad.addEventListener(MouseEvent.CLICK, goSkip);
 			}
-			//trace(SingletonValue.getInstance().unitNum, SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum])
+			
+			//若案件有破關過就可以跳過華生對話
+			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] != 4){
+				skip_btn.visible = false;
+				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
+			}
+			skip_btn.addEventListener(MouseEvent.CLICK, skipWatson);
 			//華生對話,依據進入221B時的狀態播放語音
 			if (SingletonValue.getInstance().caseNum == 4) { //未進行任何案件
 				playSound("TSC", sound_start);
@@ -246,8 +252,21 @@ package As
 		}
 		//設定按鈕聲音============================================================
 		
+		//跳過華生對話
+		private function skipWatson(e:MouseEvent):void 
+		{
+			stopSound("TSC");
+			watson_mc.gotoAndStop(1);
+			skip_btn.visible = false;
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
+		}
+		
 		override public function scComplete(e:Event = null):void 
 		{	
+			if (watson_mc.currentFrame != 1) { //若是華生語音結束就把跳過按鈕隱藏
+				skip_btn.visible = false;
+				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
+			}
 			watson_mc.gotoAndStop(1);
 		}
 		

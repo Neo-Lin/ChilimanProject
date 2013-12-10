@@ -47,9 +47,11 @@ package As
 		private var allGold:Array = new Array();	//所有關卡黃金位置
 		private var allCh:Array = new Array();		//所有關卡影格名稱
 		private var allUser:Array = new Array();	//所有關卡可樂球初始位置
+		private var tempGold:MovieClip;				//紀錄可樂球推的黃金
 		private var chk1:Sound = new sound_chk1();
 		private var chk2:Sound = new sound_chk2();
 		private var ya:Sound = new sound_ya();
+		private var _in:Sound = new sound_in();
 		
 		
 		public function G02() 
@@ -219,6 +221,7 @@ package As
 			var _n:uint = allStar[nowChNum].length;
 			for (var j:uint = 1; j <= _n; j++) { //trace(j, "this[\"gold\" + j + \"_mc\"] : " + this["gold" + j + "_mc"] );
 				if (this["gold" + j + "_mc"].hitTestPoint(user_mc.x, user_mc.y, true)) {
+					tempGold = this["gold" + j + "_mc"];
 					pushGold("gold" + j + "_mc");
 				}
 			}
@@ -241,24 +244,28 @@ package As
 				//trace(this[string].hitTestObject(this[string]),gold3_mc == this[string]);
 				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x, this[string].y - userSpeed), 255) || checkPushGold(this[string])) {
 					user_mc.y += userSpeed;
+					tempGold = null;
 					return;
 				} 
 				this[string].y -= userSpeed;
 			}else if (directionTxt == "d") {
 				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x, this[string].y + userSpeed), 255) || checkPushGold(this[string])) {
 					user_mc.y -= userSpeed;
+					tempGold = null;
 					return;
 				}
 				this[string].y += userSpeed;
 			}else if (directionTxt == "l") {
 				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x - userSpeed, this[string].y), 255) || checkPushGold(this[string])) {
 					user_mc.x += userSpeed;
+					tempGold = null;
 					return;
 				}
 				this[string].x -= userSpeed;
 			}else if (directionTxt == "r") {
 				if (mapBD.hitTest(new Point(map_mc.x, map_mc.y), 255, userBD, new Point(this[string].x + userSpeed, this[string].y), 255) || checkPushGold(this[string])) {
 					user_mc.x -= userSpeed;
+					tempGold = null;
 					return;
 				}
 				this[string].x += userSpeed;
@@ -347,6 +354,11 @@ package As
 				for (var i:uint = 1; i <= _n; i++) {
 					if (this["gold" + j + "_mc"].hitTestPoint(this["star" + i + "_mc"].x, this["star" + i + "_mc"].y, false)) {
 						//只要有true就跳出這個for
+						if (this["gold" + j + "_mc"] == tempGold && 　this["gold" + j + "_mc"]._mc.currentFrame == 1) {
+							//如果是可樂球推的黃金到正確位置播音效
+							tempGold = null;
+							_in.play();
+						}
 						this["gold" + j + "_mc"]._mc.gotoAndStop(2);  //黃金閃閃
 						_b = true;
 						break;

@@ -23,16 +23,16 @@ package As
 	public class Main extends Sprite
 	{	//撥放狀態--1:顯示, 2:顯示但可以跳過, 3:不顯示, 4:互動內容
 		private var INTO:Array = ["G01_INTO.swf", "G02_INTO.swf", "G03_INTO.swf", "G04_INTO.swf"];				//子遊戲開場動畫_swf
-		private var _INTO:Array = [2, 2, 2, 2];																		//播放狀態
+		//private var _INTO:Array = [2, 2, 2, 2];																		//播放狀態
 		private var QEX:Array = ["G01_Q_EX.swf", "G02_Q_EX.swf", "G03_Q_EX.swf", "G04_Q_EX.swf"];				//題庫說明動畫_swf
-		private var _QEX:Array = [2, 2, 2, 2];																		//播放狀態
+		//private var _QEX:Array = [2, 2, 2, 2];																		//播放狀態
 		private var Q:Array =  ["G01_Q.swf", "G02_Q.swf", "G03_Q.swf", "G04_Q.swf"];							//題庫
 		private var GEX:Array = ["G01_G_EX.swf", "G02_G_EX.swf", "G03_G_EX.swf", "G04_G_EX.swf"];				//遊戲說明動畫_swf
-		private var _GEX:Array = [2, 2, 2, 2];																		//播放狀態
+		//private var _GEX:Array = [2, 2, 2, 2];																		//播放狀態
 		private var G:Array = ["G01.swf", "G02.swf", "G03.swf", "G04.swf"];										//遊戲
 		private var EVENTS:Array = ["G01_EVENT.swf", "G02_EVENT.swf", "G03_EVENT.swf", "G04_EVENT.swf"];		//案發過程動畫(221B室按下案件按鈕時載入撥放)
 		private var allGameSwf:Array = [INTO, QEX, Q, GEX, G, EVENTS];
-		private var _allGameSwf:Array = [_INTO, _QEX, null, _GEX];
+		//private var _allGameSwf:Array = [_INTO, _QEX, null, _GEX];
 		private var allUnitTxt:Array = ["INTO", "QEX", "Q", "GEX", "G"];
 		private var myLoader:Loader = new Loader();
 		private var exLoader:Loader = new Loader();
@@ -122,7 +122,7 @@ package As
 		
 		private function goExit(e:MainEvent):void 
 		{
-			else_mc.gotoAndStop(2);
+			else_mc.gotoAndPlay(2);
 			this.addChild(else_mc);
 			else_mc.visible = true;
 		}
@@ -228,8 +228,9 @@ package As
 					stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G"));
 				});
 			}
-			//如果播放狀態是2表示可以點滑鼠跳過
-			if (_allGameSwf[SingletonValue.getInstance().unitNum][SingletonValue.getInstance().caseNum] == 2) {
+			//如果案件狀態是3(破案)或4(再玩一次)就可以點滑鼠跳過
+			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3 || 
+			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 4) {
 				_mc.addFrameScript(1, function() {
 					stage.addEventListener(MouseEvent.CLICK, goNext);
 					_mc.addEventListener(Event.REMOVED_FROM_STAGE, kill);
@@ -293,13 +294,16 @@ package As
 			else_mc.visible = false;
 			else_mc.gotoAndStop(1);
 			stage.focus = stage;
-			if (SingletonValue.getInstance().nowSiteName == "OpenSave.swf") {  //刪除記錄重新開始嗎:選不要
+			if (SingletonValue.getInstance().nowSiteName == "OpenSave.swf") {  //OpenSave.swf"選重新開始新遊戲" -> 刪除記錄重新開始嗎:選不要
 				SingletonValue.getInstance().hp = saveDataSharedObject.data.hp;
 				SingletonValue.getInstance().caseNum = saveDataSharedObject.data.caseNum;
 				SingletonValue.getInstance().unitNum = saveDataSharedObject.data.unitNum;
 				SingletonValue.getInstance().caseArr = saveDataSharedObject.data.caseArr;
 				SingletonValue.getInstance().nowSiteName = saveDataSharedObject.data.nowSiteName;
 				SingletonValue.getInstance().beforeSiteName = saveDataSharedObject.data.beforeSiteName;
+				stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B.swf"));
+			}else if (SingletonValue.getInstance().caseNum == 3 && 
+			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) {  //如果是第四關而且破關了
 				stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B.swf"));
 			}else {  //你真的要離開嗎:選擇否
 				stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
@@ -323,7 +327,7 @@ package As
 		//進入遊戲是否要讀取存檔:選重新開始新遊戲
 		private function goStartNew(e:MainEvent):void 
 		{
-			else_mc.gotoAndStop(396); //刪除紀錄重新開始???
+			else_mc.gotoAndPlay(396); //刪除紀錄重新開始???
 			this.addChild(else_mc);
 			else_mc.visible = true;
 		}

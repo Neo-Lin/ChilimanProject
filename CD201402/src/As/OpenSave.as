@@ -23,6 +23,8 @@ package As
 		
 		private function openGame(e:MouseEvent):void 
 		{
+			stopSound("TSC");
+			stopSound("BTNSC");
 			SingletonValue.getInstance().hp = saveDataSharedObject.data.hp;
 			SingletonValue.getInstance().caseNum = saveDataSharedObject.data.caseNum;
 			SingletonValue.getInstance().unitNum = saveDataSharedObject.data.unitNum;
@@ -34,6 +36,8 @@ package As
 		
 		private function newGame(e:MouseEvent):void 
 		{
+			stopSound("TSC");
+			stopSound("BTNSC");
 			//stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
 			//打開else_mc跳到你要刪除存檔重新開始嗎頁面
 			stage.dispatchEvent(new MainEvent(MainEvent.START_NEW, true));

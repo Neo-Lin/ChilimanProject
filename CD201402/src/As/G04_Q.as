@@ -64,7 +64,7 @@ package As
 		{
 			for (var i:uint = 1; i <= 3; i++) {
 				this["answer" + i + "_mc"].addEventListener(MouseEvent.CLICK, selectAnswer);
-				this["answer" + i + "_mc"].addEventListener(MouseEvent.MOUSE_OVER, mcOver);
+				this["answer" + i + "_mc"].addEventListener(MouseEvent.MOUSE_MOVE, mcOver);
 				this["answer" + i + "_mc"].addEventListener(MouseEvent.MOUSE_OUT, mcOut);
 				this["answer" + i + "_mc"].answer_btn.gotoAndStop("mouseOut");
 			}
@@ -73,7 +73,7 @@ package As
 		{
 			for (var i:uint = 1; i <= 3; i++) {
 				this["answer" + i + "_mc"].removeEventListener(MouseEvent.CLICK, selectAnswer);
-				this["answer" + i + "_mc"].removeEventListener(MouseEvent.MOUSE_OVER, mcOver);
+				this["answer" + i + "_mc"].removeEventListener(MouseEvent.MOUSE_MOVE, mcOver);
 				this["answer" + i + "_mc"].removeEventListener(MouseEvent.MOUSE_OUT, mcOut);
 			}
 		}
