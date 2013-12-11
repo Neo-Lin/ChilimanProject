@@ -31,6 +31,7 @@ package As
 			SingletonValue.getInstance().caseArr = saveDataSharedObject.data.caseArr;
 			SingletonValue.getInstance().nowSiteName = saveDataSharedObject.data.nowSiteName;
 			SingletonValue.getInstance().beforeSiteName = saveDataSharedObject.data.beforeSiteName;
+			SingletonValue.getInstance().swfPlayList = saveDataSharedObject.data.swfPlayList;
 			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B.swf"));
 		}
 		

@@ -9,7 +9,7 @@ package As.Events
 	 */
 	public class MainEvent extends Event 
 	{
-		public static const SAVE :String = "save";						//傳值
+		public static const SAVE :String = "save";						//存檔
 		public static const CHANGE_SITE:String = "change";				//換場景
 		public static const PAUSE:String = "pause";						//暫停
 		public static const UN_PAUSE:String = "unpause";				//取消暫停

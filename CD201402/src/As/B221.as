@@ -7,6 +7,7 @@ package As
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.media.SoundMixer;
+	import flash.media.SoundTransform;
 	import flash.net.URLRequest;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.Timer;
@@ -43,16 +44,13 @@ package As
 			//若案件有破關過就可以跳過華生對話
 			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] != 4){
 				skip_btn.visible = false;
-				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			}
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			skip_btn.addEventListener(MouseEvent.CLICK, skipWatson);
 			//華生對話,依據進入221B時的狀態播放語音
 			if (SingletonValue.getInstance().caseNum == 4) { //未進行任何案件
 				playSound("TSC", sound_start);
 				watson_mc.gotoAndStop(3);
-			}else if (SingletonValue.getInstance().hp <= 10) { //快掛了
-				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][1]);
-				watson_mc.gotoAndStop(7);
 			}else if (SingletonValue.getInstance().unitNum == 5) { //沒進去案發現場
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][0]);
 				watson_mc.gotoAndStop(2);
@@ -66,6 +64,9 @@ package As
 			}else if (SingletonValue.getInstance().unitNum == 2 && SingletonValue.getInstance().caseNum == 0) { //只有G01有這狀況
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][4]);
 				watson_mc.gotoAndStop(6);
+			}else if (SingletonValue.getInstance().hp <= 10) { //快掛了
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][1]);
+				watson_mc.gotoAndStop(7);
 			}
 			
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
@@ -185,6 +186,31 @@ package As
 		private function playEvent(e:Event):void 
 		{
 			eventLoad.content.addEventListener("finish", eventFinish);
+			//若案件有破關過就可以跳過案發動畫
+			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 4){
+				skip_btn.visible = true;
+				this.addChild(skip_btn);
+				skip_btn.addEventListener(MouseEvent.CLICK, skipEvent);
+			}
+		}
+		
+		//跳過案發動畫
+		private function skipEvent(e:MouseEvent):void 
+		{	
+			skip_btn.removeEventListener(MouseEvent.CLICK, skipEvent);
+			var _mc:MovieClip = eventLoad.content as MovieClip;
+			_mc.gotoAndPlay(_mc.totalFrames);
+			skip_btn.addEventListener(MouseEvent.CLICK, skipEventMove);
+			skip_btn.visible = true;
+		}
+		
+		//跳過案發動畫後的場景上對話動畫
+		private function skipEventMove(e:MouseEvent):void 
+		{
+			skip_btn.visible = false;
+			var st:SoundTransform = new SoundTransform(0);
+			this["event" + eventUrl.url.substr(2, 1) + "_mc"].soundTransform  = st;
+			this["event" + eventUrl.url.substr(2, 1) + "_mc"].gotoAndPlay(this["event" + eventUrl.url.substr(2, 1) + "_mc"].totalFrames);
 		}
 		
 		private function eventFinish(e:Event):void 
@@ -255,6 +281,7 @@ package As
 		//跳過華生對話
 		private function skipWatson(e:MouseEvent):void 
 		{
+			skip_btn.removeEventListener(MouseEvent.CLICK, skipWatson);
 			stopSound("TSC");
 			watson_mc.gotoAndStop(1);
 			skip_btn.visible = false;
@@ -277,7 +304,12 @@ package As
 		}
 		private function firstGoChangeSide(e:MouseEvent):void 
 		{
-			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00_G_EX.swf"));
+			//如果破關過就不用播主遊戲說明
+			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 4) {
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+			}else {
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00_G_EX.swf"));
+			}
 		}
 		
 		//暫停

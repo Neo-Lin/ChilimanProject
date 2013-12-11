@@ -69,6 +69,7 @@ package As
 			stage.addEventListener(MainEvent.LOAD_EX, loadEx);
 			stage.addEventListener(MainEvent.EXIT, goExit);
 			stage.addEventListener(MainEvent.START_NEW, goStartNew);
+			stage.addEventListener(MainEvent.SAVE, saveGame);
 			this.addChild(myLoader);
 			this.addChild(toolBar_mc);
 			LoadSwf();
@@ -141,6 +142,7 @@ package As
 			exLoader.load(myUrl);
 			exLoader.addEventListener(MouseEvent.CLICK, unLoadEx);
 			this.addChild(exLoader);
+			this.setChildIndex(stageMask_mc, this.numChildren - 1);
 			toolBar_mc.gotoAndStop("open");
 		}
 		private function exLoaderAddScript(e:Event):void 
@@ -264,6 +266,7 @@ package As
 				toolBar_mc.visible = true;
 			}
 			myLoader.load(myUrl);
+			this.setChildIndex(stageMask_mc, this.numChildren - 1);
 			
 			trace("Main: LoadSwf載入後:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren, "SingletonValue.getInstance().nowSiteName:" + SingletonValue.getInstance().nowSiteName);
 		}
@@ -301,6 +304,7 @@ package As
 				SingletonValue.getInstance().caseArr = saveDataSharedObject.data.caseArr;
 				SingletonValue.getInstance().nowSiteName = saveDataSharedObject.data.nowSiteName;
 				SingletonValue.getInstance().beforeSiteName = saveDataSharedObject.data.beforeSiteName;
+				SingletonValue.getInstance().swfPlayList = saveDataSharedObject.data.swfPlayList;
 				stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B.swf"));
 			}else if (SingletonValue.getInstance().caseNum == 3 && 
 			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) {  //如果是第四關而且破關了
@@ -309,7 +313,7 @@ package As
 				stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			}
 		}
-		//全過關要再挑戰一次嗎 -> 清除存檔從新開始嗎:選要
+		//全過關要再挑戰一次嗎:選要 -> 清除存檔從新開始嗎:選要
 		private function allAgain(e:Event):void 
 		{
 			else_mc.visible = false;
@@ -321,6 +325,7 @@ package As
 			SingletonValue.getInstance().caseArr = [1,1,1,1];
 			SingletonValue.getInstance().nowSiteName = "";
 			SingletonValue.getInstance().beforeSiteName = "";
+			SingletonValue.getInstance().swfPlayList = [0,0];
 			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
 		}
 		
@@ -332,13 +337,14 @@ package As
 			else_mc.visible = true;
 		}
 		
-		private function saveGame():void {
+		private function saveGame(e:MainEvent = null):void {
 			saveDataSharedObject.data.hp = SingletonValue.getInstance().hp;
 			saveDataSharedObject.data.caseNum = SingletonValue.getInstance().caseNum;
 			saveDataSharedObject.data.unitNum = SingletonValue.getInstance().unitNum;
 			saveDataSharedObject.data.caseArr = SingletonValue.getInstance().caseArr;
 			saveDataSharedObject.data.nowSiteName = SingletonValue.getInstance().nowSiteName;
 			saveDataSharedObject.data.beforeSiteName = SingletonValue.getInstance().beforeSiteName;
+			saveDataSharedObject.data.swfPlayList = SingletonValue.getInstance().swfPlayList;
 			saveDataSharedObject.flush();	//存入SharedObject
 		}
 	}
