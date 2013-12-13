@@ -51,22 +51,21 @@ package As
 			if (SingletonValue.getInstance().caseNum == 4) { //未進行任何案件
 				playSound("TSC", sound_start);
 				watson_mc.gotoAndStop(3);
+			}else if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //過關
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][3]);
+				watson_mc.gotoAndStop(4);
+			}else if (SingletonValue.getInstance().hp <= 10) { //快掛了
+				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][1]);
+				watson_mc.gotoAndStop(7);
 			}else if (SingletonValue.getInstance().unitNum == 5) { //沒進去案發現場
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][0]);
 				watson_mc.gotoAndStop(2);
 			}else if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 2) { //沒過關
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][2]);
 				watson_mc.gotoAndStop(5);
-			}else if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //過關
-				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][3]);
-				watson_mc.gotoAndStop(4);
-				SingletonValue.getInstance().caseNum = 4;  //播完過關語音後將目前進行案件改成無
 			}else if (SingletonValue.getInstance().unitNum == 2 && SingletonValue.getInstance().caseNum == 0) { //只有G01有這狀況
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][4]);
 				watson_mc.gotoAndStop(6);
-			}else if (SingletonValue.getInstance().hp <= 10) { //快掛了
-				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][1]);
-				watson_mc.gotoAndStop(7);
 			}
 			
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
@@ -79,7 +78,11 @@ package As
 			changeCase_mc.n_btn.addEventListener(MouseEvent.CLICK, noChange);
 			//出發到案發現場
 			goCase_mc.visible = false;		
-			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, firstGoChangeSide);	//前往主遊戲G00
+			goCase_mc.go_btn.addEventListener(MouseEvent.CLICK, goChangeSide);
+			//繼續挑戰其他案件吧
+			keepOn_mc.visible = false;		
+			keepOn_mc.go_btn.addEventListener(MouseEvent.CLICK, keepOn);
+			
 			
 			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];  //測試用
 			//四個案件的華生與可樂球對話
@@ -94,6 +97,12 @@ package As
 			initCaseBtn();
 			setSound();
 			
+		}
+		
+		private function keepOn(e:MouseEvent):void 
+		{
+			keepOn_mc.visible = false;
+			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 		}
 		
 		//設定按鈕外觀
@@ -171,7 +180,9 @@ package As
 			//載入
 			trace(SingletonValue.getInstance().allGameSwf[5][SingletonValue.getInstance().caseNum]);
 			eventUrl = new URLRequest(SingletonValue.getInstance().allGameSwf[5][SingletonValue.getInstance().caseNum]);
+			eventUrl.url = SingletonValue.getInstance().userLink + eventUrl.url;
 			loadEvent();
+			eventUrl.url = SingletonValue.getInstance().allGameSwf[5][SingletonValue.getInstance().caseNum];
 			//this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  SingletonValue.getInstance().allGameSwf[0][SingletonValue.getInstance().caseNum]));
 		}
 		
@@ -293,16 +304,28 @@ package As
 			if (watson_mc.currentFrame != 1) { //若是華生語音結束就把跳過按鈕隱藏
 				skip_btn.visible = false;
 				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
+				if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) { //過關
+					SingletonValue.getInstance().caseNum = 4;  //播完過關語音後將目前進行案件改成無
+					//繼續挑戰其他案件字卡
+					keepOn_mc.visible = true;
+					stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+				}
 			}
+				
 			watson_mc.gotoAndStop(1);
 		}
 		
 		//換場景
 		private function goChangeSide(e:MouseEvent):void 
 		{
-			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+			if (SingletonValue.getInstance().swfPlayList[1] == 1) {
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
+			}else {
+				SingletonValue.getInstance().swfPlayList[1] = 1;
+				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00_G_EX.swf"));
+			}
 		}
-		private function firstGoChangeSide(e:MouseEvent):void 
+		/*private function firstGoChangeSide(e:MouseEvent):void 
 		{
 			//如果破關過就不用播主遊戲說明
 			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 4) {
@@ -310,7 +333,7 @@ package As
 			}else {
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00_G_EX.swf"));
 			}
-		}
+		}*/
 		
 		//暫停
 		override public function Pause(e:MainEvent):void { 

@@ -98,7 +98,9 @@ package As
 			var _n:uint = answer.length;
 			for (var i:uint = 1; i <= _n; i++) {
 				var _mc:MovieClip = this["Abox" + i + "_mc"];
-				if (_mc.correct_mc.currentLabel == answer[i - 1]) {
+				if (_mc.correct_mc.currentLabel == answer[i - 1] ||
+				_mc.correct_mc.currentLabel == answer[i - 1] + "y") {
+					_mc.correct_mc.gotoAndStop(_mc.correct_mc.currentLabel.substr(0,1) + "y");
 					passNum++;
 					_mc.removeEventListener(MouseEvent.CLICK, changeBox);
 					_mc.removeEventListener(MouseEvent.MOUSE_OVER, BoxIn);

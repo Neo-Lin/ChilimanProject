@@ -18,6 +18,7 @@ package As
 		private var _nowSiteName:String;	//目前所在場景,發出MainEvent.CHANGE_SITE事件時會在MainEvent.as裡改變這個值
 		private var _beforeSiteName:String;	//換場景前的所在場景,發出MainEvent.CHANGE_SITE事件時會在MainEvent.as裡改變這個值
 		private var _swfPlayList:Array = [0, 0]; //影格有程式碼的三支swf是否有播放過221B_EX,G00_G_EX
+		private var _userLink:String; //swf路徑
 		
 		public function SingletonValue(sSingleton:Singleton) 
 		{
@@ -126,6 +127,16 @@ package As
 		public function set swfPlayList(value:Array):void 
 		{
 			_swfPlayList = value;
+		}
+		
+		public function get userLink():String 
+		{
+			return _userLink;
+		}
+		
+		public function set userLink(value:String):void 
+		{
+			_userLink = value;
 		}
 		
 	}

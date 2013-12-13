@@ -35,7 +35,13 @@
 		private var i,j,k:int = 0;
 		
 		
-		private var AllSwfAry:Array = [['','','5月號英語學習單元.ico',123580],['','','English.exe',8522390],['','','MysteryIsland.exe',9600552],['','','uninstall.exe',7383378],['','','uninstall_excute.exe',7444897],['','','前進神祕島.ico',121846],['Swf','Swf','E00_desc.swf',388406],['Swf','Swf','E00_game.swf',478770],['Swf','Swf','E01_ani1.swf',886835],['Swf','Swf','E01_desc.swf',245517],['Swf','Swf','E01_game1.swf',470003],['Swf','Swf','E01_story1.swf',731078],['Swf','Swf','E01_story2.swf',57456],['Swf','Swf','E02_ani1.swf',410625],['Swf','Swf','E02_ani2.swf',826591],['Swf','Swf','E02_desc.swf',383350],['Swf','Swf','E02_game1.swf',716934],['Swf','Swf','E02_game2.swf',716933],['Swf','Swf','E02_game3.swf',716934],['Swf','Swf','E02_story1.swf',228649],['Swf','Swf','E02_story2.swf',433687],['Swf','Swf','E02_story3.swf',732226],['Swf','Swf','E02_story4.swf',63823],['Swf','Swf','EEND_game.swf',154848],['Swf','Swf','ET01_game.swf',173823],['Swf','Swf','ET02_game.swf',155330],['Swf','Swf','EX_leave.swf',144154],['Swf','Swf','E_toolbar.swf',207822],['Swf','Swf','G01_ani1.swf',1688352],['Swf','Swf','G01_desc.swf',189349],['Swf','Swf','G01_game.swf',416723],['Swf','Swf','G02_desc.swf',922768],['Swf','Swf','G02_game.swf',654251],['Swf','Swf','G02_qdesc.swf',249234],['Swf','Swf','G02_qdesc2.swf',241832],['Swf','Swf','G02_ques.swf',883223],['Swf','Swf','G03_ani1.swf',1183900],['Swf','Swf','G04_desc.swf',426354],['Swf','Swf','G04_game.swf',841576],['Swf','Swf','G04_qdesc.swf',329558],['Swf','Swf','G04_qdesc2.swf',329558],['Swf','Swf','G04_ques.swf',771643],['Swf','Swf','G05_ani1.swf',2508825],['Swf','Swf','G05_desc.swf',1020621],['Swf','Swf','G05_game.swf',1164195],['Swf','Swf','G06_desc.swf',241019],['Swf','Swf','G06_game.swf',763198],['Swf','Swf','G06_qdesc.swf',153897],['Swf','Swf','G06_qdesc2.swf',153897],['Swf','Swf','G06_ques.swf',787194],['Swf','Swf','G07_ani1.swf',568221],['Swf','Swf','G07_desc.swf',231661],['Swf','Swf','G07_game.swf',480300],['Swf','Swf','G08_desc.swf',355885],['Swf','Swf','G08_game.swf',721012],['Swf','Swf','G08_qdesc.swf',384883],['Swf','Swf','G08_qdesc2.swf',363342],['Swf','Swf','G08_ques.swf',1010929],['Swf','Swf','G09_ani1.swf',683964],['Swf','Swf','G09_desc.swf',288283],['Swf','Swf','G09_game.swf',304670],['Swf','Swf','G10_ani2.swf',2783955],['Swf','Swf','G10_desc.swf',376255],['Swf','Swf','G10_game.swf',1372455],['Swf','Swf','G10_qdesc.swf',144600],['Swf','Swf','G10_qdesc2.swf',139892],['Swf','Swf','G10_ques.swf',961884],['Swf','Swf','GC_change.swf',108513],['Swf','Swf','GM_desc.swf',543279],['Swf','Swf','GM_game.swf',1659122],['Swf','Swf','GQ_desc.swf',348696],['Swf','Swf','GQ_game.swf',651665],['Swf','Swf','GX_exit.swf',580978],['Swf','Swf','loading.swf',13684],['Swf','Swf','Tip_other.swf',346419],['Swf','Swf','toolbar.swf',106099]];
+		//private var AllSwfAry:Array = [['','','5月號英語學習單元.ico',123580],['','','English.exe',8522390],['','','MysteryIsland.exe',9600552],['','','uninstall.exe',7383378],['','','uninstall_excute.exe',7444897],['','','前進神祕島.ico',121846],['Swf','Swf','E00_desc.swf',388406],['Swf','Swf','E00_game.swf',478770],['Swf','Swf','E01_ani1.swf',886835],['Swf','Swf','E01_desc.swf',245517],['Swf','Swf','E01_game1.swf',470003],['Swf','Swf','E01_story1.swf',731078],['Swf','Swf','E01_story2.swf',57456],['Swf','Swf','E02_ani1.swf',410625],['Swf','Swf','E02_ani2.swf',826591],['Swf','Swf','E02_desc.swf',383350],['Swf','Swf','E02_game1.swf',716934],['Swf','Swf','E02_game2.swf',716933],['Swf','Swf','E02_game3.swf',716934],['Swf','Swf','E02_story1.swf',228649],['Swf','Swf','E02_story2.swf',433687],['Swf','Swf','E02_story3.swf',732226],['Swf','Swf','E02_story4.swf',63823],['Swf','Swf','EEND_game.swf',154848],['Swf','Swf','ET01_game.swf',173823],['Swf','Swf','ET02_game.swf',155330],['Swf','Swf','EX_leave.swf',144154],['Swf','Swf','E_toolbar.swf',207822],['Swf','Swf','G01_ani1.swf',1688352],['Swf','Swf','G01_desc.swf',189349],['Swf','Swf','G01_game.swf',416723],['Swf','Swf','G02_desc.swf',922768],['Swf','Swf','G02_game.swf',654251],['Swf','Swf','G02_qdesc.swf',249234],['Swf','Swf','G02_qdesc2.swf',241832],['Swf','Swf','G02_ques.swf',883223],['Swf','Swf','G03_ani1.swf',1183900],['Swf','Swf','G04_desc.swf',426354],['Swf','Swf','G04_game.swf',841576],['Swf','Swf','G04_qdesc.swf',329558],['Swf','Swf','G04_qdesc2.swf',329558],['Swf','Swf','G04_ques.swf',771643],['Swf','Swf','G05_ani1.swf',2508825],['Swf','Swf','G05_desc.swf',1020621],['Swf','Swf','G05_game.swf',1164195],['Swf','Swf','G06_desc.swf',241019],['Swf','Swf','G06_game.swf',763198],['Swf','Swf','G06_qdesc.swf',153897],['Swf','Swf','G06_qdesc2.swf',153897],['Swf','Swf','G06_ques.swf',787194],['Swf','Swf','G07_ani1.swf',568221],['Swf','Swf','G07_desc.swf',231661],['Swf','Swf','G07_game.swf',480300],['Swf','Swf','G08_desc.swf',355885],['Swf','Swf','G08_game.swf',721012],['Swf','Swf','G08_qdesc.swf',384883],['Swf','Swf','G08_qdesc2.swf',363342],['Swf','Swf','G08_ques.swf',1010929],['Swf','Swf','G09_ani1.swf',683964],['Swf','Swf','G09_desc.swf',288283],['Swf','Swf','G09_game.swf',304670],['Swf','Swf','G10_ani2.swf',2783955],['Swf','Swf','G10_desc.swf',376255],['Swf','Swf','G10_game.swf',1372455],['Swf','Swf','G10_qdesc.swf',144600],['Swf','Swf','G10_qdesc2.swf',139892],['Swf','Swf','G10_ques.swf',961884],['Swf','Swf','GC_change.swf',108513],['Swf','Swf','GM_desc.swf',543279],['Swf','Swf','GM_game.swf',1659122],['Swf','Swf','GQ_desc.swf',348696],['Swf','Swf','GQ_game.swf',651665],['Swf','Swf','GX_exit.swf',580978],['Swf','Swf','loading.swf',13684],['Swf','Swf','Tip_other.swf',346419],['Swf','Swf','toolbar.swf',106099]];
+		private var AllSwfAry:Array = [['', '', 'LookingHolmes.exe', 8867211], ['', '', 'Looking Holmes.ico', 152456], ['', '', '221B.swf', 3731707], ['', '', '221B_EX.swf', 872756], ['', '', 'G00.swf', 4734055], ['', '', 'G00_G_EX.swf', 1364443], ['', '', 'index.swf', 299089], ['', '', 'indexMV.swf', 1886879], ['', '', 'OpenSave.swf', 198886], 
+		['', '', 'G01.swf', ], ['', '', 'G01_EVENT.swf', ], ['', '', 'G01_G_EX.swf', ], ['', '', 'G01_INTO.swf', ], ['', '', 'G01_Q.swf', ], ['', '', 'G01_Q_EX.swf', ],
+		['', '', 'G02.swf', ], ['', '', 'G02_EVENT.swf', ], ['', '', 'G02_G_EX.swf', ], ['', '', 'G02_INTO.swf', ], ['', '', 'G02_Q.swf', ], ['', '', 'G02_Q_EX.swf', ],
+		['', '', 'G03.swf', ], ['', '', 'G03_EVENT.swf', ], ['', '', 'G03_G_EX.swf', ], ['', '', 'G03_INTO.swf', ], ['', '', 'G03_Q.swf', ], ['', '', 'G03_Q_EX.swf', ],
+		['', '', 'G04.swf', ], ['', '', 'G04_EVENT.swf', ], ['', '', 'G04_G_EX.swf', ], ['', '', 'G04_INTO.swf', ], ['', '', 'G04_Q.swf', ], ['', '', 'G04_Q_EX.swf', ]
+		/*['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',]*/];
 		
 		
 		//	fLayer = 第一層目錄 subject = 單元名稱 scLayer = 開始功能列使用的路徑 scName = 捷徑的名稱 wLayer = 暫存資料夾名稱
@@ -247,7 +253,7 @@
 			var tarPath:String = setupRoot + fixPath;//安裝的路徑
 				
 			//以該路徑為根目錄，將來源檔案依照資料夾一個一個複製
-			var srcPath:String = mdm.Application.path.replace("\\\\","\\") + "Data\\";//要被複製的路徑
+			var srcPath:String = mdm.Application.path.replace("\\\\","\\") + "bin\\";//要被複製的路徑
 			
 			//直接先建立好最上層資料夾與單元資料夾
 			mkDir(setupRoot + fixPath_firstLayer );
@@ -275,20 +281,20 @@
 		public function end_copyFile(tarPath:String , setupRoot:String ):void{
 			
 			//建桌面捷徑
-				var appPath:String = tarPath + "MysteryIsland.exe"; //目標
+				var appPath:String = tarPath + "LookingHolmes.exe"; //目標
 				var appFolder:String = tarPath;//開始位置
 				var shortcutText:String = fix_shortCutName;//註解
 				//var iconPath:String = mdm.Application.path + mdm.Application.filename;//ICON路徑--使用目前執行檔
-				var iconPath:String = tarPath + "前進神祕島.ico";//ICON路徑--使用目前執行檔
+				var iconPath:String = tarPath + "Looking Holmes.ico";//ICON路徑--使用目前執行檔
 				var iconRes:Number = 0;//使用第幾個ICON
 				
 				
 				//英文的
-				var E_appPath:String = tarPath + "English.exe"; //目標
+				/*var E_appPath:String = tarPath + "English.exe"; //目標
 				var E_appFolder:String = tarPath;//開始位置
 				var E_shortcutText:String = "5月號英語學習單元";//註解
 				var E_iconPath:String = tarPath + "5月號英語學習單元.ico";//ICON路徑--使用目前執行檔
-				var E_iconRes:Number = 0;//使用第幾個ICON
+				var E_iconRes:Number = 0;//使用第幾個ICON*/
 			
 				//建立捷徑之前要確定目標檔存在，否則會無法建立
 				var tmpPath:String = mdm.System.Paths.desktop;
@@ -296,8 +302,8 @@
 				mdm.FileSystem.createShortcut(appPath, appFolder, shortcutText, iconPath, iconRes, shortcutLink);
 				
 			
-				var E_shortcutLink:String = tmpPath+"\\"+"5月號英語學習單元"+".lnk";
-				mdm.FileSystem.createShortcut(E_appPath, E_appFolder, E_shortcutText, E_iconPath, E_iconRes, E_shortcutLink);
+				/*var E_shortcutLink:String = tmpPath+"\\"+"5月號英語學習單元"+".lnk";
+				mdm.FileSystem.createShortcut(E_appPath, E_appFolder, E_shortcutText, E_iconPath, E_iconRes, E_shortcutLink);*/
 					
 					
 			//建開始功能表
@@ -312,7 +318,7 @@
 				mkDir(StartMenuPath);
 				   //複製桌面捷徑到開始功能表
 				mdm.FileSystem.copyFile(shortcutLink, StartMenuPath+"\\"+fix_shortCutName+".lnk");
-				mdm.FileSystem.copyFile(E_shortcutLink, StartMenuPath+"\\"+"5月號英語學習單元"+".lnk");
+				//mdm.FileSystem.copyFile(E_shortcutLink, StartMenuPath+"\\"+"5月號英語學習單元"+".lnk");
 				//建立移除執行檔的捷徑
 				appPath = tarPath + "uninstall.exe"; //目標
 				shortcutText = "移除"+fix_shortCutName;//註解

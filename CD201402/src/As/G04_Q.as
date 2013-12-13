@@ -57,6 +57,10 @@ package As
 				this["answer" + (_i + 1) + "_mc"].answer_mc.gotoAndStop("q" + topic_mc.currentFrame + (_i + 1));
 			}*/
 			
+			for (var _i:uint = 1; _i <= 3; _i++) {
+				this["answer" + _i + "_mc"].buttonMode = true;
+			}
+			
 			startTopic();
 		}
 		
@@ -66,7 +70,7 @@ package As
 				this["answer" + i + "_mc"].addEventListener(MouseEvent.CLICK, selectAnswer);
 				this["answer" + i + "_mc"].addEventListener(MouseEvent.MOUSE_MOVE, mcOver);
 				this["answer" + i + "_mc"].addEventListener(MouseEvent.MOUSE_OUT, mcOut);
-				this["answer" + i + "_mc"].answer_btn.gotoAndStop("mouseOut");
+				//this["answer" + i + "_mc"].answer_btn.gotoAndStop("mouseOut");
 			}
 		}
 		private function unLinstnerAll():void 
@@ -89,6 +93,8 @@ package As
 			for (var i:uint = 0; i < 3; i++) {
 				var n:uint = _a.splice(Math.random() * _a.length, 1)[0];
 				this["answer" + (i + 1) + "_mc"].answer_mc.gotoAndStop("q" + _n + n);
+				this["answer" + (i + 1) + "_mc"].answer_btn.gotoAndStop("mouseOut");
+				this["answer" + (i + 1) + "_mc"].buttonMode = true;
 				//紀錄正確答案是哪個按鈕,正確答案固定放在第1個影格
 				if (n == 1) {
 					tempAnswer = this["answer" + (i + 1) + "_mc"];
@@ -98,7 +104,8 @@ package As
 		}
 		
 		private function selectAnswer(e:MouseEvent):void 
-		{
+		{	
+			if (e.currentTarget.answer_btn.currentLabel == "X") return;
 			if (e.currentTarget == tempAnswer) {
 				trace("答對");
 				nowTopic++;
@@ -108,6 +115,7 @@ package As
 			}else {
 				trace("答錯");
 				e.currentTarget.answer_btn.gotoAndStop("X");
+				e.currentTarget.buttonMode = false;
 				againTimer.start();
 			}
 			stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
@@ -134,19 +142,22 @@ package As
 		//答錯倒數兩秒回同一題
 		private function goAgain(e:TimerEvent):void 
 		{
-			for (var i:uint = 1; i <= 3; i++) {
+			//把所有按鈕恢復成未按下狀態
+			/*for (var i:uint = 1; i <= 3; i++) {
 				this["answer" + i + "_mc"].answer_btn.gotoAndStop("mouseOut");
-			}
+			}*/
 			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 		}
 		
 		private function mcOver(e:MouseEvent):void 
 		{	
+			if (e.currentTarget.answer_btn.currentLabel == "X") return;
 			e.currentTarget.answer_btn.gotoAndStop("mouseOver");
 		}
 		
 		private function mcOut(e:MouseEvent):void 
 		{
+			if (e.currentTarget.answer_btn.currentLabel == "X") return;
 			e.currentTarget.answer_btn.gotoAndStop("mouseOut");
 		}
 		

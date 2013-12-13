@@ -252,10 +252,13 @@ package As
 		//遇到街童
 		private function information(e:BadguyEvent):void 
 		{
-			if (tempTramp && !tempTramp.hasEventListener(BadguyEvent.TOUCH)) {  //若上一個碰到的街童還沒恢復偵聽就先跳過
+			if (tempTramp && !tempTramp.hasEventListener(BadguyEvent.TOUCH) ||
+			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) {  
+				//若上一個碰到的街童還沒恢復偵聽或目前關卡已破關就先跳過
 				return;
 			}
 			this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+			this.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			tempTramp = e.currentTarget as MovieClip;
 			tempTramp.removeEventListener(BadguyEvent.TOUCH, information);
 			trampTxt_mc.Tramp_mc.visible = false;
@@ -264,11 +267,24 @@ package As
 				//亂數選取語音
 				trampSoundAmount = Math.random() * trampSoundGirl[SingletonValue.getInstance().caseNum].length;
 				//複製亂數選取的街童語音陣列,trampSoundPlay負責撥放
-				trampSoundArray = trampSoundGirl[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
+				//trampSoundArray = trampSoundGirl[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
+				//依街童的名字固定播放語音
+				if (uint(tempTramp.name.substr(1, 1)) > trampSoundGirl[SingletonValue.getInstance().caseNum].length - 1) {
+					//若街童數量(3)比語音數量多就播第一個
+					trampSoundArray = trampSoundGirl[SingletonValue.getInstance().caseNum][0].concat();
+				}else {
+					trampSoundArray = trampSoundGirl[SingletonValue.getInstance().caseNum][tempTramp.name.substr(1,1)].concat();
+				}
 				trampSoundPlay("g");
 			}else if (getQualifiedClassName(tempTramp) == "tramp_boy") { //街童男
 				trampSoundAmount = Math.random() * trampSoundBoy[SingletonValue.getInstance().caseNum].length;
-				trampSoundArray = trampSoundBoy[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
+				//trampSoundArray = trampSoundBoy[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
+				if (uint(tempTramp.name.substr(1, 1)) > trampSoundBoy[SingletonValue.getInstance().caseNum].length - 1) {
+					//若街童數量(3)比語音數量多就播第一個
+					trampSoundArray = trampSoundBoy[SingletonValue.getInstance().caseNum][0].concat();
+				}else {
+					trampSoundArray = trampSoundBoy[SingletonValue.getInstance().caseNum][tempTramp.name.substr(1, 1)].concat();
+				}
 				trampSoundPlay("b");
 			}
 			trampTxt_mc.visible = true;
@@ -309,6 +325,7 @@ package As
 		{
 			stopSound("TSC");
 			this.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			this.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 			trampTxt_mc.visible = false;
 			trampTxt_mc.gotoAndStop(1);
 			Tweener.addTween(this, { time:2, onComplete:function() {
@@ -442,6 +459,9 @@ package As
 			}
 			//判斷是否碰到可進入建築物的範圍(enter_mc)
 			if (enter_mc.hitTestPoint(user_mc.x, user_mc.y, true)) {	
+				//若目前案件已破關就不顯示進入箭頭
+				if (enter_mc["enter_case" + SingletonValue.getInstance().caseNum + "_mc"].hitTestPoint(user_mc.x, user_mc.y, true) && 
+				SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) return;
 				cola_mc.a_mc.visible = true;
 			}else {
 				cola_mc.a_mc.visible = false;
@@ -492,6 +512,10 @@ package As
 			{
 				case Keyboard.UP: 
 				{
+					if (cola_mc.a_mc.visible) {
+						checkPass();
+						break;
+					}
 					upPressed = true;
 					//紀錄可樂球方向
 					modeTxt = "";
@@ -518,10 +542,6 @@ package As
 				case Keyboard.SPACE: 
 				case 229:
 				{	
-					if (cola_mc.a_mc.visible) {
-						checkPass();
-						break;
-					}
 					attack();
 					modeTxt = "a";
 					break;

@@ -12,9 +12,8 @@ package As
 	import flash.net.SharedObject;
 	import flash.net.URLRequest;
 	import flash.utils.Timer;
-	import mdm.Dialogs;
+	import As.mdm.mdm_As;
 	import net.hires.debug.Stats;
-	import mdm.Application;
 	
 	/**
 	 * ...
@@ -43,6 +42,12 @@ package As
 		//private var nowUnit:uint; //紀錄目前allGameSwf進行第幾個
 		private var needRest:Boolean = false; //紀錄是否需要跳出休息室窗
 		private var saveDataSharedObject:SharedObject = SharedObject.getLocal("saveData", "/");
+		private var userLink:String = "";//資料夾位置.
+		private var Folder1:String = "benesse";//記錄檔資料夾名稱
+		private var Folder2:String = "2月號尋找福爾摩斯";//記錄檔單元資料夾名稱
+		//1.安裝第一層目錄、2.單元名稱、3.功能列表目錄、4.捷徑名稱、5.暫存資料夾第一層目錄
+		private var mdm:mdm_As = new mdm_As("巧連智光碟系列\\中年級版",Folder2,"巧連智中年級版\\2月號尋找福爾摩斯","尋找福爾摩斯",Folder1);
+		//private var nowMdmAct:String = "";//MDM偵聽功能不夠完整，無法得知complete事件，由此取代
 		
 		public function Main():void
 		{
@@ -72,7 +77,6 @@ package As
 			stage.addEventListener(MainEvent.SAVE, saveGame);
 			this.addChild(myLoader);
 			this.addChild(toolBar_mc);
-			LoadSwf();
 			//addChild(new Stats());
 			
 			else_mc.visible = false;
@@ -85,10 +89,121 @@ package As
 			rest_mc.visible = false;
 			rest_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeRest);
 			
-			mdm.Application.init();
-			Dialogs.prompt("Hello World!");
-			mdm.Application.exit();
+			//取得執行程式位置
+			if(mdm.getZincPath() != null){
+				if( ! mdm.getFileExists( mdm.getZincPath() + "LookingHolmes.exe" ) ){
+					userLink = chkInstall();
+				}else{
+					userLink = mdm.getZincPath();
+				}
+			}
+			SingletonValue.getInstance().userLink = userLink;
+			//mdm.showMessage("userLink:"+userLink);
+			LoadSwf();
 		}
+		
+		//必須取得swf路徑
+		private function chkInstall():String{
+			//讀取檔案			
+			//var windowsPath:String = "c:\\benesse\\";
+			var windowsPath:String = mdm.getUserPath() +"\\"+ Folder1 + "\\" +Folder2 + "\\";
+			var installPath:String = "";
+			//mdm.Dialogs.prompt("keyExists=="+keyExists.toString());
+			if ( mdm.getFileExists(windowsPath + "setup.ini") ){
+				installPath=mdm.getFileContant(windowsPath + "setup.ini");
+			}
+			//mdm.showMessage(installPath);
+			if (installPath==""){//沒安裝
+				installPath = mdm.getZincPath();
+				
+				//判斷同一層有沒有遊戲執行檔
+				if (mdm.getFileExists(installPath + "LookingHolmes.exe")){//使用遊戲執行檔路徑
+					installPath = mdm.getZincPath();
+				}else{
+					//跑光碟的swf
+					installPath = mdm.getZincPath() + "bin\\";
+				}
+				
+					
+			}else{//有安裝
+				installPath = installPath.replace("InstallPath=","");
+				//installPath = installPath + "巧連智光碟系列\\中年級版\\" + Folder2 + "\\" ;
+				installPath = installPath + "ChilimanProject\\CD201402\\bin" + "\\" ;
+				
+			}
+			
+			//mdm.Dialogs.prompt("currPath=="+mdm.Application.path.toString());
+			//mdm.Dialogs.prompt("installPath=="+installPath.toString());
+			return installPath;
+		}
+		
+		/*//=======================================mdm使用功能=======================================
+		//mdm偵聽事件
+		public function mdmHandler(e:Event):void{
+			switch(e.type){
+				case "onComplete":
+					mdmOnCompleteAct(nowMdmAct);
+					break;
+				case "onIOError":
+					removeMdm();
+					break;
+				default:
+					break;
+			}
+		}
+		
+		//針對偵聽完成事件
+		private function mdmOnCompleteAct(act:String = ""):void{
+			//移除偵聽
+			removeMdm();
+			
+			//分類事件
+			switch( act ){
+				case "delete":
+					//刪除完成
+					mdmGetSaveDataAry();
+					//呼叫GX流程結束
+					gameMc.VS.swfEnd();
+					break;
+				case "load":
+					//載入完成，開啟GM//目前沒有讀取資料文件的Async
+					break;
+				case "save":
+					//存檔完成，重讀資訊
+					mdmGetSaveDataAry();
+					break;
+				case "kidscool":
+					//存檔完成，重讀資訊
+					mdmGetSaveDataAry();
+					//重新載入GM
+					enterGameInit("GM");
+					loadOrderAct();
+					break;
+				default:
+					break;
+			}
+			
+		}
+		
+		//偵聽mdm偵聽功能
+		private function addMdm(mdmAct:String):void{
+			//偵聽
+			mdm.mdmListener(this , "onComplete");
+			mdm.mdmListener(this , "onIOError");
+			//紀錄mdm執行事件
+			nowMdmAct = mdmAct;
+		}
+		
+		
+		//移除偵聽mdm偵聽功能
+		private function removeMdm():void{
+			//移除偵聽
+			mdm.mdmRemoveListener(this , "onComplete");
+			mdm.mdmRemoveListener(this , "onIOError");
+			//清空mdm執行事件
+			nowMdmAct = "";
+		}
+		//=======================================mdm使用功能=======================================*/
 		
 		//休息一下視窗====================================
 		private function closeRest(e:MouseEvent):void 
@@ -139,6 +254,7 @@ package As
 				myUrl = new URLRequest(allGameSwf[3][SingletonValue.getInstance().caseNum]);
 			}
 			exLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, exLoaderAddScript);
+			myUrl.url = userLink + myUrl.url;
 			exLoader.load(myUrl);
 			exLoader.addEventListener(MouseEvent.CLICK, unLoadEx);
 			this.addChild(exLoader);
@@ -231,8 +347,8 @@ package As
 				});
 			}
 			//如果案件狀態是3(破案)或4(再玩一次)就可以點滑鼠跳過
-			if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3 || 
-			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 4) {
+			/*if (SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3 || 
+			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 4) {*/
 				_mc.addFrameScript(1, function() {
 					stage.addEventListener(MouseEvent.CLICK, goNext);
 					_mc.addEventListener(Event.REMOVED_FROM_STAGE, kill);
@@ -245,7 +361,7 @@ package As
 						stage.removeEventListener(MouseEvent.CLICK, goNext);
 					}
 				});
-			}
+			//}
 		}
 		
 		//載入swf
@@ -265,6 +381,8 @@ package As
 			}else {
 				toolBar_mc.visible = true;
 			}
+			myUrl.url = userLink + myUrl.url;
+			//mdm.showMessage("myUrl.url:"+myUrl.url);
 			myLoader.load(myUrl);
 			this.setChildIndex(stageMask_mc, this.numChildren - 1);
 			
