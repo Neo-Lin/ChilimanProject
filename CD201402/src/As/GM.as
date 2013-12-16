@@ -35,14 +35,17 @@ package As
 			stage.addEventListener(MainEvent.UN_PAUSE, UnPause);
 			// entry point
 			EnterGame();
+			stage.focus = stage;
 		}
 		
 		//播放音樂
-		public function playSound( SC:String , sound:Class , startTime:Number = 0 , loop:int = 1 , vol:Number = 1 ){
+		public function playSound( SC:String , sound:Class , startTime:Number = 0 , loop:int = 1 , vol:Number = 1 , listener:Boolean = true){
 			tmpSnd = new sound();
 			tmpST = new SoundTransform( vol );
 			this[SC] = tmpSnd.play( startTime , loop , tmpST );
-			this[SC].addEventListener(Event.SOUND_COMPLETE, scComplete);
+			if (listener) {
+				this[SC].addEventListener(Event.SOUND_COMPLETE, scComplete);
+			}
 		}
 		
 		//偵聽音樂播放完畢

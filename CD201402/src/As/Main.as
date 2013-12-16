@@ -60,7 +60,7 @@ package As
 		private function init(e:Event = null):void
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			
+			this.tabChildren = false;
 			SingletonValue.getInstance().allGameSwf = allGameSwf;
 			//以下之後需要改成讀取記錄檔======================================
 			//設定一開始血量
@@ -127,8 +127,8 @@ package As
 					
 			}else{//有安裝
 				installPath = installPath.replace("InstallPath=","");
-				//installPath = installPath + "巧連智光碟系列\\中年級版\\" + Folder2 + "\\" ;
-				installPath = installPath + "ChilimanProject\\CD201402\\bin" + "\\" ;
+				installPath = installPath + "巧連智光碟系列\\中年級版\\" + Folder2 + "\\" ;
+				//installPath = installPath + "ChilimanProject\\CD201402\\bin" + "\\" ;
 				
 			}
 			
@@ -445,6 +445,7 @@ package As
 			SingletonValue.getInstance().beforeSiteName = "";
 			SingletonValue.getInstance().swfPlayList = [0,0];
 			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
+			saveGame();
 		}
 		
 		//進入遊戲是否要讀取存檔:選重新開始新遊戲

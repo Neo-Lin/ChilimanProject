@@ -91,7 +91,6 @@
 			//Mc_loading.visible = false;
 			//this.addEventListener(Event.ENTER_FRAME , prevLoad);
 			
-			mdm.showMessage("path:" + mdm.getZincPath());
 		}
 		
 		/*private function prevLoad(e:Event):void{
@@ -640,9 +639,6 @@
 			//指定遊戲路徑
 			gamePath = menuPath + gameName + ".exe";
 			//Mc_loading.visible = true;
-			mdm.showMessage("gamePath:\n" + gamePath);
-			mdm.showMessage(menuPath);
-			mdm.showMessage(gameName);
 			//避免畫面出不來，使用影格
 			this.addEventListener(Event.ENTER_FRAME ,delayClose);
 			

@@ -66,6 +66,9 @@ package As
 			}else if (SingletonValue.getInstance().unitNum == 2 && SingletonValue.getInstance().caseNum == 0) { //只有G01有這狀況
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][4]);
 				watson_mc.gotoAndStop(6);
+			}else { //若沒有需要撥放的華生語音,就顯示主選單
+				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
+				skip_btn.visible = false;
 			}
 			
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
@@ -102,7 +105,7 @@ package As
 		private function keepOn(e:MouseEvent):void 
 		{
 			keepOn_mc.visible = false;
-			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 		}
 		
 		//設定按鈕外觀
@@ -244,12 +247,13 @@ package As
 		private function addHP(e:TimerEvent):void 
 		{
 			if (SingletonValue.getInstance().hp + 5 < 100) {
-				SingletonValue.getInstance().hp += 5;  trace("221B!!!", "HP:", SingletonValue.getInstance().hp);
+				SingletonValue.getInstance().hp += 5;  
 				myTime.start();
 			} else if (SingletonValue.getInstance().hp + 5 == 100) {
 				SingletonValue.getInstance().hp += 5;
 				//播放音效  
-				trace("221B!!!播放血滿音效", "HP:", SingletonValue.getInstance().hp);
+				playSound("ESC", sound_hp, 0, 1, 1, false);
+				HP_mc.light_mc.gotoAndPlay(2); //閃光效果
 			}
 			HP_mc.gotoAndStop(SingletonValue.getInstance().hp);
 		}
@@ -308,7 +312,14 @@ package As
 					SingletonValue.getInstance().caseNum = 4;  //播完過關語音後將目前進行案件改成無
 					//繼續挑戰其他案件字卡
 					keepOn_mc.visible = true;
-					stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+					stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
+				}
+				//解鎖動畫
+				if (SingletonValue.getInstance().caseArr[0] == 3 &&
+				SingletonValue.getInstance().caseArr[1] == 3 &&
+				SingletonValue.getInstance().caseArr[2] == 3 &&
+				SingletonValue.getInstance().caseArr[3] == 1) {
+					case3_mc.unLock_mc.gotoAndPlay(2);
 				}
 			}
 				

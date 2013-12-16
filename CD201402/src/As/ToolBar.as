@@ -165,9 +165,15 @@ package As
 			zone_mc.mouseEnabled = true;
 			//先將所有按鈕都恢復成可點選狀態
 			index_btn.gotoAndStop(1);
+			ex_btn.gotoAndStop(1);
+			trace("ex_btn.currentFrame:", ex_btn.currentFrame);
 			//若沒有接受任何案件,就不能按前往主遊戲的按鈕
 			if (SingletonValue.getInstance().caseNum == 4 || SingletonValue.getInstance().nowSiteName == "G00.swf") {
 				index_btn.gotoAndStop(2);
+			}
+			if (SingletonValue.getInstance().caseNum == 2 && SingletonValue.getInstance().nowSiteName == "Q") {
+				ex_btn.gotoAndStop(2);
+				trace("ex_btn.currentFrame:", ex_btn.currentFrame);
 			}
 			stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
 			this.gotoAndPlay("open");

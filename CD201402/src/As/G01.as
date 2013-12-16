@@ -33,7 +33,7 @@ package As
 		private var leftPressed:Boolean = false;
 		private var rightPressed:Boolean = false;
 		private var moveSpeed:uint = 10;				//可樂球移動速度
-		private var lineTotalAmount:uint = 0;			//計算紅外線數量
+		private var lineTotalAmount:uint = 35;			//計算紅外線數量
 		private var _time:uint;
 		private var myTime:Timer = new Timer(_time, 1);
 		private var userInvincible:Boolean = false;		//人物無敵狀態
@@ -77,6 +77,7 @@ package As
 		
 		private function goWin(e:Event):void 
 		{
+			this.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			end_mc.stop();
 			bg_mc.stop();
 			cancelAllEventListener();
@@ -154,7 +155,6 @@ package As
 			lineTotalAmount ++;
 			if (lineTotalAmount > 40) {
 				//過關
-				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 				bg_mc.addEventListener("start", endStart);
 				line_d_mc.addEventListener("remove", lineDKill);
 				return;
@@ -164,6 +164,7 @@ package As
 		
 		private function endStart(e:Event):void 
 		{
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			bg_mc.removeEventListener("start", endStart);
 			end_mc.play();
 		}
@@ -289,7 +290,8 @@ package As
 			userInvincible = true;
 			//三秒後恢復正常
 			Tweener.addTween(cola_mc, { alpha:1, time:3, transition:"easeInBounce", onComplete:function() {
-				stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
+				trace(end_mc.currentFrame);
+				if(end_mc.currentFrame == 1) stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 				userInvincible = false;
 				life_1_mc.visible = false;
 			} } );
@@ -360,6 +362,8 @@ package As
 						_mc.stop();
 					}
 				}
+				cola_mc.gotoAndStop(1);
+				cola_mc.c_mc.stop();
 		}
 		
 		//結束暫停
@@ -378,6 +382,7 @@ package As
 						_mc.play();
 					}
 				}
+			cola_mc.c_mc.play();
 		}		
 		
 		//按鈕音效
