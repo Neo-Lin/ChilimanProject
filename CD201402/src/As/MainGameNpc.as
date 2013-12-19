@@ -13,8 +13,8 @@ package As
 		
 		public function MainGameNpc() 
 		{
-			this.addEventListener(Event.ENTER_FRAME, checkIndex);
 			_n = numChildren;
+			this.addEventListener(Event.ENTER_FRAME, checkIndex);
 		}
 		
 		private function checkIndex(e:Event):void 

@@ -1,6 +1,7 @@
 package As 
 {
 	import As.Events.MainEvent;
+	import caurina.transitions.Tweener;
 	import flash.display.MovieClip;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
@@ -107,13 +108,13 @@ package As
 		{	
 			if (e.currentTarget.answer_btn.currentLabel == "X") return;
 			if (e.currentTarget == tempAnswer) {
-				trace("答對");
+				//trace("答對");
 				nowTopic++;
 				e.currentTarget.answer_btn.gotoAndStop("O");	//顯示按鈕答對動畫
 				lightAll_mc["light" + nowTopic + "_mc"].gotoAndStop(2);	//亮燈泡
 				nextTimer.start();
 			}else {
-				trace("答錯");
+				//trace("答錯");
 				e.currentTarget.answer_btn.gotoAndStop("X");
 				e.currentTarget.buttonMode = false;
 				againTimer.start();
@@ -131,7 +132,7 @@ package As
 				return;
 			}
 			if (topicArray.length <= 0) {
-				trace("挑戰失敗..............");
+				//trace("挑戰失敗..............");
 				this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true, "G00.swf"));
 				return;
 			}
@@ -164,7 +165,15 @@ package As
 		//過關
 		private function goFinish(e:MouseEvent):void 
 		{
-			trace("恭喜恭喜!!");
+			//trace("恭喜恭喜!!");
+			Tweener.addTween(this, { time:2, alpha:0, onComplete:function() {
+				goChangeSite();
+			} } );
+		}
+		
+		//進入遊戲
+		private function goChangeSite():void {
+			Tweener.removeAllTweens();
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 		}
 		

@@ -229,7 +229,7 @@
 		//判斷硬碟空間是否足夠
 		public function testFreeSize(Drive:String):Boolean{
 			
-			var srcPath:String = mdm.Application.path.replace("\\\\","\\") + "Data\\";//要被複製的路徑
+			var srcPath:String = mdm.Application.path.replace("\\\\","\\") + "bin\\";//要被複製的路徑
 
 			//總共要複製檔案的大小
 			var totSize:int = mdm.FileSystem.getFolderSize(srcPath); //in KB.

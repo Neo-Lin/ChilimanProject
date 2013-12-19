@@ -11,6 +11,7 @@ package As
 	import flash.media.Video;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
+	import net.hires.debug.Stats;
 	/**
 	 * ...
 	 * @author Neo
@@ -33,7 +34,7 @@ package As
 		private var leftPressed:Boolean = false;
 		private var rightPressed:Boolean = false;
 		private var moveSpeed:uint = 10;				//可樂球移動速度
-		private var lineTotalAmount:uint = 35;			//計算紅外線數量
+		private var lineTotalAmount:uint = 0;			//計算紅外線數量
 		private var _time:uint;
 		private var myTime:Timer = new Timer(_time, 1);
 		private var userInvincible:Boolean = false;		//人物無敵狀態
@@ -55,6 +56,7 @@ package As
 				lineTotalAmount = 30;
 			}
 			count_mc.addEventListener("count", startGame);	//倒數動畫結束後開始遊戲
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			end_mc.gotoAndStop(1);
 			end_mc.addEventListener("end", goWin);
 			line_d_mc.gotoAndStop(1);
@@ -72,7 +74,7 @@ package As
 			cola_mc.addEventListener("jfinish", jFinish);
 			cola_mc.addEventListener("ggfinish", jFinish);
 			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
-			
+			//addChild(new Stats());
 		}
 		
 		private function goWin(e:Event):void 
@@ -171,6 +173,7 @@ package As
 		
 		private function startGame(e:Event):void 
 		{
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 			bg_mc.play();
 			cola_mc.gotoAndStop(1);
 			addAllEventListener();
@@ -490,6 +493,24 @@ package As
 					break;
 				}
 			}
+		}
+		
+		//移除
+		override public function kill(e:Event):void 
+		{
+			super.kill(e);
+			count_mc.removeEventListener("count", startGame);
+			end_mc.removeEventListener("end", goWin);
+			die_mc.again_btn.removeEventListener(MouseEvent.CLICK, again);
+			die_mc.again_btn.removeEventListener(MouseEvent.MOUSE_OVER, btnAgainOver);
+			die_mc.again_btn.removeEventListener(MouseEvent.MOUSE_OUT, btnOut);
+			die_mc.exit_btn.removeEventListener(MouseEvent.CLICK, exit);
+			die_mc.exit_btn.removeEventListener(MouseEvent.MOUSE_OVER, btnExitOver);
+			die_mc.exit_btn.removeEventListener(MouseEvent.MOUSE_OUT, btnOut);
+			myTime.removeEventListener(TimerEvent.TIMER_COMPLETE, reTime);
+			cancelAllEventListener();
+			Tweener.pauseAllTweens();
+			Tweener.removeAllTweens();
 		}
 	}
 

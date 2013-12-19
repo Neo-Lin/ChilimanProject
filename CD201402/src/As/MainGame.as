@@ -164,11 +164,29 @@ package As
 					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
 					_mc.addEventListener(BadguyEvent.CATCH, catching);
 				}else if (getQualifiedClassName(_mc) == "tramp") { //街童
-					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
-					_mc.addEventListener(BadguyEvent.TOUCH, information);
+					if (SingletonValue.getInstance().caseNum < 4) {
+						if (uint(_mc.name.substr(1, 1)) > trampSoundGirl[SingletonValue.getInstance().caseNum].length - 1) {
+							_mc.visible = false;
+						}else {
+							_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+							_mc.addEventListener(BadguyEvent.TOUCH, information);
+						}
+					}else {
+						_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+						_mc.addEventListener(BadguyEvent.TOUCH, information);
+					}
 				}else if (getQualifiedClassName(_mc) == "tramp_boy") { //街童男
-					_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
-					_mc.addEventListener(BadguyEvent.TOUCH, information);
+					if (SingletonValue.getInstance().caseNum < 4) {
+						if (uint(_mc.name.substr(1, 1)) > trampSoundBoy[SingletonValue.getInstance().caseNum].length - 1) {
+							_mc.visible = false;
+						}else {
+							_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+							_mc.addEventListener(BadguyEvent.TOUCH, information);
+						}
+					}else {
+						_mc.startInit(map_mc.mapClipBmpData, userClipBmpData, user_mc, bullet_mc);
+						_mc.addEventListener(BadguyEvent.TOUCH, information);
+					}
 				}else if (_mc.name.substr(0, 7) == "shelter") { //遮蔽物
 					_mc.startInit(user_mc);
 					_mc.addEventListener(BadguyEvent.COVER, goCover);
@@ -252,9 +270,9 @@ package As
 		//遇到街童
 		private function information(e:BadguyEvent):void 
 		{
-			if (tempTramp && !tempTramp.hasEventListener(BadguyEvent.TOUCH) ||
+			if (/*tempTramp && !tempTramp.hasEventListener(BadguyEvent.TOUCH) ||*/tempTramp && tempTramp.visible ||
 			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) {  
-				//若上一個碰到的街童還沒恢復偵聽或目前關卡已破關就先跳過
+				//若上一個碰到的街童還沒恢復偵聽或//若上一個碰到的街童還沒消失或目前關卡已破關就先跳過
 				return;
 			}
 			this.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
@@ -265,7 +283,7 @@ package As
 			trampTxt_mc.cola_mc.visible = false;
 			if (getQualifiedClassName(tempTramp) == "tramp") { //街童
 				//亂數選取語音
-				trampSoundAmount = Math.random() * trampSoundGirl[SingletonValue.getInstance().caseNum].length;
+				//trampSoundAmount = Math.random() * trampSoundGirl[SingletonValue.getInstance().caseNum].length;
 				//複製亂數選取的街童語音陣列,trampSoundPlay負責撥放
 				//trampSoundArray = trampSoundGirl[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
 				//依街童的名字固定播放語音
@@ -277,7 +295,7 @@ package As
 				}
 				trampSoundPlay("g");
 			}else if (getQualifiedClassName(tempTramp) == "tramp_boy") { //街童男
-				trampSoundAmount = Math.random() * trampSoundBoy[SingletonValue.getInstance().caseNum].length;
+				//trampSoundAmount = Math.random() * trampSoundBoy[SingletonValue.getInstance().caseNum].length;
 				//trampSoundArray = trampSoundBoy[SingletonValue.getInstance().caseNum][trampSoundAmount].concat();
 				if (uint(tempTramp.name.substr(1, 1)) > trampSoundBoy[SingletonValue.getInstance().caseNum].length - 1) {
 					//若街童數量(3)比語音數量多就播第一個
@@ -287,6 +305,7 @@ package As
 				}
 				trampSoundPlay("b");
 			}
+			trampTxt_mc.ok_btn.visible = false;
 			trampTxt_mc.visible = true;
 		}
 		//播放語音,根據碰到的街童性別顯示相對應的動畫
@@ -316,11 +335,13 @@ package As
 				if (trampSoundArray.length > 0) { //表示可樂球有回答
 					trampTxt_mc.Tramp_mc.visible = false;
 					trampSoundPlay();
+				}else {
+					trampTxt_mc.ok_btn.visible = true;
 				}
 			}
 		}
 		
-		//關閉街童對話框,兩秒後恢復偵聽
+		//關閉街童對話框,街童消失
 		private function closeTrampTxt(e:MouseEvent):void 
 		{
 			stopSound("TSC");
@@ -328,9 +349,13 @@ package As
 			this.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 			trampTxt_mc.visible = false;
 			trampTxt_mc.gotoAndStop(1);
-			Tweener.addTween(this, { time:2, onComplete:function() {
-				tempTramp.addEventListener(BadguyEvent.TOUCH, information);
+			Tweener.addTween(tempTramp, { time:2, alpha:0, onComplete:function() {  //街童消失
+				tempTramp.visible = false;
+				tempTramp.kill();
 			}} );
+			/*Tweener.addTween(this, { time:2, onComplete:function() {  //兩秒後恢復偵聽
+				tempTramp.addEventListener(BadguyEvent.TOUCH, information);
+			}} );*/
 		}
 		
 		//被纏上==鎖住鍵盤無法移動==扣血及暫時無敵
@@ -635,6 +660,8 @@ package As
 			user_mc.removeEventListener(Event.ENTER_FRAME, fl_MoveInDirectionOfKey);
 			stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.removeEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
+			trampTxt_mc.ok_btn.removeEventListener(MouseEvent.CLICK, closeTrampTxt);
+			cantPass_mc.ok_btn.removeEventListener(MouseEvent.CLICK, closeCantPass);
 			userClipBmpData.dispose();
 			map_mc.mapClipBmpData.dispose();
 		}

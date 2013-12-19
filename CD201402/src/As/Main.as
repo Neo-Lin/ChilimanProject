@@ -4,6 +4,7 @@ package As
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
@@ -40,7 +41,6 @@ package As
 		private var myTime:Timer = new Timer(60000, 30);
 		//private var myTime:Timer = new Timer(6000, 1);
 		//private var nowUnit:uint; //紀錄目前allGameSwf進行第幾個
-		private var needRest:Boolean = false; //紀錄是否需要跳出休息室窗
 		private var saveDataSharedObject:SharedObject = SharedObject.getLocal("saveData", "/");
 		private var userLink:String = "";//資料夾位置.
 		private var Folder1:String = "benesse";//記錄檔資料夾名稱
@@ -66,15 +66,17 @@ package As
 			//設定一開始血量
 			//SingletonValue.getInstance().hp = 100;
 			//設定一開始所有案件狀態
-			//SingletonValue.getInstance().caseArr = [1, 1, 2, 1];
-			//SingletonValue.getInstance().caseNum = 2;
+			SingletonValue.getInstance().caseArr = [1, 4, 1, 1];
+			SingletonValue.getInstance().caseNum = 1;
 			//======================================以上之後需要改成讀取記錄檔
+			//stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.addEventListener(MainEvent.CHANGE_SITE, ChangeSide);
 			stage.addEventListener(MainEvent.GAME_FINISH, Win);
 			stage.addEventListener(MainEvent.LOAD_EX, loadEx);
 			stage.addEventListener(MainEvent.EXIT, goExit);
 			stage.addEventListener(MainEvent.START_NEW, goStartNew);
 			stage.addEventListener(MainEvent.SAVE, saveGame);
+			stage.addEventListener(MainEvent.GO_REST, startRest);
 			this.addChild(myLoader);
 			this.addChild(toolBar_mc);
 			//addChild(new Stats());
@@ -98,8 +100,11 @@ package As
 				}
 			}
 			SingletonValue.getInstance().userLink = userLink;
-			//mdm.showMessage("userLink:"+userLink);
+			
+			loadSave();
+			//mdm.showMessage("Main-------:"+String(SingletonValue.getInstance().swfPlayList[0] == 1));
 			LoadSwf();
+			
 		}
 		
 		//必須取得swf路徑
@@ -213,9 +218,12 @@ package As
 			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			myTime.reset();
 			myTime.start();
+			SingletonValue.getInstance().rest = false;
 		}
 		private function goRest(e:TimerEvent):void 
 		{
+			SingletonValue.getInstance().rest = true;
+			if (SingletonValue.getInstance().needRest || rest_mc.visible) return;
 			//如果有載入說明動畫(使用者自己按的)就關掉
 			exLoader.unloadAndStop();
 			//若在播放說明動畫時就先不顯示,等播放完,載入下一個場景再顯示(goCheckRest)
@@ -223,16 +231,17 @@ package As
 				SingletonValue.getInstance().nowSiteName == "G00_G_EX.swf" ||
 				SingletonValue.getInstance().nowSiteName == "GEX" ||
 				SingletonValue.getInstance().nowSiteName == "QEX") {
-					needRest = true;
-			}else {
+					SingletonValue.getInstance().needRest = true;
+			}else {	
 				startRest();
 			}
 		}
-		private function startRest():void {
+		private function startRest(e:MainEvent = null):void {
 			addChild(rest_mc);
 			rest_mc.play();
 			rest_mc.visible = true;
 			stage.dispatchEvent(new MainEvent(MainEvent.PAUSE, true));
+			SingletonValue.getInstance().needRest = false;
 		}
 		//====================================休息一下視窗
 		
@@ -290,7 +299,7 @@ package As
 			trace("Main: 換場景前: stage.numChildren=", stage.numChildren, "  ///  this.numChildren=" + this.numChildren);
 			trace("Main: ", e.currentTarget, e.target);
 			
-			tempSiteName = e.ChangeSiteName;
+			tempSiteName = e.ChangeSiteName;	
 			if (tempSiteName == "INTO") {  //載入子遊戲開場動畫
 				SingletonValue.getInstance().unitNum = 0;
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
@@ -320,11 +329,11 @@ package As
 		
 		//檢查是否需要顯示休息室窗
 		private function goCheckRest(e:Event):void 
-		{
+		{	
+			if (myUrl.url == userLink + "G00_G_EX.swf" ||　myUrl.url == userLink + "221B.swf") return;
 			//若在播放說明動畫時需要顯示30分鐘休息(rest_mc),就在結束說明動畫後播放
-			if (needRest) {
+			if (SingletonValue.getInstance().needRest) {	
 				startRest();
-				needRest = false;
 			}
 		}
 		
@@ -368,14 +377,16 @@ package As
 		private function LoadSwf():void
 		{
 			trace("Main: LoadSw載入前:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren);
-			
-			//主選單顯示狀態--播放動畫時不顯示主選單
+			//myLoader.load(new URLRequest(userLink + "loading.swf"));
+			//主選單顯示狀態--播放動畫跟答題庫時不顯示主選單
 			if(myUrl.url == "221B.swf" || myUrl.url == "G00.swf"){
 				toolBar_mc.visible = true;
 			}else if (SingletonValue.getInstance().unitNum == 0 || 
 				SingletonValue.getInstance().unitNum == 1 || 
+				SingletonValue.getInstance().unitNum == 2 || 
 				SingletonValue.getInstance().unitNum == 3 || 
-				SingletonValue.getInstance().unitNum == 5) {
+				SingletonValue.getInstance().unitNum == 5 ||
+				myUrl.url == "index.swf" || myUrl.url == "indexMV.swf" || myUrl.url == "OpenSave.swf") {
 				toolBar_mc.gotoAndStop("open");
 				toolBar_mc.visible = false;
 			}else {
@@ -416,13 +427,14 @@ package As
 			else_mc.gotoAndStop(1);
 			stage.focus = stage;
 			if (SingletonValue.getInstance().nowSiteName == "OpenSave.swf") {  //OpenSave.swf"選重新開始新遊戲" -> 刪除記錄重新開始嗎:選不要
-				SingletonValue.getInstance().hp = saveDataSharedObject.data.hp;
+				/*SingletonValue.getInstance().hp = saveDataSharedObject.data.hp;
 				SingletonValue.getInstance().caseNum = saveDataSharedObject.data.caseNum;
 				SingletonValue.getInstance().unitNum = saveDataSharedObject.data.unitNum;
 				SingletonValue.getInstance().caseArr = saveDataSharedObject.data.caseArr;
 				SingletonValue.getInstance().nowSiteName = saveDataSharedObject.data.nowSiteName;
 				SingletonValue.getInstance().beforeSiteName = saveDataSharedObject.data.beforeSiteName;
-				SingletonValue.getInstance().swfPlayList = saveDataSharedObject.data.swfPlayList;
+				SingletonValue.getInstance().swfPlayList = saveDataSharedObject.data.swfPlayList;*/
+				loadSave();
 				stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B.swf"));
 			}else if (SingletonValue.getInstance().caseNum == 3 && 
 			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 3) {  //如果是第四關而且破關了
@@ -443,7 +455,7 @@ package As
 			SingletonValue.getInstance().caseArr = [1,1,1,1];
 			SingletonValue.getInstance().nowSiteName = "";
 			SingletonValue.getInstance().beforeSiteName = "";
-			SingletonValue.getInstance().swfPlayList = [0,0];
+			//SingletonValue.getInstance().swfPlayList = [0,0];
 			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
 			saveGame();
 		}
@@ -457,14 +469,66 @@ package As
 		}
 		
 		private function saveGame(e:MainEvent = null):void {
-			saveDataSharedObject.data.hp = SingletonValue.getInstance().hp;
+			/*saveDataSharedObject.data.hp = SingletonValue.getInstance().hp;
 			saveDataSharedObject.data.caseNum = SingletonValue.getInstance().caseNum;
 			saveDataSharedObject.data.unitNum = SingletonValue.getInstance().unitNum;
 			saveDataSharedObject.data.caseArr = SingletonValue.getInstance().caseArr;
 			saveDataSharedObject.data.nowSiteName = SingletonValue.getInstance().nowSiteName;
 			saveDataSharedObject.data.beforeSiteName = SingletonValue.getInstance().beforeSiteName;
 			saveDataSharedObject.data.swfPlayList = SingletonValue.getInstance().swfPlayList;
-			saveDataSharedObject.flush();	//存入SharedObject
+			saveDataSharedObject.flush();	//存入SharedObject*/
+			
+			//取得使用者暫存位置
+			var tmpPath:String = mdm.getUserPath();
+			
+			//建立資料夾，不論有無都做，沒有才會執行建立動作
+			mdm.mkDir(tmpPath + "\\" + Folder1 );//第一層 benesse 資料夾
+			mdm.mkDir(tmpPath + "\\" + Folder1 + "\\" + Folder2 );//第二層 單元名稱 資料夾
+			
+			//依使用者年級取得路徑
+			var tmpFile:String = "lookingHolmes.ini";
+			var filePath:String = tmpPath + "\\" + Folder1 + "\\" + Folder2 + "\\" + tmpFile;
+			var txtContant:String = '';
+			//把存檔資料轉成字串	
+			txtContant = SingletonValue.getInstance().hp + "@";
+			txtContant += SingletonValue.getInstance().caseNum + "@";
+			txtContant += SingletonValue.getInstance().unitNum + "@";
+			var _a = SingletonValue.getInstance().caseArr;
+			txtContant += _a[0] + "?" + _a[1] + "?" + _a[2] + "?" + _a[3] + "@";
+			txtContant += SingletonValue.getInstance().nowSiteName + "@";
+			txtContant += SingletonValue.getInstance().beforeSiteName + "@";
+			_a = SingletonValue.getInstance().swfPlayList;
+			txtContant += _a[0] + "?" + _a[1];
+			
+			//寫入文件
+			mdm.saveFileContant(filePath , txtContant);
+		}
+		
+		//載入進度
+		private function loadSave():void {
+			//取得使用者暫存位置
+			var tmpPath:String = mdm.getUserPath();
+			var tmpFile:String = "lookingHolmes.ini";
+			//取得紀錄路徑
+			var filePath:String = tmpPath + "\\" + Folder1 + "\\" + Folder2 + "\\" + tmpFile;
+			var Contant:String = '';
+			//紀錄是否存在
+			if( mdm.getFileExists(filePath) ){
+				//存在時
+				Contant = mdm.getFileContant(filePath);//取得字串
+				//mdm.showMessage("===========loadSave:" + Contant);
+				var passAry = Contant.split("@");//切割成陣列
+				SingletonValue.getInstance().hp = passAry[0];
+				SingletonValue.getInstance().caseNum =  passAry[1];
+				SingletonValue.getInstance().unitNum =  passAry[2];
+				var _a = passAry[3].split("?"); 
+				//字串產生的Array裡的值都是字串,所以要轉成int
+				SingletonValue.getInstance().caseArr = [int(_a[0]), int(_a[1]), int(_a[2]), int(_a[3])];
+				SingletonValue.getInstance().nowSiteName =  passAry[4];
+				SingletonValue.getInstance().beforeSiteName =  passAry[5];
+				_a = passAry[6].split("?");
+				SingletonValue.getInstance().swfPlayList = [int(_a[0]), int(_a[1])];
+			}
 		}
 	}
 

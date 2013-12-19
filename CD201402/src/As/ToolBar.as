@@ -181,14 +181,17 @@ package As
 		
 		private function btnPlaySound(e:MouseEvent):void 
 		{	
-			stopSound("BTNSC");
-			if (e.currentTarget.name == "index_btn") {
-				playSound("BTNSC", sound_index);
-			}else if (e.currentTarget.name == "ex_btn") {
-				playSound("BTNSC", sound_ex);
-			}else if (e.currentTarget.name == "exit_btn") {
-				playSound("BTNSC", sound_exit);
+			if (e.currentTarget.currentFrame == 1) {
+				stopSound("BTNSC");
+				if (e.currentTarget.name == "index_btn") {
+					playSound("BTNSC", sound_index);
+				}else if (e.currentTarget.name == "ex_btn") {
+					playSound("BTNSC", sound_ex);
+				}else if (e.currentTarget.name == "exit_btn") {
+					playSound("BTNSC", sound_exit);
+				}
 			}
+			
 		}
 		
 		//隱藏

@@ -1,6 +1,7 @@
 package As 
 {
 	import As.Events.MainEvent;
+	import caurina.transitions.Tweener;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
@@ -178,10 +179,18 @@ package As
 		//過關
 		private function goPass(e:MouseEvent):void 
 		{
-			trace("過關!!");
+			Tweener.addTween(this, { time:2, alpha:0, onComplete:function() {
+				goChangeSite();
+			} } );
+		}
+		
+		//進入遊戲
+		private function goChangeSite():void {
+			Tweener.removeAllTweens();
 			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 		}
+		
 	}
 
 }

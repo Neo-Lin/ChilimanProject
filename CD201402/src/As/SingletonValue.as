@@ -19,6 +19,8 @@ package As
 		private var _beforeSiteName:String;	//換場景前的所在場景,發出MainEvent.CHANGE_SITE事件時會在MainEvent.as裡改變這個值
 		private var _swfPlayList:Array = [0, 0]; //影格有程式碼的三支swf是否有播放過221B_EX,G00_G_EX
 		private var _userLink:String; //swf路徑
+		private var _rest:Boolean = false; //30分鐘了,但221B正在播動畫,就記true
+		private var _needRest:Boolean = false; //紀錄是否需要跳出休息室窗
 		
 		public function SingletonValue(sSingleton:Singleton) 
 		{
@@ -137,6 +139,26 @@ package As
 		public function set userLink(value:String):void 
 		{
 			_userLink = value;
+		}
+		
+		public function get needRest():Boolean 
+		{
+			return _needRest;
+		}
+		
+		public function set needRest(value:Boolean):void 
+		{
+			_needRest = value;
+		}
+		
+		public function get rest():Boolean 
+		{
+			return _rest;
+		}
+		
+		public function set rest(value:Boolean):void 
+		{
+			_rest = value;
 		}
 		
 	}

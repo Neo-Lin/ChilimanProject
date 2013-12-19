@@ -81,7 +81,7 @@ package As
 				
 		//移除
 		public function kill(e:Event):void 
-		{
+		{	
 			removeEventListener(Event.REMOVED_FROM_STAGE, kill);
 			stage.removeEventListener(MainEvent.PAUSE, Pause);
 			stage.removeEventListener(MainEvent.UN_PAUSE, UnPause);

@@ -41,7 +41,7 @@
 		['', '', 'G02.swf', ], ['', '', 'G02_EVENT.swf', ], ['', '', 'G02_G_EX.swf', ], ['', '', 'G02_INTO.swf', ], ['', '', 'G02_Q.swf', ], ['', '', 'G02_Q_EX.swf', ],
 		['', '', 'G03.swf', ], ['', '', 'G03_EVENT.swf', ], ['', '', 'G03_G_EX.swf', ], ['', '', 'G03_INTO.swf', ], ['', '', 'G03_Q.swf', ], ['', '', 'G03_Q_EX.swf', ],
 		['', '', 'G04.swf', ], ['', '', 'G04_EVENT.swf', ], ['', '', 'G04_G_EX.swf', ], ['', '', 'G04_INTO.swf', ], ['', '', 'G04_Q.swf', ], ['', '', 'G04_Q_EX.swf', ],
-		['','','uninstall.exe',],['','','uninstall_excute.exe',]
+		['','','uninstall.exe',], ['','','uninstall_excute.exe',] ,['','','LookingHolmes(原解析度版本).exe',]
 		/*['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',],['','','',]*/];
 		
 		
@@ -230,7 +230,7 @@
 		//判斷硬碟空間是否足夠
 		public function testFreeSize(Drive:String):Boolean{
 			
-			var srcPath:String = mdm.Application.path.replace("\\\\","\\") + "Data\\";//要被複製的路徑
+			var srcPath:String = mdm.Application.path.replace("\\\\","\\") + "bin\\";//要被複製的路徑
 
 			//總共要複製檔案的大小
 			var totSize:int = mdm.FileSystem.getFolderSize(srcPath); //in KB.
@@ -302,6 +302,9 @@
 				var shortcutLink:String = tmpPath+"\\"+fix_shortCutName+".lnk";
 				mdm.FileSystem.createShortcut(appPath, appFolder, shortcutText, iconPath, iconRes, shortcutLink);
 				
+				appPath = tarPath + "LookingHolmes(原解析度版本).exe"; //目標
+				shortcutLink = tmpPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk";
+				mdm.FileSystem.createShortcut(appPath, appFolder, shortcutText, iconPath, iconRes, shortcutLink);
 			
 				/*var E_shortcutLink:String = tmpPath+"\\"+"5月號英語學習單元"+".lnk";
 				mdm.FileSystem.createShortcut(E_appPath, E_appFolder, E_shortcutText, E_iconPath, E_iconRes, E_shortcutLink);*/
@@ -318,7 +321,10 @@
 				StartMenuPath = StartMenuPath +"\\"+ fix_shortCutLayer;
 				mkDir(StartMenuPath);
 				   //複製桌面捷徑到開始功能表
-				mdm.FileSystem.copyFile(shortcutLink, StartMenuPath+"\\"+fix_shortCutName+".lnk");
+				shortcutLink = tmpPath+"\\"+fix_shortCutName+".lnk";
+				mdm.FileSystem.copyFile(shortcutLink, StartMenuPath + "\\" + fix_shortCutName + ".lnk");
+				shortcutLink = tmpPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk";
+				mdm.FileSystem.copyFile(shortcutLink, StartMenuPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk");
 				//mdm.FileSystem.copyFile(E_shortcutLink, StartMenuPath+"\\"+"5月號英語學習單元"+".lnk");
 				//建立移除執行檔的捷徑
 				appPath = tarPath + "uninstall.exe"; //目標

@@ -93,7 +93,7 @@ package As
 				count_mc.gotoAndPlay(76);
 				//stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "G00.swf"));
 			}
-			
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_HIDE, true));
 			initData();
 			nowCh = allCh[nowChNum];
 			this.gotoAndStop(nowCh);
@@ -159,6 +159,7 @@ package As
 		
 		private function startGame(e:Event):void 
 		{
+			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_SetKeyPressed);
 			stage.addEventListener(KeyboardEvent.KEY_UP, fl_UnsetKeyPressed);
 			restart_btn.addEventListener(MouseEvent.CLICK, reStart);

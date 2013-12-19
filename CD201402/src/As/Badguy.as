@@ -59,6 +59,8 @@ package As
 		private var modeTxt:String = "";	//空:走路 a:攻擊 b:被攻擊
 		private var sb3:Sound = new sound_bad3();
 		
+		private var isPause:Boolean = false;
+		
 		public function Badguy() 
 		{ 
 			/*mapBD = bd;
@@ -74,6 +76,7 @@ package As
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
+			this.addEventListener(Event.REMOVED_FROM_STAGE, kill);
 			//在影格上加程式碼
 			//this.addFrameScript(0, frame1, 9, frame10, 19, frame10);
 			stage.addEventListener(MainEvent.PAUSE, Pause);
@@ -85,6 +88,7 @@ package As
 		public function inits():void {
 			people = badguy_mc;
 			people.stop();
+			MovieClip(people.getChildAt(1)).gotoAndStop(1);
 			//trace(people.getChildAt(1));
 			//MovieClip(people.getChildAt(1)).stop();
 		}
@@ -98,10 +102,14 @@ package As
 			bulletMc = _bullet;
 			thisBD = new BitmapData(zone_mc.width, zone_mc.height, true, 0);
 			thisBD.draw(zone_mc);
-			this.addEventListener(Event.ENTER_FRAME, goMove);
-			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
-			reTime(null);
 			
+			//進入主遊戲後三秒才開始動作
+			this.alpha = 0;
+			Tweener.addTween(this, { alpha:1, time:2, transition:"easeInExpo", onComplete:function() {
+				this.addEventListener(Event.ENTER_FRAME, goMove);
+				myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
+				reTime(null);
+				} } );
 		}
 		
 		private function reTime(e:TimerEvent):void 
@@ -336,6 +344,54 @@ package As
 			birthTime.start();
 		}
 		
+		//重生==恢復偵聽==出現
+		private function birth(e:TimerEvent):void {
+			birthTime.removeEventListener(TimerEvent.TIMER_COMPLETE, birth);
+			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
+			this.visible = true;
+			//出現兩秒後才開始動作
+			Tweener.addTween(this, { alpha:1, time:2, onComplete:function() {
+				if(!isPause) this.addEventListener(Event.ENTER_FRAME, goMove);
+				} } );
+		}
+		
+		//暫停
+		public function Pause(e:MainEvent):void {
+			//trace("Badguy暫停!!");
+			isPause = true;
+			this.removeEventListener(Event.ENTER_FRAME, goMove);
+			myTime.reset();
+			birthTime.reset();
+			//Tweener.pauseAllTweens();
+			people.gotoAndStop(directionTxt);
+			MovieClip(people.getChildAt(1)).gotoAndStop(1);
+		}
+		
+		//結束暫停
+		public function UnPause(e:MainEvent):void {
+			//trace("Badguy結束暫停!!");
+			//Tweener.resumeAllTweens();
+			isPause = false;
+			myTime.start();
+			birthTime.start();
+			//死亡後會自動重生,若這時暫停就會自動恢復ENTER_FRAME的偵聽而出問題,因此做個是否在重生中的判斷
+			if(!birthTime.hasEventListener(TimerEvent.TIMER_COMPLETE)) this.addEventListener(Event.ENTER_FRAME, goMove);
+		}
+		
+		public function kill(e:Event = null):void 
+		{
+			removeEventListener(Event.REMOVED_FROM_STAGE, kill);
+			this.removeEventListener(Event.ENTER_FRAME, goMove);
+			myTime.removeEventListener(TimerEvent.TIMER_COMPLETE, reTime);
+			birthTime.removeEventListener(TimerEvent.TIMER_COMPLETE, birth);
+			myTime.reset();
+			birthTime.reset();
+			Tweener.pauseAllTweens();
+			Tweener.resumeAllTweens();
+		}
+		
+		
+		
 		//在影格上加程式碼=======================
 		/*public function frame10():void 
 		{
@@ -347,38 +403,6 @@ package As
 			stop();
 		}*/
 		//=======================在影格上加程式碼
-		
-		//重生==恢復偵聽==出現
-		private function birth(e:TimerEvent):void {
-			birthTime.removeEventListener(TimerEvent.TIMER_COMPLETE, birth);
-			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
-			this.visible = true;
-			//出現兩秒後才開始動作
-			Tweener.addTween(this, { alpha:1, time:2, onComplete:function() {
-				this.addEventListener(Event.ENTER_FRAME, goMove);
-				} } );
-		}
-		
-		//暫停
-		public function Pause(e:MainEvent):void {
-			//trace("Badguy暫停!!");
-			this.removeEventListener(Event.ENTER_FRAME, goMove);
-			myTime.reset();
-			birthTime.reset();
-			Tweener.pauseAllTweens();
-			people.gotoAndStop(directionTxt);
-			MovieClip(people.getChildAt(1)).gotoAndStop(1);
-		}
-		
-		//結束暫停
-		public function UnPause(e:MainEvent):void {
-			//trace("Badguy結束暫停!!");
-			Tweener.resumeAllTweens();
-			myTime.start();
-			birthTime.start();
-			//死亡後會自動重生,若這時暫停就會自動恢復ENTER_FRAME的偵聽而出問題,因此做個是否在重生中的判斷
-			if(!birthTime.hasEventListener(TimerEvent.TIMER_COMPLETE)) this.addEventListener(Event.ENTER_FRAME, goMove);
-		}
 		
 	}
 
