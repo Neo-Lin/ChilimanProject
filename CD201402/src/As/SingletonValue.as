@@ -13,7 +13,7 @@ package As
 		private var HP:uint = 100;
 		private var _caseNum:uint = 4;		//目前進行案件0~3,4=無
 		private var _unitNum:uint = 5;		//目前進行案件進度--0:INTO, 1:QEX, 2:Q, 3:GEX, 4:G, 5:EVENTS
-		private var _caseArr:Array = [1, 1, 1, 1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4
+		private var _caseArr:Array = [1, 1, 1, 1];		//案件狀態array [1,1,1,1] 未選1  進行中2  破案3  再玩一次4	再玩一次可是沒破案6
 		private var _allGameSwf:Array;
 		private var _nowSiteName:String;	//目前所在場景,發出MainEvent.CHANGE_SITE事件時會在MainEvent.as裡改變這個值
 		private var _beforeSiteName:String;	//換場景前的所在場景,發出MainEvent.CHANGE_SITE事件時會在MainEvent.as裡改變這個值

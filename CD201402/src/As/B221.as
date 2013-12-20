@@ -64,7 +64,8 @@ package As
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][0]);
 				watson_mc.gotoAndStop(2);
 				SingletonValue.getInstance().needRest = true;
-			}else if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 2) { //沒過關
+			}else if (SingletonValue.getInstance().unitNum == 4 && SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 2 ||
+			SingletonValue.getInstance().caseArr[SingletonValue.getInstance().caseNum] == 4) { //沒過關
 				playSound("TSC", soundArray[SingletonValue.getInstance().caseNum][2]);
 				watson_mc.gotoAndStop(5);
 				SingletonValue.getInstance().needRest = true;
@@ -84,7 +85,7 @@ package As
 			
 			//是否要放棄紀錄挑戰其他案件字卡
 			changeCase_mc.visible = false;		
-			changeCase_mc.y_btn.addEventListener(MouseEvent.CLICK, changeCase);
+			changeCase_mc.y_btn.addEventListener(MouseEvent.CLICK, ifCaseHasEnded);
 			changeCase_mc.n_btn.addEventListener(MouseEvent.CLICK, noChange);
 			//出發到案發現場
 			goCase_mc.visible = false;		
@@ -128,18 +129,18 @@ package As
 				_mc.gotoAndStop(SingletonValue.getInstance().caseArr[i]);
 				_mc.buttonMode = true;
 				_mc.useHandCursor = true;
-				_mc.addEventListener(MouseEvent.CLICK, ifCaseHasEnded);
+				_mc.addEventListener(MouseEvent.CLICK, checkChange);
 				//若案件進行中或再玩一次,取消滑入手指與偵聽滑鼠按下
 				if (_mc.currentFrame == 2 || _mc.currentFrame == 4) {
 					//_mc.useHandCursor = false;
-					_mc.removeEventListener(MouseEvent.CLICK, ifCaseHasEnded);
+					_mc.removeEventListener(MouseEvent.CLICK, checkChange);
 					_mc.addEventListener(MouseEvent.CLICK, goChangeSide);
 				} 
 			} 
-			//判斷最後一個案件是否可執行
-			if (SingletonValue.getInstance().caseArr.lastIndexOf(1, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(2, 2) >= 0) {
+			//判斷最後一個案件是否可執行,若是未破案(1)'進行中(2)'再玩一次(4)'再玩一次但沒破案就放棄(6),就設為不可執行(5)
+			if (SingletonValue.getInstance().caseArr.lastIndexOf(1, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(2, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(4, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(6, 2) >= 0) {
 				_mc.useHandCursor = false;
-				_mc.removeEventListener(MouseEvent.CLICK, ifCaseHasEnded);
+				_mc.removeEventListener(MouseEvent.CLICK, checkChange);
 				_mc.gotoAndStop(5);
 			}else {
 				//_mc.alpha = 1;
@@ -148,7 +149,7 @@ package As
 			
 		private function againCase(e:MouseEvent):void 
 		{
-			checkChange();
+			changeCase();
 			caseHasEnded_mc.visible = false;
 		}
 		private function noAgainCase(e:MouseEvent):void 
@@ -157,20 +158,22 @@ package As
 		}
 		//檢查案件是不是破過了
 		private function ifCaseHasEnded(e:MouseEvent):void {
-			stopSound("BTNSC");
-			caseBtnNum = e.currentTarget.name.charAt(4);
-			if (e.currentTarget.currentFrame == 3) {//這個案件你已經破案，你要再進行一次嗎?
+			changeCase_mc.visible = false;
+			if (this["case"+caseBtnNum+"_mc"].currentFrame == 3) {//這個案件你已經破案，你要再進行一次嗎?
 				caseHasEnded_mc.visible = true;
+				stopSound("TSC");
 			}else {
-				checkChange();
+				changeCase();
 			}
 		}
 		
 		//檢查目前有沒有進行中的案件
-		private function checkChange():void 
+		private function checkChange(e:MouseEvent):void 
 		{
+			stopSound("BTNSC");
+			caseBtnNum = e.currentTarget.name.charAt(4);
 			if (SingletonValue.getInstance().caseNum == 4) {  //如果目前沒有進行任何案件
-				changeCase(null);
+				ifCaseHasEnded(null);
 			}else {  //如果有就問:你要放棄其他案件的紀錄,開始新的案件挑戰嗎?
 				changeCase_mc.visible = true;
 				changeCase_mc.gotoAndStop(SingletonValue.getInstance().caseNum + 1);
@@ -186,9 +189,8 @@ package As
 		}
 		
 		//修改caseArr陣列
-		private function changeCase(e:MouseEvent):void 
+		private function changeCase():void 
 		{
-			changeCase_mc.visible = false;
 			stopSound("TSC");
 			//把所有進行中都改成尚未進行
 			var _n:uint = SingletonValue.getInstance().caseArr.length;
@@ -196,15 +198,19 @@ package As
 				if (SingletonValue.getInstance().caseArr[i] == 2) { 
 					SingletonValue.getInstance().caseArr[i] = 1;
 				}else if (SingletonValue.getInstance().caseArr[i] == 4) {  //若是再玩一次就改回破案
-					SingletonValue.getInstance().caseArr[i] = 3;
+					//SingletonValue.getInstance().caseArr[i] = 3;
+					//再玩一次會清紀破關錄,所以要改成有破案過的未完成狀態(6),因為再玩一次很多動畫要可以跳過
+					SingletonValue.getInstance().caseArr[i] = 6;
 				}
 			}
 			//按下的按鈕對應的案件改為進行(2)中或再玩一次(4)
-	        if (SingletonValue.getInstance().caseArr[caseBtnNum] == 3) {  //若狀態是破案(3)就改成再玩一次(4)
-				SingletonValue.getInstance().caseArr[caseBtnNum] = 4
+	        if (SingletonValue.getInstance().caseArr[caseBtnNum] == 3 ||
+			SingletonValue.getInstance().caseArr[caseBtnNum] == 6) {  //若狀態是破案(3)或再玩一次但沒破案(6)就改成再玩一次(4)
+				SingletonValue.getInstance().caseArr[caseBtnNum] = 4;
 			}else {
 				SingletonValue.getInstance().caseArr[caseBtnNum] = 2;
 			}
+			this["case" + SingletonValue.getInstance().caseNum + "_mc"].light_mc.visible = false;//把上一個案件按鈕的閃爍提示框關掉
 			SingletonValue.getInstance().caseNum = caseBtnNum;	//設定caseNum為目前進行中的案件編號
 			SingletonValue.getInstance().unitNum = 5;	//設定案件進度,一律都由EVENTS(案發過程動畫)開始
 			//trace(SingletonValue.getInstance().caseNum);

@@ -161,6 +161,7 @@
 					
 						//刪除記錄檔--要刪除記錄,刪除安裝路徑ini檔
 						mdm.FileSystem.deleteFile(windowsPath + "\\benesse\\"+fixPath_secondLayer+"\\setup.ini");
+						mdm.FileSystem.deleteFile(windowsPath + "\\benesse\\"+fixPath_secondLayer+"\\lookingHolmes.ini");
 						//var recordPath:String = windowsPath ;
 						//var existsRecord:Boolean = mdm.FileSystem.folderExists(recordPath);
 						//if (existsRecord){

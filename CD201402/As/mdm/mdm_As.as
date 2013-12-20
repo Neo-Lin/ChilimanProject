@@ -302,9 +302,9 @@
 				var shortcutLink:String = tmpPath+"\\"+fix_shortCutName+".lnk";
 				mdm.FileSystem.createShortcut(appPath, appFolder, shortcutText, iconPath, iconRes, shortcutLink);
 				
-				appPath = tarPath + "LookingHolmes(原解析度版本).exe"; //目標
+				/*appPath = tarPath + "LookingHolmes(原解析度版本).exe"; //目標
 				shortcutLink = tmpPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk";
-				mdm.FileSystem.createShortcut(appPath, appFolder, shortcutText, iconPath, iconRes, shortcutLink);
+				mdm.FileSystem.createShortcut(appPath, appFolder, shortcutText, iconPath, iconRes, shortcutLink);*/
 			
 				/*var E_shortcutLink:String = tmpPath+"\\"+"5月號英語學習單元"+".lnk";
 				mdm.FileSystem.createShortcut(E_appPath, E_appFolder, E_shortcutText, E_iconPath, E_iconRes, E_shortcutLink);*/
@@ -323,8 +323,11 @@
 				   //複製桌面捷徑到開始功能表
 				shortcutLink = tmpPath+"\\"+fix_shortCutName+".lnk";
 				mdm.FileSystem.copyFile(shortcutLink, StartMenuPath + "\\" + fix_shortCutName + ".lnk");
-				shortcutLink = tmpPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk";
-				mdm.FileSystem.copyFile(shortcutLink, StartMenuPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk");
+				//建立原解析度版本的捷徑
+				shortcutLink = StartMenuPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk";
+				/*mdm.FileSystem.copyFile(shortcutLink, StartMenuPath+"\\"+"尋找福爾摩斯(原解析度版本)"+".lnk");*/
+				appPath = tarPath + "LookingHolmes(原解析度版本).exe"; //目標
+				mdm.FileSystem.createShortcut(appPath, appFolder, shortcutText, iconPath, iconRes, shortcutLink);
 				//mdm.FileSystem.copyFile(E_shortcutLink, StartMenuPath+"\\"+"5月號英語學習單元"+".lnk");
 				//建立移除執行檔的捷徑
 				appPath = tarPath + "uninstall.exe"; //目標

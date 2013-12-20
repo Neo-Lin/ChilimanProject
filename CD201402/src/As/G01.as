@@ -266,6 +266,7 @@ package As
 				die_mc.visible = true;
 				playSound("TSC", sound_die);
 				bg_mc.stop();
+				end_mc.stop();
 				line_d_mc.visible = false;
 				line_d_mc.gotoAndStop(1);
 				line_d_mc.removeEventListener("touch", dTouch);
@@ -333,6 +334,7 @@ package As
 		{
 			stage.dispatchEvent(new MainEvent(MainEvent.TOOL_BAR_SHOW, true));
 			bg_mc.removeEventListener("start", endStart);
+			end_mc.gotoAndStop(1);
 			stopSound("TSC");
 			die_mc.visible = false;
 			life_mc.gotoAndStop(1);

@@ -66,8 +66,8 @@ package As
 			//設定一開始血量
 			//SingletonValue.getInstance().hp = 100;
 			//設定一開始所有案件狀態
-			SingletonValue.getInstance().caseArr = [1, 4, 1, 1];
-			SingletonValue.getInstance().caseNum = 1;
+			//SingletonValue.getInstance().caseArr = [1, 4, 1, 1];
+			//SingletonValue.getInstance().caseNum = 1;
 			//======================================以上之後需要改成讀取記錄檔
 			//stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.addEventListener(MainEvent.CHANGE_SITE, ChangeSide);
