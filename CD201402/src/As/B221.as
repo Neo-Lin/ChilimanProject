@@ -137,13 +137,14 @@ package As
 					_mc.addEventListener(MouseEvent.CLICK, goChangeSide);
 				} 
 			} 
-			//判斷最後一個案件是否可執行,若是未破案(1)'進行中(2)'再玩一次(4)'再玩一次但沒破案就放棄(6),就設為不可執行(5)
-			if (SingletonValue.getInstance().caseArr.lastIndexOf(1, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(2, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(4, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(6, 2) >= 0) {
+			//判斷最後一個案件是否可執行,前三個案件若還有未破案(1)或進行中(2),就設為不可執行(5)
+			if (SingletonValue.getInstance().caseArr.lastIndexOf(1, 2) >= 0 || SingletonValue.getInstance().caseArr.lastIndexOf(2, 2) >= 0) {
 				_mc.useHandCursor = false;
 				_mc.removeEventListener(MouseEvent.CLICK, checkChange);
 				_mc.gotoAndStop(5);
-			}else {
+			}else if (SingletonValue.getInstance().caseArr.lastIndexOf(4, 2) >= 0){
 				//_mc.alpha = 1;
+				case3_mc.unLock_mc.visible = false;
 			}
 		}
 			
@@ -210,7 +211,7 @@ package As
 			}else {
 				SingletonValue.getInstance().caseArr[caseBtnNum] = 2;
 			}
-			this["case" + SingletonValue.getInstance().caseNum + "_mc"].light_mc.visible = false;//把上一個案件按鈕的閃爍提示框關掉
+			if(SingletonValue.getInstance().caseNum != 4) this["case" + SingletonValue.getInstance().caseNum + "_mc"].light_mc.visible = false;//把上一個案件按鈕的閃爍提示框關掉
 			SingletonValue.getInstance().caseNum = caseBtnNum;	//設定caseNum為目前進行中的案件編號
 			SingletonValue.getInstance().unitNum = 5;	//設定案件進度,一律都由EVENTS(案發過程動畫)開始
 			//trace(SingletonValue.getInstance().caseNum);

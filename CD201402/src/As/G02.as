@@ -355,7 +355,7 @@ package As
 				for (var i:uint = 1; i <= _n; i++) {
 					if (this["gold" + j + "_mc"].hitTestPoint(this["star" + i + "_mc"].x, this["star" + i + "_mc"].y, false)) {
 						//只要有true就跳出這個for
-						if (this["gold" + j + "_mc"] == tempGold && 　this["gold" + j + "_mc"]._mc.currentFrame == 1) {
+						if (this["gold" + j + "_mc"] == tempGold && this["gold" + j + "_mc"]._mc.currentFrame == 1) {
 							//如果是可樂球推的黃金到正確位置播音效
 							tempGold = null;
 							_in.play();
