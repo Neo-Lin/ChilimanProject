@@ -7,6 +7,7 @@ package As
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.events.ProgressEvent;
 	import flash.events.TimerEvent;
 	import flash.media.Sound;
 	import flash.net.LocalConnection;
@@ -66,7 +67,7 @@ package As
 			//設定一開始血量
 			//SingletonValue.getInstance().hp = 100;
 			//設定一開始所有案件狀態
-			//SingletonValue.getInstance().caseArr = [3, 6, 3, 3];
+			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];
 			//SingletonValue.getInstance().caseNum = 2;
 			//SingletonValue.getInstance().unitNum = 4;
 			//======================================以上之後需要改成讀取記錄檔
@@ -395,10 +396,34 @@ package As
 			}
 			myUrl.url = userLink + myUrl.url;
 			//mdm.showMessage("myUrl.url:"+myUrl.url);
+			myLoader.contentLoaderInfo.addEventListener(Event.OPEN, openHandler);
+			myLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+			myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
+			myLoader.contentLoaderInfo.addEventListener(Event.INIT, completeHandler);
 			myLoader.load(myUrl);
 			this.setChildIndex(stageMask_mc, this.numChildren - 1);
 			
 			trace("Main: LoadSwf載入後:", "stage.numChildren:" + stage.numChildren, "this.numChildren:" + this.numChildren, "SingletonValue.getInstance().nowSiteName:" + SingletonValue.getInstance().nowSiteName);
+		}
+		
+		//顯示載入進度
+		private function openHandler(e:Event):void 
+		{
+			this.setChildIndex(loading_mc, this.numChildren - 1);
+			loading_mc.bar_mc.gotoAndStop(1);
+			loading_mc.visible = true;
+		}
+		private function progressHandler(e:ProgressEvent):void 
+		{
+			var bl:int = myLoader.contentLoaderInfo.bytesLoaded;
+			var bt:int = myLoader.contentLoaderInfo.bytesTotal;
+			var percent:Number = bl / bt;
+			loading_mc.bar_mc.gotoAndStop(int(percent*100));
+		}
+		private function completeHandler(e:Event):void 
+		{
+			loading_mc.bar_mc.gotoAndStop(100);
+			loading_mc.visible = false;
 		}
 		
 		//過關
@@ -456,6 +481,7 @@ package As
 			SingletonValue.getInstance().caseArr = [1,1,1,1];
 			SingletonValue.getInstance().nowSiteName = "";
 			SingletonValue.getInstance().beforeSiteName = "";
+			SingletonValue.getInstance().firstOpenCase3 = true;
 			//SingletonValue.getInstance().swfPlayList = [0,0];
 			stage.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "221B_EX.swf"));
 			saveGame();
@@ -499,7 +525,8 @@ package As
 			txtContant += SingletonValue.getInstance().nowSiteName + "@";
 			txtContant += SingletonValue.getInstance().beforeSiteName + "@";
 			_a = SingletonValue.getInstance().swfPlayList;
-			txtContant += _a[0] + "?" + _a[1];
+			txtContant += _a[0] + "?" + _a[1] + "@";
+			txtContant += String(SingletonValue.getInstance().firstOpenCase3);
 			
 			//寫入文件
 			mdm.saveFileContant(filePath , txtContant);
@@ -529,6 +556,13 @@ package As
 				SingletonValue.getInstance().beforeSiteName =  passAry[5];
 				_a = passAry[6].split("?");
 				SingletonValue.getInstance().swfPlayList = [int(_a[0]), int(_a[1])];
+				if (passAry[7] == "true") {
+					SingletonValue.getInstance().firstOpenCase3 = true;
+				}else {
+					SingletonValue.getInstance().firstOpenCase3 = false;
+				}
+				
+				//mdm.showMessage("===========loadSave:" + String(SingletonValue.getInstance().firstOpenCase3)+passAry[7]);
 			}
 		}
 	}

@@ -21,6 +21,7 @@ package As
 		private var _userLink:String; //swf路徑
 		private var _rest:Boolean = false; //30分鐘了,但221B正在播動畫,就記true
 		private var _needRest:Boolean = false; //紀錄是否需要跳出休息室窗
+		private var _firstOpenCase3:Boolean = true; //是否第一次開啟case3按鈕(B221)
 		
 		public function SingletonValue(sSingleton:Singleton) 
 		{
@@ -159,6 +160,16 @@ package As
 		public function set rest(value:Boolean):void 
 		{
 			_rest = value;
+		}
+		
+		public function get firstOpenCase3():Boolean 
+		{
+			return _firstOpenCase3;
+		}
+		
+		public function set firstOpenCase3(value:Boolean):void 
+		{
+			_firstOpenCase3 = value;
 		}
 		
 	}

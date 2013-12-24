@@ -144,7 +144,15 @@ package As
 				_mc.gotoAndStop(5);
 			}else if (SingletonValue.getInstance().caseArr.lastIndexOf(4, 2) >= 0){
 				//_mc.alpha = 1;
-				case3_mc.unLock_mc.visible = false;
+				if(case3_mc.currentFrame == 1) case3_mc.unLock_mc.visible = false;
+			}
+			
+			//如果是第一次開啟第三關,就先關閉,等解鎖果再開
+			if (_mc.useHandCursor && SingletonValue.getInstance().firstOpenCase3) {
+				_mc.useHandCursor = false;
+				_mc.removeEventListener(MouseEvent.CLICK, checkChange);
+				_mc.gotoAndStop(5);
+				SingletonValue.getInstance().firstOpenCase3 = false;
 			}
 		}
 			
@@ -384,6 +392,9 @@ package As
 				SingletonValue.getInstance().caseArr[1] == 3 &&
 				SingletonValue.getInstance().caseArr[2] == 3 &&
 				SingletonValue.getInstance().caseArr[3] == 1) {
+					case3_mc.useHandCursor = true;
+					case3_mc.addEventListener(MouseEvent.CLICK, checkChange);
+					case3_mc.gotoAndStop(1);
 					case3_mc.unLock_mc.gotoAndPlay(2);
 				}
 			}
