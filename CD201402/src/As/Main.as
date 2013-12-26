@@ -67,9 +67,9 @@ package As
 			//設定一開始血量
 			//SingletonValue.getInstance().hp = 100;
 			//設定一開始所有案件狀態
-			//SingletonValue.getInstance().caseArr = [3, 3, 3, 1];
-			//SingletonValue.getInstance().caseNum = 2;
-			//SingletonValue.getInstance().unitNum = 4;
+			SingletonValue.getInstance().caseArr = [3, 3, 3, 2];
+			SingletonValue.getInstance().caseNum = 3;
+			SingletonValue.getInstance().unitNum = 4;
 			//======================================以上之後需要改成讀取記錄檔
 			//stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.addEventListener(MainEvent.CHANGE_SITE, ChangeSide);
@@ -79,6 +79,10 @@ package As
 			stage.addEventListener(MainEvent.START_NEW, goStartNew);
 			stage.addEventListener(MainEvent.SAVE, saveGame);
 			stage.addEventListener(MainEvent.GO_REST, startRest);
+			myLoader.contentLoaderInfo.addEventListener(Event.OPEN, openHandler);
+			myLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+			myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
+			myLoader.contentLoaderInfo.addEventListener(Event.INIT, completeHandler);
 			this.addChild(myLoader);
 			this.addChild(toolBar_mc);
 			//addChild(new Stats());
@@ -396,10 +400,6 @@ package As
 			}
 			myUrl.url = userLink + myUrl.url;
 			//mdm.showMessage("myUrl.url:"+myUrl.url);
-			myLoader.contentLoaderInfo.addEventListener(Event.OPEN, openHandler);
-			myLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-			myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
-			myLoader.contentLoaderInfo.addEventListener(Event.INIT, completeHandler);
 			myLoader.load(myUrl);
 			this.setChildIndex(stageMask_mc, this.numChildren - 1);
 			

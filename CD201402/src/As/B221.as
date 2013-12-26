@@ -170,7 +170,8 @@ package As
 			changeCase_mc.visible = false;
 			if (this["case"+caseBtnNum+"_mc"].currentFrame == 3) {//這個案件你已經破案，你要再進行一次嗎?
 				caseHasEnded_mc.visible = true;
-				stopSound("TSC");
+				stopSound("TSC"); 
+				playSound("TSC", sound_caseHasEnded);
 			}else {
 				changeCase();
 			}

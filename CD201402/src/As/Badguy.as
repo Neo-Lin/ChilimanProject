@@ -373,14 +373,20 @@ package As
 			//Tweener.resumeAllTweens();
 			isPause = false;
 			myTime.start();
-			birthTime.start();
+			
 			//死亡後會自動重生,若這時暫停就會自動恢復ENTER_FRAME的偵聽而出問題,因此做個是否在重生中的判斷
-			if(!birthTime.hasEventListener(TimerEvent.TIMER_COMPLETE)) this.addEventListener(Event.ENTER_FRAME, goMove);
+			if (birthTime.hasEventListener(TimerEvent.TIMER_COMPLETE)) {  //重生中遇到暫停
+				birthTime.start();
+			} else {
+				this.addEventListener(Event.ENTER_FRAME, goMove);
+			}
 		}
 		
 		public function kill(e:Event = null):void 
 		{
 			removeEventListener(Event.REMOVED_FROM_STAGE, kill);
+			stage.removeEventListener(MainEvent.PAUSE, Pause);
+			stage.removeEventListener(MainEvent.UN_PAUSE, UnPause);
 			this.removeEventListener(Event.ENTER_FRAME, goMove);
 			myTime.removeEventListener(TimerEvent.TIMER_COMPLETE, reTime);
 			birthTime.removeEventListener(TimerEvent.TIMER_COMPLETE, birth);
