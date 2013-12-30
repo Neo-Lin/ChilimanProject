@@ -25,7 +25,7 @@ package As
         public static var PrevY:Number = 0;
 		
 		private var graphicsDataArray:Array = new Array();
-		private var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
+		//private var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
 		
 		public function Canvas() 
 		{
@@ -117,8 +117,8 @@ package As
 		}
 		
 		//劃出存檔的繪圖物件
-		public function reDrawSave():void {
-			graphicsDataArray = graphicsDataSharedObject.data.graphicsData;
+		public function reDrawSave(soArray:Array):void {
+			graphicsDataArray = soArray;
 			var _i:uint = graphicsDataArray.length;
 			for (var i:uint = 0; i < _i; i++) { //陣列內容:[thickness(筆粗),color,commands(動作代號),data(動作路徑),x,y]
 				var _s:Sprite = new Sprite();
@@ -132,7 +132,7 @@ package As
 		}
 		
 		//存檔
-		public function goSave():void 
+		public function goSave():Array 
 		{
 			graphicsDataArray = new Array();
 			var _n:uint = this.numChildren; 
@@ -159,11 +159,13 @@ package As
 					}
 					graphicsDataTemp.push(_s.x, _s.y);	//取出x跟y
 					graphicsDataArray.push(graphicsDataTemp);	
+					//trace("graphicsDataTemp:",graphicsDataTemp.length, graphicsDataTemp);
 				}
 			}
-			trace("graphicsDataArray:",graphicsDataArray.length, graphicsDataArray);
-			graphicsDataSharedObject.data.graphicsData = graphicsDataArray;
-			graphicsDataSharedObject.flush();	//存入SharedObject
+			trace("graphicsDataArray:", graphicsDataArray.length, graphicsDataArray);
+			return graphicsDataArray;
+			//graphicsDataSharedObject.data.graphicsData = graphicsDataArray;
+			//graphicsDataSharedObject.flush();	//存入SharedObject
 		}
 	}
 }

@@ -24,7 +24,7 @@ package As
 		private var bookLoader:Loader = new Loader();
 		private var bookUrl:URLRequest = new URLRequest("book1.swf");
 		
-		private var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
+		private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
 		
 		public function Main():void 
 		{
@@ -56,9 +56,9 @@ package As
 		//還原存檔的繪圖
 		private function goCheckSave():void 
 		{
-			var graphicsDataSharedObject:SharedObject = SharedObject.getLocal("graphicsDataArray");
-			if (graphicsDataSharedObject.data.graphicsData) {
-				canvas_mc.reDrawSave();
+			var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
+			if (eBookDataSharedObject.data.graphicsData) {
+				canvas_mc.reDrawSave(eBookDataSharedObject.data.graphicsData);
 			}
 		}
 		
@@ -90,7 +90,13 @@ package As
 		
 		private function saveCanvas(e:MouseEvent):void 
 		{
-			canvas_mc.goSave();
+			eBookDataSharedObject.data.graphicsData = canvas_mc.goSave();
+			
+			trace(Memo(floating.getChildAt(0)).getData());
+			var _m:Memo = new Memo(pdf_mc,Memo(floating.getChildAt(0)).getData());
+			floating.addChild(_m);
+			
+			eBookDataSharedObject.flush();	//存入SharedObject
 		}
 		
 		private function memoStart(e:MouseEvent):void 

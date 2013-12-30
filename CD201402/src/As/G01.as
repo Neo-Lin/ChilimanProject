@@ -260,7 +260,7 @@ package As
 			cola_mc.gotoAndStop("gg");
 			cola_mc.alpha = .4;
 			//失敗
-			if (life_mc.currentFrame == 6) {	trace("失敗");
+			if (life_mc.currentFrame == 11) {	trace("失敗");
 				myTime.stop();
 				this.addChild(die_mc);
 				die_mc.visible = true;

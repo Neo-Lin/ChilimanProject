@@ -166,14 +166,15 @@ package As
 		private function goFinish(e:MouseEvent):void 
 		{
 			//trace("恭喜恭喜!!");
-			Tweener.addTween(this, { time:2, alpha:0, onComplete:function() {
+			/*Tweener.addTween(this, { time:2, alpha:0, onComplete:function() {
 				goChangeSite();
-			} } );
+			} } );*/
+			goChangeSite();
 		}
 		
 		//進入遊戲
 		private function goChangeSite():void {
-			Tweener.removeAllTweens();
+			//Tweener.removeAllTweens();
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 		}
 		

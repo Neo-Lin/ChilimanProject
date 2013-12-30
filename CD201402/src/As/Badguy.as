@@ -105,10 +105,12 @@ package As
 			
 			//進入主遊戲後三秒才開始動作
 			this.alpha = 0;
+			myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
 			Tweener.addTween(this, { alpha:1, time:2, transition:"easeInExpo", onComplete:function() {
-				this.addEventListener(Event.ENTER_FRAME, goMove);
-				myTime.addEventListener(TimerEvent.TIMER_COMPLETE, reTime);
-				reTime(null);
+				if (!isPause) {
+					this.addEventListener(Event.ENTER_FRAME, goMove);
+					reTime(null);
+				}
 				} } );
 		}
 		

@@ -6,6 +6,7 @@ package As
 	import flash.display.Sprite;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
 	import flash.events.ProgressEvent;
 	import flash.events.TimerEvent;
@@ -67,9 +68,9 @@ package As
 			//設定一開始血量
 			//SingletonValue.getInstance().hp = 100;
 			//設定一開始所有案件狀態
-			SingletonValue.getInstance().caseArr = [3, 3, 3, 2];
-			SingletonValue.getInstance().caseNum = 3;
-			SingletonValue.getInstance().unitNum = 4;
+			//SingletonValue.getInstance().caseArr = [3, 3, 3, 2];
+			//SingletonValue.getInstance().caseNum = 3;
+			//SingletonValue.getInstance().unitNum = 4;
 			//======================================以上之後需要改成讀取記錄檔
 			//stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.addEventListener(MainEvent.CHANGE_SITE, ChangeSide);
@@ -82,7 +83,8 @@ package As
 			myLoader.contentLoaderInfo.addEventListener(Event.OPEN, openHandler);
 			myLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 			myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
-			myLoader.contentLoaderInfo.addEventListener(Event.INIT, completeHandler);
+			//myLoader.contentLoaderInfo.addEventListener(Event.INIT, initHandler);
+			myLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, checkIoError);
 			this.addChild(myLoader);
 			this.addChild(toolBar_mc);
 			//addChild(new Stats());
@@ -308,15 +310,18 @@ package As
 			tempSiteName = e.ChangeSiteName;	
 			if (tempSiteName == "INTO") {  //載入子遊戲開場動畫
 				SingletonValue.getInstance().unitNum = 0;
+				myLoader.contentLoaderInfo.addEventListener(Event.INIT, initHandler);
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
 			}else if(tempSiteName == "QEX") {	//載入題庫說明動畫
 				SingletonValue.getInstance().unitNum = 1;
+				myLoader.contentLoaderInfo.addEventListener(Event.INIT, initHandler);
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
 			}else if(tempSiteName == "Q") {	//載入題庫
 				SingletonValue.getInstance().unitNum = 2;
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goCheckRest);
 			}else if(tempSiteName == "GEX") {	//載入子遊戲說明動畫
 				SingletonValue.getInstance().unitNum = 3;
+				myLoader.contentLoaderInfo.addEventListener(Event.INIT, initHandler);
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goINTO);
 			}else if(tempSiteName == "G") {	//載入子遊戲
 				SingletonValue.getInstance().unitNum = 4;
@@ -327,6 +332,14 @@ package As
 				myUrl = new URLRequest(e.ChangeSiteName);
 				myLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, goCheckRest);
 			}
+			
+			/*try {
+				myLoader.close();
+			}catch (err:Error) {
+				trace("此 URLStream 物件沒有開啟的串流");
+			}*/
+			loading_mc.bar_mc.gotoAndStop(1);
+			loading_mc.visible = true;
 			myLoader.unloadAndStop();
 			LoadSwf();
 			
@@ -377,6 +390,8 @@ package As
 					}
 				});
 			//}
+			//INIT有下stop,所以載入完成後要play
+			e.currentTarget.content.play();
 		}
 		
 		//載入swf
@@ -420,10 +435,20 @@ package As
 			var percent:Number = bl / bt;
 			loading_mc.bar_mc.gotoAndStop(int(percent*100));
 		}
+		//避免未載入完成就先撥放
+		private function initHandler(e:Event):void 
+		{
+			myLoader.contentLoaderInfo.removeEventListener(Event.INIT, initHandler);
+			e.currentTarget.content.stop();
+		}
 		private function completeHandler(e:Event):void 
 		{
 			loading_mc.bar_mc.gotoAndStop(100);
 			loading_mc.visible = false;
+		}
+		private function checkIoError(e:IOErrorEvent):void 
+		{
+			//trace("IO ERROR!!",e.currentTarget,e.errorID,e.text,loading_mc.visible);
 		}
 		
 		//過關

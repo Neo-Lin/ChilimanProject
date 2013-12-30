@@ -179,14 +179,15 @@ package As
 		//過關
 		private function goPass(e:MouseEvent):void 
 		{
-			Tweener.addTween(this, { time:2, alpha:0, onComplete:function() {
+			/*Tweener.addTween(this, { time:2, alpha:0, onComplete:function() {
 				goChangeSite();
-			} } );
+			} } );*/
+			goChangeSite();
 		}
 		
 		//進入遊戲
 		private function goChangeSite():void {
-			Tweener.removeAllTweens();
+			//Tweener.removeAllTweens();
 			stage.dispatchEvent(new MainEvent(MainEvent.UN_PAUSE, true));
 			this.dispatchEvent(new MainEvent(MainEvent.CHANGE_SITE, true,  "GEX"));
 		}

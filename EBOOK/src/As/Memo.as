@@ -34,12 +34,26 @@ package As
 		private var renderArray:Array = new Array();
 		private var _drawArea:DisplayObjectContainer;
 		
-		public function Memo(drawArea:DisplayObjectContainer) 
+		public function Memo(drawArea:DisplayObjectContainer, initData:Array = null) 
 		{
+			//若是用讀取存檔的方式建立就會傳入位置及寬高
+			if (initData) {
+				this.x = initData[0];
+				this.y = initData[1];
+				initRenderW = initData[2];
+				initRenderH = initData[3];
+				page0 = new BitmapData(initRenderW, initRenderH, false, p0color); 
+				page1 = new BitmapData(initRenderW, initRenderH, false, p1color); 
+			}
+			
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 			
 			_drawArea = drawArea;	//可繪圖區域
+		}
+		
+		public function getData():Array {
+			return [this.x,this.y,page0.width,page0.height];
 		}
 		
 		private function init(e:Event = null):void 
