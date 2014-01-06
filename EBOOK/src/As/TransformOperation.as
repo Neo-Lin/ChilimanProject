@@ -48,6 +48,11 @@ package As
 			_affectObj.visible = _currentVisible;
 			//trace(_currentX + '  ' + _currentY);
 		}
+		
+		public function get affectObj():Object 
+		{
+			return _affectObj;
+		}
 	}
 
 }

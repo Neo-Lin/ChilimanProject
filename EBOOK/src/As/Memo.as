@@ -1,5 +1,6 @@
 package As 
 {
+	import As.Events.UndoManagerEvent;
 	import caurina.transitions.Tweener;
 	import com.foxaweb.pageflip.PageFlip;
 	import flash.display.Bitmap;
@@ -33,6 +34,8 @@ package As
 		private var pixelS:Sprite = new Sprite();
 		private var renderArray:Array = new Array();
 		private var _drawArea:DisplayObjectContainer;
+		private var PrevX:Number;
+		private var PrevY:Number;
 		
 		public function Memo(drawArea:DisplayObjectContainer, initData:Array = null) 
 		{
@@ -49,11 +52,13 @@ package As
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 			
+			addEventListener(Event.REMOVED_FROM_STAGE, kill);
+			
 			_drawArea = drawArea;	//可繪圖區域
 		}
 		
 		public function getData():Array {
-			return [this.x,this.y,page0.width,page0.height];
+			return [this.x,this.y,page0.width,page0.height,PrevX,PrevY];
 		}
 		
 		private function init(e:Event = null):void 
@@ -78,6 +83,10 @@ package As
 			addChild(scaleShape);
 			
 			addChild(_render);	//顯示便利貼
+			PrevX = this.x;		//紀錄初始位置
+			PrevY = this.y;
+			var operation:TransformOperation = new TransformOperation(this,this.x,this.y,this.x,this.y,false,true);
+			stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
 			
 			this.addEventListener(MouseEvent.MOUSE_DOWN, bitmapPgD);
 			stage.addEventListener(MouseEvent.MOUSE_UP, bitmapPgU);
@@ -87,13 +96,27 @@ package As
 		}
 		
 		private function bitmapPgU(e:MouseEvent):void 
-		{	
+		{	//trace("bitmapPgU:", e.currentTarget.name, e.target.name, this.name, e.target.name == this.name);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, bitmapPgM);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, goChangeWH);
 			this.stopDrag();
 			scaleShape.visible = true;
+			var operation:TransformOperation;
 			if (this.alpha < 1) {  //便利貼撕除
-				Tweener.addTween(this, { y:this.y + 20, alpha:0, time:1, onComplete:kill } );
+				//trace("this.alpha < 1");
+				operation = new TransformOperation(this,this.x,this.y,this.x,this.y,true,false);
+				stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
+				Tweener.addTween(this, { y:this.y + 20, alpha:0, time:1, onComplete:function() { 
+					this.visible = false;
+					this.alpha = 1;
+					this.y = PrevY;
+					goFlip();
+					updatePixel();
+					} } );
+			}else if (e.target.name == this.name && (this.x != PrevX || this.y != PrevY)) {	 //有移動位置才需要增加undo
+				//trace("this.x != PrevX || this.y != PrevY");
+				operation = new TransformOperation(this,PrevX,PrevY,this.x,this.y,true,true);
+				stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
 			}
 		}
 		
@@ -108,6 +131,8 @@ package As
 			}else if (_render.mouseX > page0.width && _render.mouseY > page0.height) { //放大縮小角
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, goChangeWH);
 			}else { //移動便利貼
+				PrevX = this.x;		//紀錄移動前的位置
+				PrevY = this.y;
 				this.startDrag();
 				scaleShape.visible = false;
 			}
@@ -179,7 +204,7 @@ package As
 		}
 		
 		//移除便利貼
-		private function kill():void {
+		private function kill(e:Event):void {
 			stage.removeEventListener(MouseEvent.MOUSE_DOWN, bitmapPgD);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, bitmapPgU);
 			page0.dispose();

@@ -1,5 +1,6 @@
 package As 
 {
+	import As.Events.UndoManagerEvent;
 	import flash.display.GraphicsPath;
 	import flash.display.GraphicsSolidFill;
 	import flash.display.GraphicsStroke;
@@ -19,8 +20,8 @@ package As
 		private var nowStep:uint = 0;
 		private var stepArray:Array = new Array();		//新增物件會放入此陣列,對應步驟數nowStep
 		
-		public static var _undo:UndoManager=new UndoManager();
-        public static var _redo:UndoManager=new UndoManager();     
+		//public static var _undo:UndoManager=new UndoManager();
+        //public static var _redo:UndoManager=new UndoManager();     
         public static var PrevX:Number=0;
         public static var PrevY:Number = 0;
 		
@@ -41,7 +42,8 @@ package As
 			stepArray.push(getChildAt(numChildren - 1));	//將繪圖物件放進array
 			var _shape:Object = getChildAt(numChildren - 1);
 			var operation:TransformOperation = new TransformOperation(_shape,_shape.x,_shape.y,_shape.x,_shape.y,false,true);
-			_undo.pushUndo(operation);
+			//_undo.pushUndo(operation);
+			stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
 			getChildAt(numChildren - 1).addEventListener(MouseEvent.MOUSE_DOWN, goDrag);
 			getChildAt(numChildren - 1).addEventListener(MouseEvent.MOUSE_UP, finishDrag);		
 		}
@@ -54,7 +56,8 @@ package As
 				}
 				stepArray.splice(nowStep, 1); 
 			} trace("goClear");
-			_redo.clearRedo();
+			//_redo.clearRedo();
+			stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.CLEAR_REDO));
 		}
 		
 		//移動繪圖物件====================================
@@ -75,7 +78,8 @@ package As
 				stepArray.push(null);		//移動並沒有新增物件,所以放入null
 				nowStep ++;
 				var operation:TransformOperation = new TransformOperation(e.currentTarget,PrevX,PrevY,e.currentTarget.x,e.currentTarget.y,true,true);
-				_undo.pushUndo(operation);
+				//_undo.pushUndo(operation);
+				stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
 			}
 		}
 		//====================================移動繪圖物件
@@ -83,8 +87,8 @@ package As
 		//上一步
 		public function ctrlZ():void {
 			if (nowStep > 0) {	
-				_redo.pushRedo(_undo.peekUndo());
-				_undo.undo();
+				/*_redo.pushRedo(_undo.peekUndo());
+				_undo.undo();*/
 				nowStep--;
 			}
 		}
@@ -92,8 +96,8 @@ package As
 		//下一步
 		public function ctrlY():void {
 			if (nowStep < stepArray.length) {
-				_undo.pushUndo(_redo.peekRedo());
-				_redo.redo();
+				/*_undo.pushUndo(_redo.peekRedo());
+				_redo.redo();*/
 				nowStep++;
 			}
 		}
@@ -109,7 +113,8 @@ package As
 					getChildAt(i).visible = false;
 					stepArray.push(null);		//刪除並沒有新增物件,所以放入null
 					var operation:TransformOperation = new TransformOperation(getChildAt(i),getChildAt(i).x,getChildAt(i).y,getChildAt(i).x,getChildAt(i).y,true,false);
-					_undo.pushUndo(operation);
+					//_undo.pushUndo(operation);
+					stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
 					
 					break;
 				}

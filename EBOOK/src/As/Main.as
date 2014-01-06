@@ -1,5 +1,6 @@
 package As
 {
+	import As.Events.UndoManagerEvent;
 	import avmplus.getQualifiedSuperclassName;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
@@ -10,6 +11,7 @@ package As
 	import flash.net.URLRequest;
 	import flash.system.Capabilities;
 	import net.hires.debug.Stats;
+	import flashx.undo.UndoManager;
 	
 	/**
 	 * ...
@@ -18,11 +20,13 @@ package As
 	public class Main extends Sprite 
 	{
 		private var canvas_mc:Canvas;	//畫布,undo,redo
-		private var floating:Sprite;	//覆蓋在畫布上:便利貼
+		private var floating:FloatingMemo;	//覆蓋在畫布上:便利貼
 		private var rz:RectangleZoom;	//放大功能
 		private var pencil:MouseDraw;	//畫筆功能
 		private var bookLoader:Loader = new Loader();
 		private var bookUrl:URLRequest = new URLRequest("book1.swf");
+		public static var _undo:UndoManager=new UndoManager();
+        public static var _redo:UndoManager=new UndoManager();     
 		
 		private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
 		
@@ -44,13 +48,26 @@ package As
 			
 			canvas_mc = new Canvas();
 			addChild(canvas_mc);
+			stage.addEventListener(UndoManagerEvent.PUSH_UNDO, goPushUndo);
+			stage.addEventListener(UndoManagerEvent.CLEAR_REDO, goClearRedo);
 			
-			floating = new Sprite();
+			floating = new FloatingMemo();
 			addChild(floating);
 			
 			goEvent();
 			
 			goCheckSave();
+		}
+		
+		private function goPushUndo(e:UndoManagerEvent):void 
+		{	
+			if(_redo.canRedo()) _redo.clearRedo();
+			_undo.pushUndo(e.tfo);
+		}
+		
+		private function goClearRedo(e:UndoManagerEvent):void 
+		{
+			_redo.clearRedo();
 		}
 		
 		//還原存檔的繪圖
@@ -59,6 +76,9 @@ package As
 			var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
 			if (eBookDataSharedObject.data.graphicsData) {
 				canvas_mc.reDrawSave(eBookDataSharedObject.data.graphicsData);
+			}
+			if (eBookDataSharedObject.data.memoData) {
+				floating.reDrawSave(eBookDataSharedObject.data.memoData);
 			}
 		}
 		
@@ -91,10 +111,11 @@ package As
 		private function saveCanvas(e:MouseEvent):void 
 		{
 			eBookDataSharedObject.data.graphicsData = canvas_mc.goSave();
+			eBookDataSharedObject.data.memoData = floating.goSave();
 			
-			trace(Memo(floating.getChildAt(0)).getData());
+			/*trace(Memo(floating.getChildAt(0)).getData());
 			var _m:Memo = new Memo(pdf_mc,Memo(floating.getChildAt(0)).getData());
-			floating.addChild(_m);
+			floating.addChild(_m);*/
 			
 			eBookDataSharedObject.flush();	//存入SharedObject
 		}
@@ -125,13 +146,21 @@ package As
 		//下一步
 		private function ctrlY(e:MouseEvent):void 
 		{
-			canvas_mc.ctrlY();
+			if (_redo.canRedo()) {
+				if(!TransformOperation(_redo.peekRedo()).affectObj is Memo) canvas_mc.ctrlY();
+				_undo.pushUndo(_redo.peekRedo());
+				_redo.redo();
+			}
 		}
 		
 		//上一步
 		private function ctrlZ(e:MouseEvent):void 
 		{
-			canvas_mc.ctrlZ();
+			if (_undo.canUndo()) {	//trace(TransformOperation(_undo.peekUndo()).affectObj is Memo);
+				if(!TransformOperation(_undo.peekUndo()).affectObj is Memo) canvas_mc.ctrlZ();
+				_redo.pushRedo(_undo.peekUndo());
+				_undo.undo();
+			}
 		}
 		
 		//選擇工具
