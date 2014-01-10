@@ -167,7 +167,7 @@ package As
 					//trace("graphicsDataTemp:",graphicsDataTemp.length, graphicsDataTemp);
 				}
 			}
-			trace("graphicsDataArray:", graphicsDataArray.length, graphicsDataArray);
+			//trace("graphicsDataArray:", graphicsDataArray.length, graphicsDataArray);
 			return graphicsDataArray;
 			//graphicsDataSharedObject.data.graphicsData = graphicsDataArray;
 			//graphicsDataSharedObject.flush();	//存入SharedObject

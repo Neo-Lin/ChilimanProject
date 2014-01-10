@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 模式說明：  0：雙頁；1：單頁橫排；2：單頁豎排 -->
+<content width="496" height="674" bookType="english">
+  <book pageMode="0,2" menuUrl="PageContent/Public/bookMenu.swf">
+	<page pageUrl="Book/Lesson1/book1_1.swf" pageNumber="1" miniatureUrl="PageContent/Miniature/Book/book_1_1_2.jpg" />
+	<page pageUrl="Book/Lesson1/book1_2.swf" pageNumber="2" miniatureUrl="PageContent/Miniature/Book/book_1_1_3.jpg" />
+	<page pageUrl="Book/Lesson2/book2_1.swf" pageNumber="3" miniatureUrl="PageContent/Miniature/Book/book_1_2_6.jpg" />
+	<page pageUrl="Book/Lesson2/book2_2.swf" pageNumber="4" miniatureUrl="PageContent/Miniature/Book/book_1_2_7.jpg" />
+	<page pageUrl="Book/Lesson3/book3_1.swf" pageNumber="5" miniatureUrl="PageContent/Miniature/Book/book_1_3_8.jpg" />
+	<page pageUrl="Book/Lesson3/book3_2.swf" pageNumber="6" miniatureUrl="PageContent/Miniature/Book/book_1_3_9.jpg" />
+	<page pageUrl="Book/Lesson4/book4_1.swf" pageNumber="7" miniatureUrl="PageContent/Miniature/Book/book_1_4_10.jpg" />
+	<page pageUrl="Book/Lesson4/book4_2.swf" pageNumber="8" miniatureUrl="PageContent/Miniature/Book/book_1_4_11.jpg" />
+	<page pageUrl="Book/Lesson4/book4_3.swf" pageNumber="9" miniatureUrl="PageContent/Miniature/Book/book_1_4_12.jpg" />
+	<page pageUrl="Book/Lesson4/book4_4.swf" pageNumber="10" miniatureUrl="PageContent/Miniature/Book/book_1_4_13.jpg" />
+	<page pageUrl="Book/Lesson4/book4_5.swf" pageNumber="11" miniatureUrl="PageContent/Miniature/Book/book_1_4_14.jpg" />
+	<page pageUrl="Book/Lesson4/book4_6.swf" pageNumber="12" miniatureUrl="PageContent/Miniature/Book/book_1_4_15.jpg" />
+  </book>
+</content>

@@ -41,6 +41,7 @@ package As
 		
 		private function onMD(e:MouseEvent):void 
 		{
+			if (thisParent.hasEventListener(MouseEvent.MOUSE_UP)) return;
 			thisParent.addEventListener(MouseEvent.MOUSE_UP, onMU);
 			if (startDraw) {
 				bd.dispose(); 

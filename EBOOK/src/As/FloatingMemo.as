@@ -18,8 +18,8 @@ package As
 		
 		private function takeNewMemo(e:Event):void 
 		{
-			trace("加入!!", e.currentTarget, e.target, this.numChildren, e.target is Memo);
-			/*if (e.target is Memo) {
+			/*trace("加入!!", e.currentTarget, e.target, this.numChildren, e.target is Memo);
+			if (e.target is Memo) {
 				var _a = e.target.getData();
 				var operation:TransformOperation = new TransformOperation(e.target,_a[0],_a[1],_a[0],_a[1],false,true);
 				stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
@@ -43,7 +43,9 @@ package As
 			var _n:uint = this.numChildren; 
 			for (var i:int = 0; i < _n; i++) {		//取得所有場景物件
 				var _m:Memo = this.getChildAt(i) as Memo;
-				_a.push(_m.getData());
+				if (_m.visible == true) {	//若visible == false表示答案貼被撕除
+					_a.push(_m.getData());
+				}
 			}
 			return _a;
 		}

@@ -24,9 +24,10 @@ package As
 		private var rz:RectangleZoom;	//放大功能
 		private var pencil:MouseDraw;	//畫筆功能
 		private var bookLoader:Loader = new Loader();
-		private var bookUrl:URLRequest = new URLRequest("book1.swf");
+		private var bookUrl:URLRequest = new URLRequest("book1_1.swf");
 		public static var _undo:UndoManager=new UndoManager();
-        public static var _redo:UndoManager=new UndoManager();     
+        public static var _redo:UndoManager = new UndoManager();   
+		private var loadingPage:LoadingPage;
 		
 		private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
 		
@@ -39,12 +40,15 @@ package As
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			addChild(new Stats());
+			
 			trace(Capabilities.version, Capabilities.isDebugger, Capabilities.manufacturer);
 			
 			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
 			bookLoader.load(bookUrl);
 			pdf_mc.addChild(bookLoader);
+			
+			loadingPage = new LoadingPage();
+			addChild(loadingPage);
 			
 			canvas_mc = new Canvas();
 			addChild(canvas_mc);
@@ -53,6 +57,8 @@ package As
 			
 			floating = new FloatingMemo();
 			addChild(floating);
+			
+			addChild(new Stats());
 			
 			goEvent();
 			
@@ -178,7 +184,7 @@ package As
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
 			floating.mouseEnabled = false;
-			pencil = new MouseDraw(pdf_mc, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
+			pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
 			pdf_mc.addChild(pencil);
 			 trace("Main:",pdf_mc.numChildren);
 		}
