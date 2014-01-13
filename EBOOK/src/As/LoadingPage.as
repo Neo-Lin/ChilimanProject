@@ -1,5 +1,6 @@
 package As 
 {
+	import As.Events.LoadingPageEvent;
 	import caurina.transitions.Tweener;
 	import com.foxaweb.pageflip.PageFlip;
 	import flash.display.BitmapData;
@@ -76,7 +77,7 @@ package As
 			if (dragPoint.x == 1) mousePoint.x -= page0.width;
 			
 			//檢查是否翻頁成功,以更新bookVector
-			if (autoTurnPageTxt == "l_right") {	trace("翻頁成功L");
+			if (autoTurnPageTxt == "l_right") {	//trace("翻頁成功L");
 				bookVector[4] = bookVector[2];
 				bookVector[5] = bookVector[3];
 				bookVector[2] = bookVector[0];
@@ -90,7 +91,7 @@ package As
 					bookVector[0] = null;
 					bookVector[1] = null;
 				}
-			}else if (autoTurnPageTxt == "r_left") {	trace("翻頁成功R");
+			}else if (autoTurnPageTxt == "r_left") {	//trace("翻頁成功R");
 				bookVector[0] = bookVector[2];
 				bookVector[1] = bookVector[3];
 				bookVector[2] = bookVector[4];
@@ -159,7 +160,7 @@ package As
 				autoTurnPagePoint.x = page0.width;
 				autoTurnPagePoint.y = page0.height;
 			}
-			
+			autoTurnPageTxt = "";
 			this.addEventListener(MouseEvent.MOUSE_UP, stopTurnPage);
 			addChild(_render);	//顯示翻書
 			goFlip(mouseX - _render.x, mouseY);
@@ -204,6 +205,7 @@ package As
 		
 		private function loadNextPage():void 
 		{
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_OPEN));
 			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadNextPageComplete);
 			bookUrl.url = pageXML.book.page[loadNextList.shift()].@pageUrl;
 			bookLoader.load(bookUrl);
@@ -218,6 +220,7 @@ package As
 				}else {	//載入第二個
 					bookVector[1] = bookLoader.content as MovieClip;
 					bookLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, loadNextPageComplete);
+					stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_COMPLETE));
 				}
 				
 			}else if (autoTurnPageTxt == "r_left") {
@@ -228,12 +231,14 @@ package As
 				}else {	//載入第二個
 					bookVector[5] = bookLoader.content as MovieClip;
 					bookLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, loadNextPageComplete);
+					stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_COMPLETE));
 				}
 			}
 		}
 		
 		private function xmlComplete(e:Event):void 
 		{
+			xmlLoader.removeEventListener(Event.COMPLETE, xmlComplete);
 			pageXML = XML(xmlLoader.data);
 			trace("LoadingPage:", pageXML.book.page.length(), pageXML.book.page[0].@pageUrl);
 			
@@ -260,6 +265,7 @@ package As
 		//開始載入頁面
 		private function startLoadingPage():void 
 		{
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_OPEN));
 			bookUrl.url = pageXML.book.page[bookNowPage].@pageUrl;
 			trace("=====",bookUrl.url,bookNowPage);
 			bookLoader.load(bookUrl);
@@ -287,6 +293,7 @@ package As
 				bookNowPage++;
 				bookNum = 1;
 				bookLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, bookLoaderComplete);
+				stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_COMPLETE));
 			}
 		}
 		

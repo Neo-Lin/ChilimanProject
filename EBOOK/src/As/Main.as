@@ -1,5 +1,6 @@
 package As
 {
+	import As.Events.LoadingPageEvent;
 	import As.Events.UndoManagerEvent;
 	import avmplus.getQualifiedSuperclassName;
 	import flash.display.Loader;
@@ -7,9 +8,14 @@ package As
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.filesystem.File;
+	import flash.filesystem.FileMode;
+	import flash.filesystem.FileStream;
 	import flash.net.SharedObject;
+	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.system.Capabilities;
+	import flash.utils.ByteArray;
 	import net.hires.debug.Stats;
 	import flashx.undo.UndoManager;
 	
@@ -29,7 +35,8 @@ package As
         public static var _redo:UndoManager = new UndoManager();   
 		private var loadingPage:LoadingPage;
 		
-		private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
+		//private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
+		private var saveFile:File;
 		
 		public function Main():void 
 		{
@@ -40,13 +47,16 @@ package As
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
+			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
+			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);
 			
 			trace(Capabilities.version, Capabilities.isDebugger, Capabilities.manufacturer);
 			
-			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
+			/*bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
 			bookLoader.load(bookUrl);
-			pdf_mc.addChild(bookLoader);
+			pdf_mc.addChild(bookLoader);*/
 			
+			//載入書本
 			loadingPage = new LoadingPage();
 			addChild(loadingPage);
 			
@@ -65,6 +75,39 @@ package As
 			goCheckSave();
 		}
 		
+		//顯示/隱藏載入中圖示
+		private function showLoadingBar(e:LoadingPageEvent):void 
+		{
+			addChild(_bar);
+			_bar.visible = true;
+		}
+		private function hideLoadingBar(e:LoadingPageEvent):void 
+		{
+			_bar.visible = false;
+		}
+		
+		//還原存檔的繪圖
+		private function goCheckSave():void 
+		{
+			saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
+			trace("還原存檔繪圖=============", saveFile.exists, File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
+			if (saveFile.exists) {	 //如果檔案存在
+				var fileStream:FileStream = new FileStream(); 
+				//開啟為讀取狀態
+				fileStream.open(saveFile, FileMode.READ); 
+				//讀檔
+				var _a:Array = fileStream.readObject(); 
+				fileStream.close();
+				//還原存檔的繪圖
+				if (_a[0].length > 0) {
+					canvas_mc.reDrawSave(_a[0]);
+				}
+				if (_a[1].length > 0) {
+					floating.reDrawSave(_a[1]);
+				}
+			}
+		}	
+			
 		private function goPushUndo(e:UndoManagerEvent):void 
 		{	
 			if(_redo.canRedo()) _redo.clearRedo();
@@ -77,7 +120,7 @@ package As
 		}
 		
 		//還原存檔的繪圖
-		private function goCheckSave():void 
+		/*private function goCheckSave():void 
 		{
 			var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
 			if (eBookDataSharedObject.data.graphicsData) {
@@ -101,7 +144,7 @@ package As
 					trace(_mc.name);
 				}
 			}
-		}
+		}*/
 		
 		private function goEvent():void {
 			zoomIn_mc.addEventListener(MouseEvent.CLICK, zoomInStart);
@@ -112,18 +155,35 @@ package As
 			eraser_mc.addEventListener(MouseEvent.CLICK, eraserStart);
 			memo_mc.addEventListener(MouseEvent.CLICK, memoStart);
 			save_mc.addEventListener(MouseEvent.CLICK, saveCanvas);
+			prevPage_mc.addEventListener(MouseEvent.CLICK, goPrevPage);
+			nextPage_mc.addEventListener(MouseEvent.CLICK, goNextPage);
 		}
 		
+		//上一頁/下一頁
+		private function goPrevPage(e:MouseEvent):void 
+		{
+			
+		}
+		private function goNextPage(e:MouseEvent):void 
+		{
+			
+		}
+		
+		//存檔
 		private function saveCanvas(e:MouseEvent):void 
 		{
-			eBookDataSharedObject.data.graphicsData = canvas_mc.goSave();
+			/*eBookDataSharedObject.data.graphicsData = canvas_mc.goSave();
 			eBookDataSharedObject.data.memoData = floating.goSave();
+			eBookDataSharedObject.flush()*/;	//存入SharedObject
 			
-			/*trace(Memo(floating.getChildAt(0)).getData());
-			var _m:Memo = new Memo(pdf_mc,Memo(floating.getChildAt(0)).getData());
-			floating.addChild(_m);*/
-			
-			eBookDataSharedObject.flush();	//存入SharedObject
+			saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
+			trace("存檔=============", File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
+			var fileStream:FileStream = new FileStream(); 
+			//開啟為寫入狀態
+			fileStream.open(saveFile, FileMode.WRITE); 
+			//存檔
+			fileStream.writeObject([canvas_mc.goSave(), floating.goSave()]); 
+			fileStream.close();
 		}
 		
 		private function memoStart(e:MouseEvent):void 
@@ -198,7 +258,7 @@ package As
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
 			floating.mouseEnabled = false;
-			rz = new RectangleZoom(pdf_mc);
+			rz = new RectangleZoom(loadingPage);
 			this.addChild(rz);	
 			
 			trace("Main:", rz.x,this.numChildren);
