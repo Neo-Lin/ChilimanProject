@@ -70,7 +70,7 @@ package As
 		{
 			this.removeEventListener(MouseEvent.MOUSE_UP, stopTurnPage);
 			this.removeEventListener(MouseEvent.MOUSE_MOVE, startTurnPage);
-			this.addEventListener(Event.ENTER_FRAME, autoTurnPage);
+			this.addEventListener(Event.ENTER_FRAME, autoResumePage);
 			mousePoint.x = mouseX;
 			mousePoint.y = mouseY;
 			//如果是從右翻到左就偏移x,因為右邊的頁面有往右移一頁的寬度,但計算x還是從0開始
@@ -78,40 +78,16 @@ package As
 			
 			//檢查是否翻頁成功,以更新bookVector
 			if (autoTurnPageTxt == "l_right") {	//trace("翻頁成功L");
-				bookVector[4] = bookVector[2];
-				bookVector[5] = bookVector[3];
-				bookVector[2] = bookVector[0];
-				bookVector[3] = bookVector[1];
-				frontLeftPage.name = String(int(frontLeftPage.name) - 2);
-				frontRightPage.name = String(int(frontRightPage.name) - 2);
-				if (int(frontLeftPage.name) - 2 >= 0) {
-					loadNextList = [int(frontLeftPage.name) - 2, int(frontRightPage.name) - 2];
-					loadNextPage();
-				}else {
-					bookVector[0] = null;
-					bookVector[1] = null;
-				}
+				renewBookVectorL();
 			}else if (autoTurnPageTxt == "r_left") {	//trace("翻頁成功R");
-				bookVector[0] = bookVector[2];
-				bookVector[1] = bookVector[3];
-				bookVector[2] = bookVector[4];
-				bookVector[3] = bookVector[5];
-				frontLeftPage.name = String(int(frontLeftPage.name) + 2);
-				frontRightPage.name = String(int(frontRightPage.name) + 2);
-				if (int(frontRightPage.name) + 2 <= pageXML.book.page.length()) {
-					loadNextList = [int(frontLeftPage.name) + 2, int(frontRightPage.name) + 2];
-					loadNextPage();
-				}else {
-					bookVector[4] = null;
-					bookVector[5] = null;
-				}
+				renewBookVectorR();
 			}
 			
 			Tweener.addTween(mousePoint, { x:autoTurnPagePoint.x, y:autoTurnPagePoint.y, time:.5, onComplete:finishTweener} );
 		}
 		private function finishTweener():void 
 		{
-			this.removeEventListener(Event.ENTER_FRAME, autoTurnPage);
+			this.removeEventListener(Event.ENTER_FRAME, autoResumePage);
 			if (frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
 			if (frontRightPage.numChildren > 0) frontRightPage.removeChildAt(0);
 			frontLeftPage.addChild(bookVector[2]);
@@ -119,46 +95,62 @@ package As
 			removeChild(_render);
 		}
 		//書頁自動恢復
-		private function autoTurnPage(e:Event):void 
+		private function autoResumePage(e:Event):void 
 		{
 			goFlip(mousePoint.x, mousePoint.y);
+		}
+		
+		//自動翻頁
+		public function autoTurnPage(type:String):void 
+		{	
+			if (Tweener.isTweening(mousePoint)) return;
+			
+			if (type == "L") {
+				//若是第一頁就return
+				if (frontLeftPage.name == "0") return;
+				turnRight();
+				mousePoint.x = 0;
+				mousePoint.y = page0.height;
+				changeAutoTurnPage("l_right");
+			}else if (type == "R") {
+				//若是最後一頁就return
+				if (int(frontRightPage.name) == pageXML.book.page.length() - 1) return;
+				turnLeft();
+				mousePoint.x = page0.width;
+				mousePoint.y = page0.height;
+				changeAutoTurnPage("r_left");
+			}
+			addChild(_render);	//顯示翻書
+			this.addEventListener(Event.ENTER_FRAME, autoResumePage);
+			Tweener.addTween(mousePoint, { x:autoTurnPagePoint.x, time:.5, onComplete:finishAutoTurnPage} );
+		}
+		private function finishAutoTurnPage():void 
+		{	
+			if (autoTurnPageTxt == "l_right") {
+				renewBookVectorL();
+			}else if (autoTurnPageTxt == "r_left") {
+				renewBookVectorR();
+			}
+			finishTweener();
 		}
 		
 		//按下書頁,開始翻頁
 		private function turnPage(e:MouseEvent):void 
 		{
+			//如果翻頁動作中就return
+			if (Tweener.isTweening(mousePoint)) return;
 			//觸發翻書的位置在左下跟右下,如果在範圍外就return
 			if ((mouseX > 100 && mouseX < page0.width * 2 - 100) || mouseY < page0.height - 100) return;
 			
-			this.removeEventListener(Event.ENTER_FRAME, autoTurnPage);
-			Tweener.removeAllTweens();
+			this.removeEventListener(Event.ENTER_FRAME, autoResumePage);
 			if (mouseX < page0.width) {	//左下
 				//若是第一頁就return
 				if (frontLeftPage.name == "0") return;
-				
-				backLeftPage.addChild(bookVector[0]);
-				page0.draw(frontLeftPage);
-				trace(frontLeftPage.numChildren,backLeftPage.numChildren);
-				if(frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
-				page1.draw(bookVector[1]);
-				
-				dragPoint = new Point(0, 1);
-				_render.x = 0;
-				autoTurnPagePoint.x = 0;
-				autoTurnPagePoint.y = page0.height;
+				turnRight();
 			}else {	//右下
 				//若是最後一頁就return
 				if (int(frontRightPage.name) == pageXML.book.page.length() - 1) return;
-				
-				backRightPage.addChild(bookVector[5]);
-				page0.draw(frontRightPage);
-				if(frontRightPage.numChildren > 0) frontRightPage.removeChildAt(0);
-				page1.draw(bookVector[4]);
-				
-				dragPoint = new Point(1, 1);
-				_render.x = page0.width;
-				autoTurnPagePoint.x = page0.width;
-				autoTurnPagePoint.y = page0.height;
+				turnLeft();
 			}
 			autoTurnPageTxt = "";
 			this.addEventListener(MouseEvent.MOUSE_UP, stopTurnPage);
@@ -203,6 +195,68 @@ package As
 			autoTurnPageTxt = _s;
 		}
 		
+		//顯示下一頁,繪製翻頁畫面,開始翻頁時要做的事情
+		private function turnLeft():void 
+		{
+			backRightPage.addChild(bookVector[5]);
+			page0.draw(frontRightPage);
+			if(frontRightPage.numChildren > 0) frontRightPage.removeChildAt(0);
+			page1.draw(bookVector[4]);
+			
+			dragPoint = new Point(1, 1);
+			_render.x = page0.width;
+			autoTurnPagePoint.x = page0.width;
+			autoTurnPagePoint.y = page0.height;
+		}
+		private function turnRight():void 
+		{
+			backLeftPage.addChild(bookVector[0]);
+			page0.draw(frontLeftPage);
+			trace(frontLeftPage.numChildren,backLeftPage.numChildren);
+			if(frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
+			page1.draw(bookVector[1]);
+			
+			dragPoint = new Point(0, 1);
+			_render.x = 0;
+			autoTurnPagePoint.x = 0;
+			autoTurnPagePoint.y = page0.height;
+		}
+		
+		//更新存放頁面的bookVector陣列,確定翻書成功之後要做的事情
+		private function renewBookVectorR():void 
+		{
+			bookVector[0] = bookVector[2];
+			bookVector[1] = bookVector[3];
+			bookVector[2] = bookVector[4];
+			bookVector[3] = bookVector[5];
+			frontLeftPage.name = String(int(frontLeftPage.name) + 2);
+			frontRightPage.name = String(int(frontRightPage.name) + 2);
+			if (int(frontRightPage.name) + 2 <= pageXML.book.page.length()) {
+				loadNextList = [int(frontLeftPage.name) + 2, int(frontRightPage.name) + 2];
+				loadNextPage();
+			}else {
+				bookVector[4] = null;
+				bookVector[5] = null;
+			}
+		}
+		private function renewBookVectorL():void 
+		{
+			bookVector[4] = bookVector[2];
+			bookVector[5] = bookVector[3];
+			bookVector[2] = bookVector[0];
+			bookVector[3] = bookVector[1];
+			frontLeftPage.name = String(int(frontLeftPage.name) - 2);
+			frontRightPage.name = String(int(frontRightPage.name) - 2);
+			if (int(frontLeftPage.name) - 2 >= 0) {
+				loadNextList = [int(frontLeftPage.name) - 2, int(frontRightPage.name) - 2];
+				loadNextPage();
+			}else {
+				bookVector[0] = null;
+				bookVector[1] = null;
+			}
+		}
+		
+		//載入下一個或上一個頁面(維持六面)
 		private function loadNextPage():void 
 		{
 			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_OPEN));
@@ -211,7 +265,7 @@ package As
 			bookLoader.load(bookUrl);
 		}
 		private function loadNextPageComplete(e:Event):void 
-		{	
+		{
 			if (autoTurnPageTxt == "l_right") {
 				if (loadNextList.length >= 1) {	//載入第一個
 					bookVector[0] = bookLoader.content as MovieClip;
@@ -222,7 +276,6 @@ package As
 					bookLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, loadNextPageComplete);
 					stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_COMPLETE));
 				}
-				
 			}else if (autoTurnPageTxt == "r_left") {
 				if (loadNextList.length >= 1) {	//載入第一個
 					bookVector[4] = bookLoader.content as MovieClip;

@@ -162,11 +162,11 @@ package As
 		//上一頁/下一頁
 		private function goPrevPage(e:MouseEvent):void 
 		{
-			
+			loadingPage.autoTurnPage("L");
 		}
 		private function goNextPage(e:MouseEvent):void 
 		{
-			
+			loadingPage.autoTurnPage("R");
 		}
 		
 		//存檔
@@ -175,6 +175,8 @@ package As
 			/*eBookDataSharedObject.data.graphicsData = canvas_mc.goSave();
 			eBookDataSharedObject.data.memoData = floating.goSave();
 			eBookDataSharedObject.flush()*/;	//存入SharedObject
+			
+			addChild(saveFileWindows_mc);
 			
 			saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
 			trace("存檔=============", File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
@@ -218,7 +220,6 @@ package As
 				_redo.redo();
 			}
 		}
-		
 		//上一步
 		private function ctrlZ(e:MouseEvent):void 
 		{
