@@ -176,16 +176,17 @@ package As
 			eBookDataSharedObject.data.memoData = floating.goSave();
 			eBookDataSharedObject.flush()*/;	//存入SharedObject
 			
+			saveFileWindows_mc.saveArray = [canvas_mc.goSave(), floating.goSave()];
 			addChild(saveFileWindows_mc);
 			
-			saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
+			/*saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
 			trace("存檔=============", File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
 			var fileStream:FileStream = new FileStream(); 
 			//開啟為寫入狀態
 			fileStream.open(saveFile, FileMode.WRITE); 
 			//存檔
 			fileStream.writeObject([canvas_mc.goSave(), floating.goSave()]); 
-			fileStream.close();
+			fileStream.close();*/
 		}
 		
 		private function memoStart(e:MouseEvent):void 
