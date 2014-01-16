@@ -155,6 +155,7 @@ package As
 			eraser_mc.addEventListener(MouseEvent.CLICK, eraserStart);
 			memo_mc.addEventListener(MouseEvent.CLICK, memoStart);
 			save_mc.addEventListener(MouseEvent.CLICK, saveCanvas);
+			load_mc.addEventListener(MouseEvent.CLICK, loadCanvas);
 			prevPage_mc.addEventListener(MouseEvent.CLICK, goPrevPage);
 			nextPage_mc.addEventListener(MouseEvent.CLICK, goNextPage);
 		}
@@ -177,16 +178,15 @@ package As
 			eBookDataSharedObject.flush()*/;	//存入SharedObject
 			
 			saveFileWindows_mc.saveArray = [canvas_mc.goSave(), floating.goSave()];
+			saveFileWindows_mc.initLine();
 			addChild(saveFileWindows_mc);
-			
-			/*saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
-			trace("存檔=============", File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
-			var fileStream:FileStream = new FileStream(); 
-			//開啟為寫入狀態
-			fileStream.open(saveFile, FileMode.WRITE); 
-			//存檔
-			fileStream.writeObject([canvas_mc.goSave(), floating.goSave()]); 
-			fileStream.close();*/
+		}
+		
+		//讀取舊檔
+		private function loadCanvas(e:MouseEvent):void 
+		{
+			loadFileWindows_mc.initLine();
+			addChild(loadFileWindows_mc);
 		}
 		
 		private function memoStart(e:MouseEvent):void 

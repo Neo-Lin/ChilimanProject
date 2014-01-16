@@ -14,7 +14,7 @@ package As
 	 * ...
 	 * @author Neo
 	 */
-	public class SaveFileWindows extends Sprite 
+	public class LoadFileWindows extends Sprite 
 	{
 		private var listAmount:int = 8;		//有幾個存檔欄位
 		private var tempFileLine:MovieClip;	//暫存選取的存檔欄位
@@ -23,17 +23,17 @@ package As
 		private var saveFile:File;
 		private var fileStream:FileStream = new FileStream();
 		
-		public function SaveFileWindows() 
+		public function LoadFileWindows() 
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
 		private function init(e:Event = null):void {
-			changeName_mc.visible = q_mc.visible = changeName_btn.visible = delete_btn.visible = save_btn.visible = saveAs_btn.visible = false;
+			changeName_mc.visible = q_mc.visible = changeName_btn.visible = delete_btn.visible = open_btn.visible = false;
 			close_btn.addEventListener(MouseEvent.CLICK, goClose);
-			save_btn.addEventListener(MouseEvent.CLICK, goSave);
-			saveAs_btn.addEventListener(MouseEvent.CLICK, goSave);
+			//save_btn.addEventListener(MouseEvent.CLICK, goSave);
+			//saveAs_btn.addEventListener(MouseEvent.CLICK, goSave);
 			delete_btn.addEventListener(MouseEvent.CLICK, goDelete);
 			//確認刪除存檔的詢問框
 			q_mc.addEventListener(MouseEvent.CLICK, startDelete);
@@ -45,14 +45,6 @@ package As
 			
 			initLine();
 			changeLine();
-			
-			/*saveFile = new File(File.applicationDirectory.resolvePath("save/").nativePath);
-			var list = saveFile.getDirectoryListing();
-			for (var i:uint = 0; i < list.length; i++) {
-				trace(list[i].name, list[i].creationDate.time);
-				var _a:Array = String(list[i].modificationDate).split(" ");
-				trace(_a[5] + "/" + _a[1] + "/" + _a[2] + "  " + _a[3]);
-			}*/
 		}
 		
 		//更改檔名
@@ -110,8 +102,7 @@ package As
 				q_mc.visible = false;
 				saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
 				saveFile.deleteFile();
-				delete_btn.visible = save_btn.visible = saveAs_btn.visible = changeName_btn.visible = false;
-				tempFileLine.fileNameInput_txt.visible = true;
+				delete_btn.visible = open_btn.visible = changeName_btn.visible = false;
 				tempFileLine.fileName_txt.text = "";
 				tempFileLine.fileTime_txt.text = "";
 				//更新存檔欄位列表
@@ -123,7 +114,7 @@ package As
 			}
 		}
 		
-		private function goSave(e:MouseEvent):void 
+		/*private function goSave(e:MouseEvent):void 
 		{
 			if (tempFileLine.fileNameInput_txt.visible && tempFileLine.fileNameInput_txt.length == 0) {
 				return;
@@ -149,16 +140,19 @@ package As
 			renewAllListArray();
 			
 			parent.removeChild(this);
-		}
+		}*/
 		
 		//初始化存檔欄位
 		public function initLine():void {
 			saveFile = new File(File.applicationDirectory.resolvePath("save/ebkList").nativePath);
+			trace("load::::::");
 			if (saveFile.exists) {	 //如果檔案存在
 				allListArray = loadPcFile(saveFile);
+				trace("load::::::", allListArray);
 			}
 			for (var i:int = 1; i <= listAmount; i++) {
 				var _mc:MovieClip = this["fileLine" + i + "_mc"];
+				_mc.fileNameInput_txt.visible = false;
 				_mc.addEventListener(MouseEvent.MOUSE_OVER, lineMouseOver);
 				_mc.addEventListener(MouseEvent.MOUSE_OUT, lineMouseOut);
 				_mc.addEventListener(MouseEvent.CLICK, lineClick);
@@ -175,11 +169,6 @@ package As
 				var _mc:MovieClip = this["fileLine" + i + "_mc"];
 				_mc.frame_mc.gotoAndStop(1);
 				_mc.addEventListener(MouseEvent.MOUSE_OUT, lineMouseOut);
-				if (_mc.fileName_txt.length > 0) {
-					_mc.fileNameInput_txt.visible = false;
-				}else if (_mc.fileName_txt.length == 0 || tempFileLine != _mc) {
-					_mc.fileNameInput_txt.text = "請輸入檔名";
-				}
 			}
 		}
 		
@@ -187,19 +176,13 @@ package As
 		private function lineClick(e:MouseEvent):void 
 		{
 			tempFileLine = e.currentTarget as MovieClip;
-			changeLine();
-			tempFileLine.frame_mc.gotoAndStop(2);
-			tempFileLine.removeEventListener(MouseEvent.MOUSE_OUT, lineMouseOut);
-			
-			//輸入框取得焦點
-			tempFileLine.fileNameInput_txt.text = "";
-			this.stage.focus = tempFileLine.fileNameInput_txt;
-			
-			if (tempFileLine.fileName_txt.length > 0) {
-				changeName_btn.visible = delete_btn.visible = save_btn.visible = saveAs_btn.visible = true;
+			if (tempFileLine.fileName_txt.length > 0) {	//存檔欄位有資料才可選取
+				changeLine();
+				tempFileLine.frame_mc.gotoAndStop(2);
+				tempFileLine.removeEventListener(MouseEvent.MOUSE_OUT, lineMouseOut);
+				changeName_btn.visible = delete_btn.visible = open_btn.visible = true;
 			}else {
-				changeName_btn.visible = delete_btn.visible = false;
-				save_btn.visible = saveAs_btn.visible = true;
+				changeName_btn.visible = delete_btn.visible = open_btn.visible = false;
 			}
 		}
 		
