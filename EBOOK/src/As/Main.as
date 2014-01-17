@@ -49,6 +49,9 @@ package As
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
 			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);
+			stage.addEventListener(LoadingPageEvent.START_TURN_PAGE, hideCanvas);
+			stage.addEventListener(LoadingPageEvent.STOP_TURN_PAGE, showCanvas);
+			stage.addEventListener(LoadingPageEvent.STOP_TURN_PAGE_AND_CHANGE, changeCanvas);
 			
 			trace(Capabilities.version, Capabilities.isDebugger, Capabilities.manufacturer);
 			
@@ -72,7 +75,21 @@ package As
 			
 			goEvent();
 			
-			goCheckSave();
+			//goCheckSave();
+		}
+		
+		//載入頁面繪圖及答案貼
+		private function changeCanvas(e:LoadingPageEvent):void 
+		{
+			trace("|||||||", loadingPage.bookNowPage);
+		}
+		private function hideCanvas(e:LoadingPageEvent):void 
+		{
+			floating.visible = canvas_mc.visible = false;
+		}
+		private function showCanvas(e:LoadingPageEvent):void 
+		{
+			floating.visible = canvas_mc.visible = true;
 		}
 		
 		//顯示/隱藏載入中圖示
@@ -87,7 +104,7 @@ package As
 		}
 		
 		//還原存檔的繪圖
-		private function goCheckSave():void 
+		/*private function goCheckSave():void 
 		{
 			saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
 			trace("還原存檔繪圖=============", saveFile.exists, File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
@@ -106,7 +123,7 @@ package As
 					floating.reDrawSave(_a[1]);
 				}
 			}
-		}	
+		}	*/
 			
 		private function goPushUndo(e:UndoManagerEvent):void 
 		{	
@@ -187,6 +204,21 @@ package As
 		{
 			loadFileWindows_mc.initLine();
 			addChild(loadFileWindows_mc);
+			loadFileWindows_mc.addEventListener("you_can_take_array", startLoadCanvas);
+		}
+		private function startLoadCanvas(e:Event):void 
+		{
+			_undo.clearAll();
+			_redo.clearAll();
+			//還原存檔的繪圖
+			if (loadFileWindows_mc.saveArray[0].length > 0) {
+				canvas_mc.canvasRemove();
+				canvas_mc.reDrawSave(loadFileWindows_mc.saveArray[0]);
+			}
+			if (loadFileWindows_mc.saveArray[1].length > 0) {
+				floating.memosRemove();
+				floating.reDrawSave(loadFileWindows_mc.saveArray[1]);
+			}
 		}
 		
 		private function memoStart(e:MouseEvent):void 

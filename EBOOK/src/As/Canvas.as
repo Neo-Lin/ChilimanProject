@@ -39,13 +39,23 @@ package As
 				goClear();
 			}
 			nowStep ++;
-			stepArray.push(getChildAt(numChildren - 1));	//將繪圖物件放進array
 			var _shape:Object = getChildAt(numChildren - 1);
 			var operation:TransformOperation = new TransformOperation(_shape,_shape.x,_shape.y,_shape.x,_shape.y,false,true);
+			stepArray.push(_shape);	//將繪圖物件放進array
 			//_undo.pushUndo(operation);
 			stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
-			getChildAt(numChildren - 1).addEventListener(MouseEvent.MOUSE_DOWN, goDrag);
-			getChildAt(numChildren - 1).addEventListener(MouseEvent.MOUSE_UP, finishDrag);		
+			_shape.addEventListener(MouseEvent.MOUSE_DOWN, goDrag);
+			_shape.addEventListener(MouseEvent.MOUSE_UP, finishDrag);		
+		}
+		
+		public function canvasRemove():void {
+			stepArray.length = 0;
+			var _n:int = numChildren;
+			for (var i:int = 0; i < _n; i++) {
+				getChildAt(0).removeEventListener(MouseEvent.MOUSE_DOWN, goDrag);
+				getChildAt(0).removeEventListener(MouseEvent.MOUSE_UP, finishDrag);	
+				removeChildAt(0);
+			}
 		}
 		
 		//加入新物件時,若有undo過,就把紀錄的redo跟相關物件清除
@@ -55,7 +65,7 @@ package As
 					removeChild(stepArray[nowStep]); 
 				}
 				stepArray.splice(nowStep, 1); 
-			} trace("goClear");
+			} 
 			//_redo.clearRedo();
 			stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.CLEAR_REDO));
 		}

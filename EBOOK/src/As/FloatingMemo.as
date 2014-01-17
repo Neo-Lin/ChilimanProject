@@ -36,6 +36,13 @@ package As
 			}
 		}
 		
+		public function memosRemove():void {
+			var _n:int = numChildren;
+			for (var i:int = 0; i < _n; i++) {
+				removeChildAt(0);
+			}
+		}
+		
 		//存檔
 		public function goSave():Array 
 		{

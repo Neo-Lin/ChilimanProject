@@ -44,7 +44,6 @@ package As
 			changeName_mc.fileName_txt.addEventListener(Event.CHANGE, userInput);
 			
 			initLine();
-			changeLine();
 			
 			/*saveFile = new File(File.applicationDirectory.resolvePath("save/").nativePath);
 			var list = saveFile.getDirectoryListing();
@@ -135,11 +134,14 @@ package As
 			
 			saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
 			if (e.currentTarget.name == "save_btn") {	//存檔
-				trace("存檔=============", File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
+				//trace("存檔=============", File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
 				savePcFile(saveFile, _saveArray);
 				var myDate:Date = new Date();
 				tempFileLine.fileTime_txt.text = myDate.fullYear + "/" + (myDate.month + 1) + "/" + myDate.date + "   " + myDate.hours + ":" + myDate.minutes + ":" + (myDate.seconds + 1);
 			}else if (e.currentTarget.name == "saveAs_btn") {	//另存新檔
+				if (tempFileLine.fileTime_txt.text.length == 0) {	//表示該欄位原本沒有資料
+					tempFileLine.fileName_txt.text = "";
+				}
 				var ba:ByteArray = new ByteArray();
 				ba.writeObject(_saveArray);
 				saveFile.save(ba);
@@ -167,6 +169,7 @@ package As
 					_mc.fileTime_txt.text = allListArray[i][1];
 				}
 			}
+			changeLine();
 		}
 		
 		//取消所有存檔欄位的選取狀態
@@ -179,7 +182,8 @@ package As
 					_mc.fileNameInput_txt.visible = false;
 				}else if (_mc.fileName_txt.length == 0 || tempFileLine != _mc) {
 					_mc.fileNameInput_txt.text = "請輸入檔名";
-				}
+					_mc.fileNameInput_txt.visible = true;
+				}	
 			}
 		}
 		

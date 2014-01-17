@@ -28,7 +28,7 @@ package As
 		private var bookLoader:Loader = new Loader();
 		private var bookUrl:URLRequest = new URLRequest();
 		private var bookNum:int = 0;		//紀錄目前載入到第幾頁,每次載入六頁(顯示的頁面及前後兩頁)
-		private var bookNowPage:int = 4;	//目前頁面號碼
+		private var _bookNowPage:int = 4;	//目前頁面號碼
 		
 		//放載入進來的頁面
 		private var bookVector:Vector.<MovieClip> = new Vector.<MovieClip>();
@@ -88,6 +88,7 @@ package As
 		private function finishTweener():void 
 		{
 			this.removeEventListener(Event.ENTER_FRAME, autoResumePage);
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.STOP_TURN_PAGE));
 			if (frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
 			if (frontRightPage.numChildren > 0) frontRightPage.removeChildAt(0);
 			frontLeftPage.addChild(bookVector[2]);
@@ -120,6 +121,7 @@ package As
 				mousePoint.y = page0.height;
 				changeAutoTurnPage("r_left");
 			}
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.START_TURN_PAGE));
 			addChild(_render);	//顯示翻書
 			this.addEventListener(Event.ENTER_FRAME, autoResumePage);
 			Tweener.addTween(mousePoint, { x:autoTurnPagePoint.x, time:.5, onComplete:finishAutoTurnPage} );
@@ -152,6 +154,7 @@ package As
 				if (int(frontRightPage.name) == pageXML.book.page.length() - 1) return;
 				turnLeft();
 			}
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.START_TURN_PAGE));
 			autoTurnPageTxt = "";
 			this.addEventListener(MouseEvent.MOUSE_UP, stopTurnPage);
 			addChild(_render);	//顯示翻書
@@ -212,7 +215,6 @@ package As
 		{
 			backLeftPage.addChild(bookVector[0]);
 			page0.draw(frontLeftPage);
-			trace(frontLeftPage.numChildren,backLeftPage.numChildren);
 			if(frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
 			page1.draw(bookVector[1]);
 			
@@ -231,6 +233,7 @@ package As
 			bookVector[3] = bookVector[5];
 			frontLeftPage.name = String(int(frontLeftPage.name) + 2);
 			frontRightPage.name = String(int(frontRightPage.name) + 2);
+			_bookNowPage = int(frontLeftPage.name);
 			if (int(frontRightPage.name) + 2 <= pageXML.book.page.length()) {
 				loadNextList = [int(frontLeftPage.name) + 2, int(frontRightPage.name) + 2];
 				loadNextPage();
@@ -238,6 +241,7 @@ package As
 				bookVector[4] = null;
 				bookVector[5] = null;
 			}
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.STOP_TURN_PAGE_AND_CHANGE));
 		}
 		private function renewBookVectorL():void 
 		{
@@ -247,6 +251,7 @@ package As
 			bookVector[3] = bookVector[1];
 			frontLeftPage.name = String(int(frontLeftPage.name) - 2);
 			frontRightPage.name = String(int(frontRightPage.name) - 2);
+			_bookNowPage = int(frontLeftPage.name);
 			if (int(frontLeftPage.name) - 2 >= 0) {
 				loadNextList = [int(frontLeftPage.name) - 2, int(frontRightPage.name) - 2];
 				loadNextPage();
@@ -254,6 +259,7 @@ package As
 				bookVector[0] = null;
 				bookVector[1] = null;
 			}
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.STOP_TURN_PAGE_AND_CHANGE));
 		}
 		
 		//載入下一個或上一個頁面(維持六面)
@@ -296,14 +302,14 @@ package As
 			trace("LoadingPage:", pageXML.book.page.length(), pageXML.book.page[0].@pageUrl);
 			
 			//若一開始載入第一頁,bookVector就從第2個位置開始放載入的頁面(因為沒有上一頁)
-			if (bookNowPage == 0) {
+			if (_bookNowPage == 0) {
 				bookNum = 2;
 				bookVector[0] = null;
 				bookVector[1] = null;
 			}
 			//從要開啟的頁面的前一頁開始載入
-			if (bookNowPage >= 2){
-				bookNowPage -= 2;
+			if (_bookNowPage >= 2){
+				_bookNowPage -= 2;
 			}
 			
 			backRightPage.x = pageXML.@width;
@@ -319,31 +325,31 @@ package As
 		private function startLoadingPage():void 
 		{
 			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_OPEN));
-			bookUrl.url = pageXML.book.page[bookNowPage].@pageUrl;
-			trace("=====",bookUrl.url,bookNowPage);
+			bookUrl.url = pageXML.book.page[_bookNowPage].@pageUrl;
+			trace("=====",bookUrl.url,_bookNowPage);
 			bookLoader.load(bookUrl);
 		}
 		
 		private function bookLoaderComplete(e:Event):void 
 		{	
 			bookVector[bookNum] = bookLoader.content as MovieClip;
-			//addChild(bookVector[bookNowPage]);
+			//addChild(bookVector[_bookNowPage]);
 			
 			if (bookNum == 2) {
 				frontLeftPage.addChild(bookVector[bookNum]);
-				frontLeftPage.name = String(bookNowPage);
+				frontLeftPage.name = String(_bookNowPage);
 			}else if (bookNum == 3) {
 				frontRightPage.addChild(bookVector[bookNum]);
-				frontRightPage.name = String(bookNowPage);
+				frontRightPage.name = String(_bookNowPage);
 			}
 			
 			if (bookNum < 5) {
 				bookNum++;
-				bookNowPage++;
+				_bookNowPage++;
 				startLoadingPage();
 			}else {
-				//bookVector[bookNowPage].x = bookVector[bookNowPage].width;
-				bookNowPage++;
+				//bookVector[_bookNowPage].x = bookVector[_bookNowPage].width;
+				_bookNowPage++;
 				bookNum = 1;
 				bookLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, bookLoaderComplete);
 				stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_COMPLETE));
@@ -365,6 +371,11 @@ package As
 			//trace("===bookLoaderInit");
 		}
 		
+		public function get bookNowPage():int 
+		{
+			return _bookNowPage;
+		}
+		
 		private function goFlip(_x:Number = 20, _y:Number = 20):void {
 			_render.graphics.clear(); 
 			var o:Object=PageFlip.computeFlip(	new Point(_x, _y),	// flipped point
@@ -381,7 +392,5 @@ package As
 			
 			//renderArray = o.pPoints;
 		}
-		
 	}
-
 }

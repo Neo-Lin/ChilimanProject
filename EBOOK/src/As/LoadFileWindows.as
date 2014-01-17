@@ -34,6 +34,7 @@ package As
 			close_btn.addEventListener(MouseEvent.CLICK, goClose);
 			//save_btn.addEventListener(MouseEvent.CLICK, goSave);
 			//saveAs_btn.addEventListener(MouseEvent.CLICK, goSave);
+			open_btn.addEventListener(MouseEvent.CLICK, goOpen);
 			delete_btn.addEventListener(MouseEvent.CLICK, goDelete);
 			//確認刪除存檔的詢問框
 			q_mc.addEventListener(MouseEvent.CLICK, startDelete);
@@ -114,6 +115,14 @@ package As
 			}
 		}
 		
+		private function goOpen(e:MouseEvent):void 
+		{
+			saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
+			_saveArray = loadPcFile(saveFile);
+			this.dispatchEvent(new Event("you_can_take_array"));
+			goClose(null);
+		}
+		
 		/*private function goSave(e:MouseEvent):void 
 		{
 			if (tempFileLine.fileNameInput_txt.visible && tempFileLine.fileNameInput_txt.length == 0) {
@@ -145,10 +154,8 @@ package As
 		//初始化存檔欄位
 		public function initLine():void {
 			saveFile = new File(File.applicationDirectory.resolvePath("save/ebkList").nativePath);
-			trace("load::::::");
 			if (saveFile.exists) {	 //如果檔案存在
 				allListArray = loadPcFile(saveFile);
-				trace("load::::::", allListArray);
 			}
 			for (var i:int = 1; i <= listAmount; i++) {
 				var _mc:MovieClip = this["fileLine" + i + "_mc"];
@@ -220,10 +227,10 @@ package As
 			e.currentTarget.frame_mc.gotoAndStop(2);
 		}
 		
-		//Main會傳入要存檔的Array
-		public function set saveArray(value:Array):void 
+		//讓Main能取得開啟舊檔的Array
+		public function get saveArray():Array 
 		{
-			_saveArray = value;
+			return _saveArray;
 		}
 		
 		//關閉自己

@@ -211,7 +211,7 @@ package As
 			page1.dispose();
 			pixel.dispose();
 			Tweener.removeAllTweens();
-			parent.removeChild(this);
+			//parent.removeChild(this);
 		}
 		
 		private function goFlip(_x:Number = 20, _y:Number = 20):void {
