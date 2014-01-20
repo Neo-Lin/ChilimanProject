@@ -27,12 +27,14 @@ package As
 		
 		private function onMouseDown1(event:MouseEvent):void
 		{
-			var _s:Sprite = new Sprite
-			_newSprite = _s; 
-			_newSprite.graphics.lineStyle(_panWidth);
-			_newSprite.graphics.moveTo(mouseX, mouseY);
-			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
-			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
+			if (stage) {
+				var _s:Sprite = new Sprite
+				_newSprite = _s; 
+				_newSprite.graphics.lineStyle(_panWidth);
+				_newSprite.graphics.moveTo(mouseX, mouseY);
+				stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
+			}
 		}
 		
 		private function onMouseUp1(event:MouseEvent):void
@@ -53,6 +55,8 @@ package As
 		{
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 			_drawArea.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+			stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 		}
 		
 	}

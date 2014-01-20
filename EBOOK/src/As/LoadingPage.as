@@ -349,7 +349,7 @@ package As
 				startLoadingPage();
 			}else {
 				//bookVector[_bookNowPage].x = bookVector[_bookNowPage].width;
-				_bookNowPage++;
+				_bookNowPage = int(frontLeftPage.name);
 				bookNum = 1;
 				bookLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, bookLoaderComplete);
 				stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_COMPLETE));

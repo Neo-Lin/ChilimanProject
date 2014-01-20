@@ -34,6 +34,7 @@ package As
 		public static var _undo:UndoManager=new UndoManager();
         public static var _redo:UndoManager = new UndoManager();   
 		private var loadingPage:LoadingPage;
+		private var allPageData:Array = [];
 		
 		//private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
 		private var saveFile:File;
@@ -81,11 +82,17 @@ package As
 		//載入頁面繪圖及答案貼
 		private function changeCanvas(e:LoadingPageEvent):void 
 		{
-			trace("|||||||", loadingPage.bookNowPage);
+			startLoadCanvas(null);
 		}
+		//按下書角開始翻書-隱藏繪圖及答案貼,暫儲存繪圖及答案貼,取消所有使用中工具
 		private function hideCanvas(e:LoadingPageEvent):void 
 		{
+			changeTool();
 			floating.visible = canvas_mc.visible = false;
+			allPageData = loadFileWindows_mc.saveArray;	 
+			if (allPageData) {
+				allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
+			}
 		}
 		private function showCanvas(e:LoadingPageEvent):void 
 		{
@@ -194,7 +201,8 @@ package As
 			eBookDataSharedObject.data.memoData = floating.goSave();
 			eBookDataSharedObject.flush()*/;	//存入SharedObject
 			
-			saveFileWindows_mc.saveArray = [canvas_mc.goSave(), floating.goSave()];
+			allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
+			saveFileWindows_mc.saveArray = allPageData;
 			saveFileWindows_mc.initLine();
 			addChild(saveFileWindows_mc);
 		}
@@ -207,17 +215,20 @@ package As
 			loadFileWindows_mc.addEventListener("you_can_take_array", startLoadCanvas);
 		}
 		private function startLoadCanvas(e:Event):void 
-		{
+		{	
+			allPageData = loadFileWindows_mc.saveArray;	
 			_undo.clearAll();
 			_redo.clearAll();
+			canvas_mc.canvasRemove();
+			floating.memosRemove();
 			//還原存檔的繪圖
-			if (loadFileWindows_mc.saveArray[0].length > 0) {
-				canvas_mc.canvasRemove();
-				canvas_mc.reDrawSave(loadFileWindows_mc.saveArray[0]);
-			}
-			if (loadFileWindows_mc.saveArray[1].length > 0) {
-				floating.memosRemove();
-				floating.reDrawSave(loadFileWindows_mc.saveArray[1]);
+			if (allPageData && allPageData[loadingPage.bookNowPage]) {
+				if (allPageData[loadingPage.bookNowPage][0].length > 0) {
+					canvas_mc.reDrawSave(allPageData[loadingPage.bookNowPage][0]);
+				}
+				if (allPageData[loadingPage.bookNowPage][1].length > 0) {
+					floating.reDrawSave(allPageData[loadingPage.bookNowPage][1]);
+				}
 			}
 		}
 		

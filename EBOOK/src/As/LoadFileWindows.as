@@ -7,6 +7,7 @@ package As
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
+	import flash.net.FileFilter;
 	import flash.net.FileReference;
 	import flash.utils.ByteArray;
 	
@@ -18,7 +19,7 @@ package As
 	{
 		private var listAmount:int = 8;		//有幾個存檔欄位
 		private var tempFileLine:MovieClip;	//暫存選取的存檔欄位
-		private var _saveArray:Array;		//要存檔的Array
+		private var _saveArray:Array = [];		//要存檔的Array
 		private var allListArray:Array = new Array();		//存檔欄位列表
 		private var saveFile:File;
 		private var fileStream:FileStream = new FileStream();
@@ -43,9 +44,26 @@ package As
 			//輸入新檔名的視窗
 			changeName_mc.addEventListener(MouseEvent.CLICK, startChangeName);
 			changeName_mc.fileName_txt.addEventListener(Event.CHANGE, userInput);
+			//開啟舊檔
+			openAs_btn.addEventListener(MouseEvent.CLICK, goOpenOld);
 			
 			initLine();
 			changeLine();
+		}
+		
+		//開啟舊檔
+		private function goOpenOld(e:MouseEvent):void 
+		{
+			var txtFilter:FileFilter = new FileFilter("Text", "*.ebk");
+			saveFile = new File();
+			saveFile.browseForOpen("Open", [txtFilter]);
+			saveFile.addEventListener(Event.SELECT, fileSelected);
+		}
+		private function fileSelected(e:Event):void 
+		{
+			_saveArray = loadPcFile(saveFile);
+			this.dispatchEvent(new Event("you_can_take_array"));
+			goClose(null);
 		}
 		
 		//更改檔名
