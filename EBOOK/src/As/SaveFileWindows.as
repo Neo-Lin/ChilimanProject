@@ -133,10 +133,10 @@ package As
 			}*/
 			
 			if (e.currentTarget.name == "save_btn") {	//存檔
-				if (tempFileLine.fileNameInput_txt.visible && tempFileLine.fileNameInput_txt.length == 0) {
-					return;
-				}else {
-					if (tempFileLine.fileNameInput_txt.visible) {
+				if (tempFileLine.fileNameInput_txt.visible) {
+					if (tempFileLine.fileNameInput_txt.length == 0) {
+						return;
+					}else {
 						tempFileLine.fileName_txt.text = tempFileLine.fileNameInput_txt.text;
 					}
 				}
@@ -146,12 +146,12 @@ package As
 				var myDate:Date = new Date();
 				tempFileLine.fileTime_txt.text = myDate.fullYear + "/" + (myDate.month + 1) + "/" + myDate.date + "   " + myDate.hours + ":" + myDate.minutes + ":" + (myDate.seconds + 1);
 			}else if (e.currentTarget.name == "saveAs_btn") {	//另存新檔
-				if (tempFileLine.fileNameInput_txt.visible && tempFileLine.fileNameInput_txt.length == 0) {
-					saveFile = new File();
-				}else {
-					if (tempFileLine.fileNameInput_txt.visible) {
+				if (tempFileLine.fileNameInput_txt.visible) {
+					if (tempFileLine.fileNameInput_txt.length == 0) {
+						saveFile = new File(File.desktopDirectory.resolvePath("ebookSave.ebk").nativePath);
+					}else {
 						tempFileLine.fileName_txt.text = tempFileLine.fileNameInput_txt.text;
-						saveFile = new File(File.desktopDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
+						saveFile = new File(File.desktopDirectory.resolvePath(tempFileLine.fileName_txt.text + ".ebk").nativePath);
 					}
 				}
 				if (tempFileLine.fileTime_txt.text.length == 0) {	//表示該欄位原本沒有資料

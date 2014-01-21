@@ -6,6 +6,7 @@ package As
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.display.StageDisplayState;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filesystem.File;
@@ -47,6 +48,7 @@ package As
 		
 		private function init(e:Event = null):void 
 		{
+			stage.displayState = StageDisplayState.FULL_SCREEN; 
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
 			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);

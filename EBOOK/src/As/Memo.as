@@ -193,14 +193,17 @@ package As
 		//更新對照點陣圖
 		private function updatePixel():void {
 			pixel.dispose();
-			renderMatrix.tx = this.x - (_render.transform.pixelBounds.x - _drawArea.transform.pixelBounds.x);
-			renderMatrix.ty = this.y - (_render.transform.pixelBounds.y - _drawArea.transform.pixelBounds.y);
-			pixel = new BitmapData(_render.transform.pixelBounds.width, _render.transform.pixelBounds.height);
+			renderMatrix.tx = this.x - _render.getBounds(parent).x;
+			renderMatrix.ty = this.y - _render.getBounds(parent).y;
+			pixel = new BitmapData(_render.getBounds(parent).width, _render.getBounds(parent).height);
 			pixel.draw(_render,renderMatrix);
 			//pixelBM.bitmapData = pixel;
 			//trace(_render.transform.pixelBounds.x , this.x, _drawArea.transform.pixelBounds.x);
-			pixelS.x = _render.transform.pixelBounds.x - this.x - _drawArea.transform.pixelBounds.x;
-			pixelS.y = _render.transform.pixelBounds.y - this.y - _drawArea.transform.pixelBounds.y;
+			//trace(_render.getBounds(parent).x , this.x, getBounds(_drawArea).x);
+			//pixelS.x = _render.transform.pixelBounds.x - this.x - _drawArea.transform.pixelBounds.x;
+			//pixelS.y = _render.transform.pixelBounds.y - this.y - _drawArea.transform.pixelBounds.y;
+			pixelS.x = _render.getBounds(parent).x - this.x;
+			pixelS.y = _render.getBounds(parent).y - this.y;
 		}
 		
 		//移除便利貼
