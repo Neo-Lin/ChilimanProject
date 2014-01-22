@@ -16,7 +16,7 @@ package As
 	 */
 	public class SaveFileWindows extends Sprite 
 	{
-		private var listAmount:int = 8;		//有幾個存檔欄位
+		private var listAmount:int = 6;		//有幾個存檔欄位
 		private var tempFileLine:MovieClip;	//暫存選取的存檔欄位
 		private var _saveArray:Array;		//要存檔的Array
 		private var allListArray:Array = new Array();		//存檔欄位列表
@@ -30,9 +30,11 @@ package As
 		}
 		
 		private function init(e:Event = null):void {
-			changeName_mc.visible = q_mc.visible = changeName_btn.visible = delete_btn.visible = save_btn.visible = saveAs_btn.visible = false;
+			changeName_mc.visible = q_mc.visible = q2_mc.visible = changeName_btn.visible = delete_btn.visible = save_btn.visible = saveAs_btn.visible = false;
 			close_btn.addEventListener(MouseEvent.CLICK, goClose);
 			save_btn.addEventListener(MouseEvent.CLICK, goSave);
+			//確認覆蓋存檔的詢問框
+			q2_mc.addEventListener(MouseEvent.CLICK, startSave);
 			saveAs_btn.addEventListener(MouseEvent.CLICK, goSave);
 			delete_btn.addEventListener(MouseEvent.CLICK, goDelete);
 			//確認刪除存檔的詢問框
@@ -124,14 +126,6 @@ package As
 		
 		private function goSave(e:MouseEvent):void 
 		{
-			/*if (tempFileLine.fileNameInput_txt.visible && tempFileLine.fileNameInput_txt.length == 0) {
-				return;
-			}else {
-				if (tempFileLine.fileNameInput_txt.visible) {
-					tempFileLine.fileName_txt.text = tempFileLine.fileNameInput_txt.text;
-				}
-			}*/
-			
 			if (e.currentTarget.name == "save_btn") {	//存檔
 				if (tempFileLine.fileNameInput_txt.visible) {
 					if (tempFileLine.fileNameInput_txt.length == 0) {
@@ -139,12 +133,11 @@ package As
 					}else {
 						tempFileLine.fileName_txt.text = tempFileLine.fileNameInput_txt.text;
 					}
+					saveAndDate();
+				}else {
+					q2_mc.fileName_txt.text = tempFileLine.fileName_txt.text;
+					q2_mc.visible = true;
 				}
-				saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
-				//trace("存檔=============", File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
-				savePcFile(saveFile, _saveArray);
-				var myDate:Date = new Date();
-				tempFileLine.fileTime_txt.text = myDate.fullYear + "/" + (myDate.month + 1) + "/" + myDate.date + "   " + myDate.hours + ":" + myDate.minutes + ":" + (myDate.seconds + 1);
 			}else if (e.currentTarget.name == "saveAs_btn") {	//另存新檔
 				if (tempFileLine.fileNameInput_txt.visible) {
 					if (tempFileLine.fileNameInput_txt.length == 0) {
@@ -161,6 +154,23 @@ package As
 				ba.writeObject(_saveArray);
 				saveFile.save(ba);
 			}
+		}
+		//確認覆蓋存檔的詢問框
+		private function startSave(e:MouseEvent):void 
+		{
+			if (e.target.name == "ok_btn") {
+				q2_mc.visible = false;
+				saveAndDate();
+			}else if (e.target.name == "no_btn") {
+				q2_mc.visible = false;
+			}
+		}
+		//進行存檔及修改日期,關閉儲存檔案視窗
+		private function saveAndDate():void {
+			saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
+			savePcFile(saveFile, _saveArray);
+			var myDate:Date = new Date();
+			tempFileLine.fileTime_txt.text = myDate.fullYear + "/" + (myDate.month + 1) + "/" + myDate.date + "   " + myDate.hours + ":" + myDate.minutes + ":" + (myDate.seconds + 1);
 			
 			//更新存檔欄位列表
 			renewAllListArray();

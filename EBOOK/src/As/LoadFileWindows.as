@@ -17,7 +17,7 @@ package As
 	 */
 	public class LoadFileWindows extends Sprite 
 	{
-		private var listAmount:int = 8;		//有幾個存檔欄位
+		private var listAmount:int = 6;		//有幾個存檔欄位
 		private var tempFileLine:MovieClip;	//暫存選取的存檔欄位
 		private var _saveArray:Array = [];		//要存檔的Array
 		private var allListArray:Array = new Array();		//存檔欄位列表

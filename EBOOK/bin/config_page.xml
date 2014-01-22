@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 模式說明：  0：雙頁；1：單頁橫排；2：單頁豎排 -->
-<content width="496" height="674" bookType="english">
+<content width="495" height="675" bookType="english">
   <book pageMode="0,2" menuUrl="PageContent/Public/bookMenu.swf">
 	<page pageUrl="Book/Lesson1/book1_1.swf" pageNumber="1" miniatureUrl="PageContent/Miniature/Book/book_1_1_2.jpg" />
 	<page pageUrl="Book/Lesson1/book1_2.swf" pageNumber="2" miniatureUrl="PageContent/Miniature/Book/book_1_1_3.jpg" />

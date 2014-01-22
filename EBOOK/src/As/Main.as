@@ -16,6 +16,7 @@ package As
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.system.Capabilities;
+	import flash.ui.Mouse;
 	import flash.utils.ByteArray;
 	import net.hires.debug.Stats;
 	import flashx.undo.UndoManager;
@@ -48,7 +49,7 @@ package As
 		
 		private function init(e:Event = null):void 
 		{
-			stage.displayState = StageDisplayState.FULL_SCREEN; 
+			stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE; 
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
 			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);
@@ -64,6 +65,8 @@ package As
 			
 			//載入書本
 			loadingPage = new LoadingPage();
+			loadingPage.x = 17;
+			loadingPage.y = 10;
 			addChild(loadingPage);
 			
 			canvas_mc = new Canvas();
@@ -173,17 +176,17 @@ package As
 		}*/
 		
 		private function goEvent():void {
-			zoomIn_mc.addEventListener(MouseEvent.CLICK, zoomInStart);
-			draw_mc.addEventListener(MouseEvent.CLICK, drawStart);
-			pick_mc.addEventListener(MouseEvent.CLICK, pickStart);
-			ctrlZ_mc.addEventListener(MouseEvent.CLICK, ctrlZ);
-			ctrlY_mc.addEventListener(MouseEvent.CLICK, ctrlY);
-			eraser_mc.addEventListener(MouseEvent.CLICK, eraserStart);
-			memo_mc.addEventListener(MouseEvent.CLICK, memoStart);
-			save_mc.addEventListener(MouseEvent.CLICK, saveCanvas);
-			load_mc.addEventListener(MouseEvent.CLICK, loadCanvas);
-			prevPage_mc.addEventListener(MouseEvent.CLICK, goPrevPage);
-			nextPage_mc.addEventListener(MouseEvent.CLICK, goNextPage);
+			zoomIn_btn.addEventListener(MouseEvent.CLICK, zoomInStart);
+			draw_btn.addEventListener(MouseEvent.CLICK, drawStart);
+			pick_btn.addEventListener(MouseEvent.CLICK, pickStart);
+			ctrlZ_btn.addEventListener(MouseEvent.CLICK, ctrlZ);
+			ctrlY_btn.addEventListener(MouseEvent.CLICK, ctrlY);
+			eraser_btn.addEventListener(MouseEvent.CLICK, eraserStart);
+			memo_btn.addEventListener(MouseEvent.CLICK, memoStart);
+			save_btn.addEventListener(MouseEvent.CLICK, saveCanvas);
+			load_btn.addEventListener(MouseEvent.CLICK, loadCanvas);
+			prevPage_btn.addEventListener(MouseEvent.CLICK, goPrevPage);
+			nextPage_btn.addEventListener(MouseEvent.CLICK, goNextPage);
 		}
 		
 		//上一頁/下一頁
@@ -246,6 +249,7 @@ package As
 		private function eraserStart(e:MouseEvent):void 
 		{
 			changeTool();
+			changeMouse("eraser");
 			addEventListener(Event.ENTER_FRAME, goHitTest);
 		}
 		
@@ -286,7 +290,8 @@ package As
 		private function drawStart(e:MouseEvent):void 
 		{
 			changeTool();
-			draw_mc.removeEventListener(MouseEvent.CLICK, drawStart);
+			changeMouse("draw");
+			draw_btn.removeEventListener(MouseEvent.CLICK, drawStart);
 			canvas_mc.mouseChildren = false;
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
@@ -300,7 +305,8 @@ package As
 		private function zoomInStart(e:MouseEvent):void 
 		{ trace("zoomInStart!!!", this, rz);
 			changeTool();
-			zoomIn_mc.removeEventListener(MouseEvent.CLICK, zoomInStart);
+			changeMouse("zoomIn");
+			zoomIn_btn.removeEventListener(MouseEvent.CLICK, zoomInStart);
 			canvas_mc.mouseChildren = false;
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
@@ -331,10 +337,38 @@ package As
 			} 
 			removeEventListener(Event.ENTER_FRAME, goHitTest);
 			goEvent();
+			changeMouse();
 			canvas_mc.mouseChildren = true;
 			canvas_mc.mouseEnabled = true;
 			floating.mouseChildren = true;
 			floating.mouseEnabled = true;
+		}
+		
+		private function changeMouse(_s:String = null):void {
+			addChild(followMouse_mc);
+			stage.addEventListener(MouseEvent.MOUSE_MOVE,redrawCursor); 
+			Mouse.hide(); 
+			if (!_s) { 
+				followMouse_mc.gotoAndStop(1);
+				followMouse_mc.visible = false;
+				followMouse_mc.x = followMouse_mc.y = 0;
+				Mouse.show(); 
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE,redrawCursor);
+			}else if (_s == "eraser") {
+				followMouse_mc.gotoAndStop("eraser");
+				followMouse_mc.visible = true;
+			}else if (_s == "draw") {
+				followMouse_mc.gotoAndStop("draw");
+				followMouse_mc.visible = true;
+			}else if (_s == "zoomIn") {
+				followMouse_mc.gotoAndStop("zoomIn");
+				followMouse_mc.visible = true;
+			}
+		}
+		private function redrawCursor(event:MouseEvent):void 
+		{ 
+			followMouse_mc.x = event.stageX; 
+			followMouse_mc.y = event.stageY; 
 		}
 	}
 	
