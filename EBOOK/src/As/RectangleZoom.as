@@ -4,6 +4,7 @@ package As
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -17,18 +18,20 @@ package As
 	public class RectangleZoom extends Sprite
 	{
 		private var thisParent:DisplayObjectContainer;
+		private var needHideObject:MovieClip;
 		private var rectXY:Point;
 		private var rectSave:Shape;
 		private var bd:BitmapData;
 		private var bm:Bitmap;
 		private var startDraw:Boolean = false;  //是否框選過
 		
-		public function RectangleZoom(_parent:DisplayObjectContainer) //_parent為要框選放大的對象
+		public function RectangleZoom(_parent:DisplayObjectContainer, _hide:MovieClip) //_parent為要框選放大的對象
 		{
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 			
 			thisParent = _parent;
+			needHideObject = _hide;
 			this.mouseEnabled = false;
 		}
 		
@@ -51,7 +54,6 @@ package As
 				areaStart();
 				thisParent.addEventListener(MouseEvent.MOUSE_MOVE, onMM);
 			}
-			
 		}
 		
 		private function onMM(e:MouseEvent):void 
@@ -64,7 +66,9 @@ package As
 		{ trace("onMU");
 			thisParent.removeEventListener(MouseEvent.MOUSE_UP, onMU);
 			thisParent.removeEventListener(MouseEvent.MOUSE_MOVE, onMM);
-			if(startDraw) areaZoom();
+			if (startDraw) {
+				areaZoom();
+			}
 		}
 		
 		public function areaStart() { 
@@ -77,7 +81,7 @@ package As
 		public function areaDraw() {
 			//畫矩形
 			this.graphics.clear();
-			this.graphics.lineStyle(2, 0xFFFFFF);
+			this.graphics.lineStyle(2, 0x000000, .5);
 			this.graphics.drawRect(rectXY.x, rectXY.y, this.mouseX - rectXY.x, this.mouseY - rectXY.y);
 			//記錄矩形的位置'大小
 			rectSave = new Shape();
@@ -98,7 +102,9 @@ package As
 			trace("zoom::",this.width);
 			bd = new BitmapData(this.width, this.height); 
 			this.graphics.clear(); 
+			needHideObject.visible = false;
 			bd.draw(stage, myMatrix);
+			needHideObject.visible = true;
 			bm = new Bitmap(bd);
 			bm.smoothing = true;
 			this.addChild(bm);
@@ -111,7 +117,6 @@ package As
 				rectSave.height = stage.stageHeight;
 				rectSave.scaleX = rectSave.scaleY;
 			}	
-			
 			Tweener.addTween(bm, { scaleX:rectSave.scaleX, scaleY:rectSave.scaleY, x:(stage.stageWidth-rectSave.width) / 2, y:(stage.stageHeight-rectSave.height) / 2, time:1} );
 		}
 		

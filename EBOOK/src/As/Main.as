@@ -77,6 +77,8 @@ package As
 			floating = new FloatingMemo();
 			addChild(floating);
 			
+			followMouse_mc.mouseEnabled = false;
+			
 			addChild(new Stats());
 			
 			goEvent();
@@ -311,7 +313,7 @@ package As
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
 			floating.mouseEnabled = false;
-			rz = new RectangleZoom(loadingPage);
+			rz = new RectangleZoom(loadingPage, followMouse_mc);
 			this.addChild(rz);	
 			
 			trace("Main:", rz.x,this.numChildren);
@@ -345,23 +347,17 @@ package As
 		}
 		
 		private function changeMouse(_s:String = null):void {
-			addChild(followMouse_mc);
-			stage.addEventListener(MouseEvent.MOUSE_MOVE,redrawCursor); 
-			Mouse.hide(); 
 			if (!_s) { 
 				followMouse_mc.gotoAndStop(1);
 				followMouse_mc.visible = false;
 				followMouse_mc.x = followMouse_mc.y = 0;
 				Mouse.show(); 
 				stage.removeEventListener(MouseEvent.MOUSE_MOVE,redrawCursor);
-			}else if (_s == "eraser") {
-				followMouse_mc.gotoAndStop("eraser");
-				followMouse_mc.visible = true;
-			}else if (_s == "draw") {
-				followMouse_mc.gotoAndStop("draw");
-				followMouse_mc.visible = true;
-			}else if (_s == "zoomIn") {
-				followMouse_mc.gotoAndStop("zoomIn");
+			}else {
+				addChild(followMouse_mc);
+				stage.addEventListener(MouseEvent.MOUSE_MOVE,redrawCursor); 			
+				Mouse.hide(); 
+				followMouse_mc.gotoAndStop(_s);
 				followMouse_mc.visible = true;
 			}
 		}
