@@ -6,7 +6,6 @@ package As
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
-	import flash.display.StageDisplayState;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filesystem.File;
@@ -49,7 +48,7 @@ package As
 		
 		private function init(e:Event = null):void 
 		{
-			stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE; 
+			stage.nativeWindow.maximize();
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
 			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);
@@ -189,6 +188,8 @@ package As
 			load_btn.addEventListener(MouseEvent.CLICK, loadCanvas);
 			prevPage_btn.addEventListener(MouseEvent.CLICK, goPrevPage);
 			nextPage_btn.addEventListener(MouseEvent.CLICK, goNextPage);
+			Minimize_btn.addEventListener(MouseEvent.CLICK, goMinimize);
+			close_btn.addEventListener(MouseEvent.CLICK, goClose);
 		}
 		
 		//上一頁/下一頁
@@ -365,6 +366,17 @@ package As
 		{ 
 			followMouse_mc.x = event.stageX; 
 			followMouse_mc.y = event.stageY; 
+		}
+		
+		//關閉程式
+		private function goClose(e:MouseEvent):void 
+		{
+			stage.nativeWindow.close();
+		}
+		//最小化程式
+		private function goMinimize(e:MouseEvent):void 
+		{
+			stage.nativeWindow.minimize();
 		}
 	}
 	
