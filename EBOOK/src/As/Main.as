@@ -48,7 +48,7 @@ package As
 		
 		private function init(e:Event = null):void 
 		{
-			stage.nativeWindow.maximize();
+			//stage.nativeWindow.maximize();
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
 			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);
@@ -213,6 +213,7 @@ package As
 			saveFileWindows_mc.saveArray = allPageData;
 			saveFileWindows_mc.initLine();
 			addChild(saveFileWindows_mc);
+			saveFileWindows_mc.visible = true;
 		}
 		
 		//讀取舊檔
@@ -220,6 +221,7 @@ package As
 		{
 			loadFileWindows_mc.initLine();
 			addChild(loadFileWindows_mc);
+			loadFileWindows_mc.visible = true;
 			loadFileWindows_mc.addEventListener("you_can_take_array", startLoadCanvas);
 		}
 		private function startLoadCanvas(e:Event):void 
@@ -291,15 +293,17 @@ package As
 		
 		//畫圖
 		private function drawStart(e:MouseEvent):void 
-		{
+		{	
 			changeTool();
 			changeMouse("draw");
-			draw_btn.removeEventListener(MouseEvent.CLICK, drawStart);
+			//draw_btn.removeEventListener(MouseEvent.CLICK, drawStart);
 			canvas_mc.mouseChildren = false;
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
 			floating.mouseEnabled = false;
-			pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a"); trace("Main:",pdf_mc.numChildren);
+			addChild(drawPanel_mc);
+			drawPanel_mc.visible = true;
+			pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a", drawPanel_mc); trace("Main:",pdf_mc.numChildren);
 			pdf_mc.addChild(pencil);
 			 trace("Main:",pdf_mc.numChildren);
 		}

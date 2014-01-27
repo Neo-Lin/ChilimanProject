@@ -15,8 +15,12 @@ package As
 		private var _penType:String;
 		private var _newSprite:Sprite;
 		private var _point:Point;
+		private var _panel:MouseDrawPanel;
+		private var _colorNum:int = 1;
+		private var _thicknessNum:int = 1;
+		private var _typeNum:int = 1;
 		
-		public function MouseDraw(drawArea:DisplayObjectContainer,canvas:Canvas,panWidth:uint,penType:String)
+		public function MouseDraw(drawArea:DisplayObjectContainer,canvas:Canvas,panWidth:uint,penType:String,panel:MouseDrawPanel)
 		{	
 			addEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 			
@@ -24,8 +28,27 @@ package As
 			_canvas = canvas;		//實際放繪圖的元件
 			_panWidth = panWidth;	//畫筆粗
 			_penType = penType;		//畫筆類型
+			_panel = panel;			//控制面板:選色,粗細,樣式
 			
 			_drawArea.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
+			_panel.addEventListener("Change_Thickness", changeThickness);
+			_panel.addEventListener("Change_Color", changeColor);
+			_panel.addEventListener("Change_Type", ChangeType);
+		}
+		
+		private function changeThickness(e:Event):void 
+		{	
+			_thicknessNum = _panel.thicknessNum * 5;
+		}
+		
+		private function changeColor(e:Event):void 
+		{
+			_colorNum = _panel.colorNum;
+		}
+		
+		private function ChangeType(e:Event):void 
+		{
+			_typeNum = _panel.typeNum;
 		}
 		
 		private function onMouseDown1(event:MouseEvent):void
@@ -51,17 +74,24 @@ package As
 		
 		private function onMouseMove1(event:MouseEvent):void
 		{
-			//畫直虛線
-			/*_newSprite.graphics.clear();
-			_newSprite.graphics.lineStyle(5);
-			drawDashed(_newSprite.graphics, _point, new Point(mouseX, mouseY), 5, 20);*/
-			//畫直實線
-			/*_newSprite.graphics.clear();
-			_newSprite.graphics.lineStyle(5);
-			_newSprite.graphics.moveTo(_point.x, _point.y);
-			_newSprite.graphics.lineTo(mouseX, mouseY);*/
-			//隨便畫
-			_newSprite.graphics.lineTo(mouseX, mouseY);
+			if (_typeNum == 1) {
+				//隨便畫
+				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
+				_newSprite.graphics.lineTo(mouseX, mouseY);
+			}else if (_typeNum == 2) {
+				//畫直虛線
+				_newSprite.graphics.clear();
+				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
+				drawDashed(_newSprite.graphics, _point, new Point(mouseX, mouseY), 5, 20);
+			}else if (_typeNum == 3) {
+				//畫直實線
+				_newSprite.graphics.clear();
+				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
+				_newSprite.graphics.moveTo(_point.x, _point.y);
+				_newSprite.graphics.lineTo(mouseX, mouseY);
+			}else if (_typeNum == 4) {
+				//畫箭頭
+			}
 			
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas
 		}

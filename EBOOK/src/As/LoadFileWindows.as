@@ -255,7 +255,8 @@ package As
 		private function goClose(e:MouseEvent):void 
 		{
 			tempFileLine = null;
-			parent.removeChild(this);
+			//parent.removeChild(this);
+			this.visible = false;
 		}
 	}
 
