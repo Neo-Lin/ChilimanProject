@@ -17,7 +17,7 @@ package As
 		private var _point:Point;
 		private var _panel:MouseDrawPanel;
 		private var _colorNum:int = 1;
-		private var _thicknessNum:int = 1;
+		private var _thicknessNum:int = 5;
 		private var _typeNum:int = 1;
 		
 		public function MouseDraw(drawArea:DisplayObjectContainer,canvas:Canvas,panWidth:uint,penType:String,panel:MouseDrawPanel)
@@ -53,7 +53,7 @@ package As
 		
 		private function onMouseDown1(event:MouseEvent):void
 		{
-			if (stage) {
+			if (stage && this.visible) {
 				_point = new Point(mouseX, mouseY);
 				var _s:Sprite = new Sprite
 				_newSprite = _s; 
@@ -82,7 +82,7 @@ package As
 				//畫直虛線
 				_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
-				drawDashed(_newSprite.graphics, _point, new Point(mouseX, mouseY), 5, 20);
+				drawDashed(_newSprite.graphics, _point, new Point(mouseX, mouseY), 5 * _thicknessNum, 5 * _thicknessNum);
 			}else if (_typeNum == 3) {
 				//畫直實線
 				_newSprite.graphics.clear();
@@ -91,6 +91,22 @@ package As
 				_newSprite.graphics.lineTo(mouseX, mouseY);
 			}else if (_typeNum == 4) {
 				//畫箭頭
+				_newSprite.graphics.clear();
+				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
+				_newSprite.graphics.moveTo(_point.x, _point.y);
+				//_newSprite.graphics.lineTo(mouseX, mouseY);
+				//trace(Math.sin(mouseY)*180,Math.cos(mouseX)*180);
+				var a:Number = Point.distance(_point, new Point(mouseX, mouseY));
+				var b:Number = 20;
+				var A:Number=100*2*Math.PI/360;
+				//var c:Number = Math.sqrt(a * a + b * b);
+				trace(a, b, A);
+				//var x = (a * a + b * b - c * c) / (2 * a);
+				//var y = Math.sqrt(b * b - x * x);
+				//_newSprite.graphics.lineTo(_point.x+a,_point.y);
+				_newSprite.graphics.lineTo(mouseX, mouseY);
+				_newSprite.graphics.lineTo(mouseX+b*Math.cos(A),mouseY+b*Math.sin(A));
+				//_newSprite.graphics.lineTo(_point.x, _point.y);
 			}
 			
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas

@@ -209,6 +209,7 @@ package As
 			eBookDataSharedObject.data.memoData = floating.goSave();
 			eBookDataSharedObject.flush()*/;	//存入SharedObject
 			
+			changeTool();
 			allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
 			saveFileWindows_mc.saveArray = allPageData;
 			saveFileWindows_mc.initLine();
@@ -219,6 +220,7 @@ package As
 		//讀取舊檔
 		private function loadCanvas(e:MouseEvent):void 
 		{
+			changeTool();
 			loadFileWindows_mc.initLine();
 			addChild(loadFileWindows_mc);
 			loadFileWindows_mc.visible = true;
@@ -303,7 +305,11 @@ package As
 			floating.mouseEnabled = false;
 			addChild(drawPanel_mc);
 			drawPanel_mc.visible = true;
-			pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a", drawPanel_mc); trace("Main:",pdf_mc.numChildren);
+			if (pencil) {
+				pencil.visible = true;
+			}else {
+				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
+			}
 			pdf_mc.addChild(pencil);
 			 trace("Main:",pdf_mc.numChildren);
 		}
@@ -328,7 +334,8 @@ package As
 		{	
 			try 
 			{ 
-				pdf_mc.removeChild(pencil);
+				//pdf_mc.removeChild(pencil);
+				pencil.visible = false;
 			} 
 			catch (err:Error) 
 			{ 
@@ -344,6 +351,7 @@ package As
 			} 
 			removeEventListener(Event.ENTER_FRAME, goHitTest);
 			goEvent();
+			drawPanel_mc.visible = false;
 			changeMouse();
 			canvas_mc.mouseChildren = true;
 			canvas_mc.mouseEnabled = true;
@@ -351,6 +359,7 @@ package As
 			floating.mouseEnabled = true;
 		}
 		
+		//變換鼠標樣式
 		private function changeMouse(_s:String = null):void {
 			if (!_s) { 
 				followMouse_mc.gotoAndStop(1);
