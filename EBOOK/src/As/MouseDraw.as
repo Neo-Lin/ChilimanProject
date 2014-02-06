@@ -1,5 +1,6 @@
 package As
 {
+	import com.dncompute.graphics.GraphicsUtil;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
@@ -16,7 +17,7 @@ package As
 		private var _newSprite:Sprite;
 		private var _point:Point;
 		private var _panel:MouseDrawPanel;
-		private var _colorNum:int = 1;
+		private var _colorNum:int = 0;
 		private var _thicknessNum:int = 5;
 		private var _typeNum:int = 1;
 		
@@ -27,13 +28,27 @@ package As
 			_drawArea = drawArea;	//可繪圖區域
 			_canvas = canvas;		//實際放繪圖的元件
 			_panWidth = panWidth;	//畫筆粗
-			_penType = penType;		//畫筆類型
 			_panel = panel;			//控制面板:選色,粗細,樣式
+			
+			changePenType(penType);
 			
 			_drawArea.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
 			_panel.addEventListener("Change_Thickness", changeThickness);
 			_panel.addEventListener("Change_Color", changeColor);
 			_panel.addEventListener("Change_Type", ChangeType);
+		}
+		
+		public function changePenType(penType:String):void {
+			_penType = penType;		//畫筆類型
+			if (_penType == "b") {
+				_thicknessNum = 25;
+				_colorNum = 16776960;
+				_panel.gotoAndStop(2);
+			}else {
+				_thicknessNum = 5;
+				_colorNum = 0;
+				_panel.gotoAndStop(1);
+			}
 		}
 		
 		private function changeThickness(e:Event):void 
@@ -59,7 +74,12 @@ package As
 				_newSprite = _s; 
 				_newSprite.graphics.lineStyle(_panWidth);
 				_newSprite.graphics.moveTo(_point.x, _point.y);
-				stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+				
+				if (_penType == "b") {
+					stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove2);
+				}else{
+					stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+				}
 				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 			}
 		}
@@ -67,6 +87,7 @@ package As
 		private function onMouseUp1(event:MouseEvent):void
 		{
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove2);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 			if(_newSprite.width > 0) _canvas.canvasAdded();		//如果有畫,請Canvas更新步驟陣列stepArray
 			trace("MouseDraw:", _drawArea.numChildren, _canvas.numChildren);
@@ -93,22 +114,22 @@ package As
 				//畫箭頭
 				_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
-				_newSprite.graphics.moveTo(_point.x, _point.y);
-				//_newSprite.graphics.lineTo(mouseX, mouseY);
-				//trace(Math.sin(mouseY)*180,Math.cos(mouseX)*180);
-				var a:Number = Point.distance(_point, new Point(mouseX, mouseY));
-				var b:Number = 20;
-				var A:Number=100*2*Math.PI/360;
-				//var c:Number = Math.sqrt(a * a + b * b);
-				trace(a, b, A);
-				//var x = (a * a + b * b - c * c) / (2 * a);
-				//var y = Math.sqrt(b * b - x * x);
-				//_newSprite.graphics.lineTo(_point.x+a,_point.y);
-				_newSprite.graphics.lineTo(mouseX, mouseY);
-				_newSprite.graphics.lineTo(mouseX+b*Math.cos(A),mouseY+b*Math.sin(A));
-				//_newSprite.graphics.lineTo(_point.x, _point.y);
+				
+				GraphicsUtil.drawArrow(_newSprite.graphics, _point,new Point(mouseX, mouseY),
+				{shaftThickness:1,headWidth:40,headLength:40,
+				shaftPosition:1,edgeControlPosition:.5});
 			}
 			
+			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas
+		}
+		
+		private function onMouseMove2(event:MouseEvent):void
+		{
+			//畫螢光直實線
+			_newSprite.graphics.clear();
+			_newSprite.graphics.lineStyle(_thicknessNum, _colorNum, .4);
+			_newSprite.graphics.moveTo(_point.x, _point.y);
+			_newSprite.graphics.lineTo(mouseX, mouseY);
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas
 		}
 		
@@ -117,6 +138,7 @@ package As
 			removeEventListener(Event.REMOVED_FROM_STAGE, onRemove);
 			_drawArea.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown1);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove2);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
 		}
 		

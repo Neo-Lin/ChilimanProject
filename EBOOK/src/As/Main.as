@@ -34,7 +34,7 @@ package As
 		private var bookUrl:URLRequest = new URLRequest("book1_1.swf");
 		public static var _undo:UndoManager=new UndoManager();
         public static var _redo:UndoManager = new UndoManager();   
-		private var loadingPage:LoadingPage;
+		private var loadingPage:LoadingPage;	//載入書本頁面
 		private var allPageData:Array = [];
 		
 		//private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
@@ -179,6 +179,7 @@ package As
 		private function goEvent():void {
 			zoomIn_btn.addEventListener(MouseEvent.CLICK, zoomInStart);
 			draw_btn.addEventListener(MouseEvent.CLICK, drawStart);
+			lightPen_btn.addEventListener(MouseEvent.CLICK, drawStart);
 			pick_btn.addEventListener(MouseEvent.CLICK, pickStart);
 			ctrlZ_btn.addEventListener(MouseEvent.CLICK, ctrlZ);
 			ctrlY_btn.addEventListener(MouseEvent.CLICK, ctrlY);
@@ -190,6 +191,47 @@ package As
 			nextPage_btn.addEventListener(MouseEvent.CLICK, goNextPage);
 			Minimize_btn.addEventListener(MouseEvent.CLICK, goMinimize);
 			close_btn.addEventListener(MouseEvent.CLICK, goClose);
+			pageList_btn.addEventListener(MouseEvent.CLICK, goPageList);
+			bookmark_btn.addEventListener(MouseEvent.CLICK, goBookMark);
+		}
+		
+		//書籤
+		private function goBookMark(e:MouseEvent):void 
+		{
+			
+		}
+		
+		//目錄
+		private function goPageList(e:MouseEvent):void 
+		{
+			loadingPage.visible = false;
+			var _n:int = loadingPage.pageDataXML.list.lesson.length();
+			var _i:int;
+			for (var i:int = 0; i < _n; i++) {
+				var _l:ListBtn = new ListBtn();
+				_l.lessonName_txt.text = loadingPage.pageDataXML.list.lesson[i].@lessonName;
+				_i = int(loadingPage.pageDataXML.list.lesson[i].@lessonPageNumber);
+				_l.lessonPageNumber_txt.text = loadingPage.pageDataXML.book.page[_i].@pageNumber;
+				_l.name = loadingPage.pageDataXML.list.lesson[i].@lessonPageNumber;
+				_l.y = 45 * i;
+				bookListAndMark_mc.list_mc.addChild(_l);
+				_l.addEventListener(MouseEvent.MOUSE_OVER, listBtnMOver);
+				_l.addEventListener(MouseEvent.MOUSE_OUT, listBtnMOut);
+				_l.addEventListener(MouseEvent.CLICK, listBtnClick);
+			}
+		}
+		private function listBtnClick(e:MouseEvent):void 
+		{
+			loadingPage.visible = true;
+			loadingPage.gotoPage(int(e.currentTarget.name));
+		}
+		private function listBtnMOver(e:MouseEvent):void 
+		{
+			e.currentTarget.gotoAndStop(2);
+		}
+		private function listBtnMOut(e:MouseEvent):void 
+		{
+			e.currentTarget.gotoAndStop(1);
 		}
 		
 		//上一頁/下一頁
@@ -293,7 +335,7 @@ package As
 			changeTool();
 		}
 		
-		//畫圖
+		//畫圖 螢光筆
 		private function drawStart(e:MouseEvent):void 
 		{	
 			changeTool();
@@ -307,6 +349,13 @@ package As
 			drawPanel_mc.visible = true;
 			if (pencil) {
 				pencil.visible = true;
+				if (e.currentTarget.name == "lightPen_btn") { //螢光筆
+					pencil.changePenType("b");
+				}else {
+					pencil.changePenType("a");
+				}
+			}else if (e.currentTarget.name == "lightPen_btn") { //螢光筆
+				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "b", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
 			}else {
 				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
 			}

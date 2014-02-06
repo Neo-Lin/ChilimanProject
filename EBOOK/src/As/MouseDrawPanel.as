@@ -2,7 +2,7 @@ package As
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-	import flash.display.Sprite;
+	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Matrix;
@@ -13,9 +13,9 @@ package As
 	 * 筆畫的顏色,粗細,類型
 	 * @author Neo
 	 */
-	public class MouseDrawPanel extends Sprite 
+	public class MouseDrawPanel extends MovieClip 
 	{
-		private var _colorNum:int = 1;
+		private var _colorNum:int = 0;
 		private var _thicknessNum:int = 1;
 		private var _typeNum:int = 1;
 		private var pixel:BitmapData; 
@@ -79,7 +79,7 @@ package As
 				}else {
 					//取得顏色
 					_colorNum = pixel.getPixel(mouseX, mouseY);
-				}
+				}	//trace(_colorNum);
 				this.dispatchEvent(new Event("Change_Color"));
 			}else if (_s.slice(0, _s.indexOf("_") - 1) == "type") {		//線段類型
 				_typeNum = int(_s.substr(_s.indexOf("_") - 1, 1));

@@ -376,6 +376,18 @@ package As
 			return _bookNowPage;
 		}
 		
+		public function get pageDataXML():XML 
+		{
+			return pageXML;
+		}
+		
+		public function gotoPage(_n:int):void{
+			_bookNowPage = _n;
+			bookNum = 0;
+			xmlComplete(null);
+			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, bookLoaderComplete);
+		}
+		
 		private function goFlip(_x:Number = 20, _y:Number = 20):void {
 			_render.graphics.clear(); 
 			var o:Object=PageFlip.computeFlip(	new Point(_x, _y),	// flipped point

@@ -15,4 +15,10 @@
 	<page pageUrl="Book/Lesson4/book4_5.swf" pageNumber="11" miniatureUrl="PageContent/Miniature/Book/book_1_4_14.jpg" />
 	<page pageUrl="Book/Lesson4/book4_6.swf" pageNumber="12" miniatureUrl="PageContent/Miniature/Book/book_1_4_15.jpg" />
   </book>
+  <list>
+	  <lesson lessonNumber="1" lessonName="第一章" lessonPageNumber="0" />
+	  <lesson lessonNumber="2" lessonName="第二章" lessonPageNumber="2" />
+	  <lesson lessonNumber="3" lessonName="第三章" lessonPageNumber="4" />
+	  <lesson lessonNumber="4" lessonName="第四章" lessonPageNumber="6" />
+  </list>
 </content>
