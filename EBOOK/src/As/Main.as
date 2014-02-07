@@ -52,9 +52,9 @@ package As
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
 			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);
-			stage.addEventListener(LoadingPageEvent.START_TURN_PAGE, hideCanvas);
-			stage.addEventListener(LoadingPageEvent.STOP_TURN_PAGE, showCanvas);
-			stage.addEventListener(LoadingPageEvent.STOP_TURN_PAGE_AND_CHANGE, changeCanvas);
+			stage.addEventListener(LoadingPageEvent.START_TURN_PAGE, hideCanvas);	//開始翻頁隱藏畫布
+			stage.addEventListener(LoadingPageEvent.STOP_TURN_PAGE, showCanvas);	//沒有翻頁,顯示畫布
+			stage.addEventListener(LoadingPageEvent.STOP_TURN_PAGE_AND_CHANGE, changeCanvas);	//翻頁結束,更新畫布
 			
 			trace(Capabilities.version, Capabilities.isDebugger, Capabilities.manufacturer);
 			
@@ -204,6 +204,7 @@ package As
 		//目錄
 		private function goPageList(e:MouseEvent):void 
 		{
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.START_TURN_PAGE));
 			loadingPage.visible = false;
 			var _n:int = loadingPage.pageDataXML.list.lesson.length();
 			var _i:int;

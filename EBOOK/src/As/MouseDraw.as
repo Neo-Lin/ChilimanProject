@@ -72,7 +72,7 @@ package As
 				_point = new Point(mouseX, mouseY);
 				var _s:Sprite = new Sprite
 				_newSprite = _s; 
-				_newSprite.graphics.lineStyle(_panWidth);
+				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
 				_newSprite.graphics.moveTo(_point.x, _point.y);
 				
 				if (_penType == "b") {
@@ -97,7 +97,7 @@ package As
 		{
 			if (_typeNum == 1) {
 				//隨便畫
-				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
+				//_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
 				_newSprite.graphics.lineTo(mouseX, mouseY);
 			}else if (_typeNum == 2) {
 				//畫直虛線

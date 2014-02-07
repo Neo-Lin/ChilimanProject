@@ -384,8 +384,10 @@ package As
 		public function gotoPage(_n:int):void{
 			_bookNowPage = _n;
 			bookNum = 0;
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.STOP_TURN_PAGE_AND_CHANGE));
 			xmlComplete(null);
 			bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, bookLoaderComplete);
+			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.STOP_TURN_PAGE));
 		}
 		
 		private function goFlip(_x:Number = 20, _y:Number = 20):void {

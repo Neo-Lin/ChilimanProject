@@ -20,7 +20,7 @@ package As
 		private var _affectObj:Object = new Object();
 		
 		public function TransformOperation(affectObj:Object, previousX:Number, previousY:Number, currentX:Number, currentY:Number, previousVisible:Boolean, currentVisible:Boolean)
-		{
+		{	
 			_previousX = previousX;
 			_previousY = previousY;
 			_previousVisible = previousVisible;
@@ -36,16 +36,30 @@ package As
 		
 		public function performUndo():void
 		{
-			_affectObj.x = _previousX;
-			_affectObj.y = _previousY;
-			_affectObj.visible = _previousVisible;
+			if (affectObj is Array) {	//一次多個物件
+				var n:int = _affectObj.length;
+				for (var i:int = 0; i < n; i++) {
+					_affectObj[i].visible = _previousVisible;
+				}
+			}else {	//單個物件
+				_affectObj.x = _previousX;
+				_affectObj.y = _previousY;
+				_affectObj.visible = _previousVisible;
+			}
 		}
 		
 		public function performRedo():void
 		{
-			_affectObj.x = _currentX;
-			_affectObj.y = _currentY;
-			_affectObj.visible = _currentVisible;
+			if (affectObj is Array) {	//一次多個物件
+				var n:int = _affectObj.length;
+				for (var i:int = 0; i < n; i++) {
+					_affectObj[i].visible = _currentVisible;
+				}
+			}else {	//單個物件
+				_affectObj.x = _currentX;
+				_affectObj.y = _currentY;
+				_affectObj.visible = _currentVisible;
+			}
 			//trace(_currentX + '  ' + _currentY);
 		}
 		
