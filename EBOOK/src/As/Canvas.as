@@ -114,7 +114,8 @@ package As
 		
 		//橡皮擦
 		public function eraser():void {
-			for (var i:uint = 0; i < numChildren; i++) {
+			var _n:uint = this.numChildren; 
+			for (var i:uint = 0; i < _n; i++) {
 				if (getChildAt(i).hitTestPoint(mouseX, mouseY, true) && getChildAt(i).visible == true) {	trace(getChildAt(i).name,i);
 					if (nowStep != stepArray.length) {	//步驟數與陣列數量不相等,表示undo過
 						goClear();
@@ -129,6 +130,25 @@ package As
 					break;
 				}
 			}
+		}
+		
+		//全部刪除
+		public function allClear():Array {
+			var _a = [];
+			var _n:uint = this.numChildren; 
+			for (var i:uint = 0; i < _n; i++) {
+				if (getChildAt(i).visible) {	//trace(getChildAt(i).name,i);
+					if (nowStep != stepArray.length) {	//步驟數與陣列數量不相等,表示undo過
+						goClear();
+					}
+					nowStep ++;
+					getChildAt(i).visible = false;
+					stepArray.push(null);		//刪除並沒有新增物件,所以放入null
+					
+					_a.push(getChildAt(i));
+				}
+			}
+			return _a;
 		}
 		
 		//劃出存檔的繪圖物件

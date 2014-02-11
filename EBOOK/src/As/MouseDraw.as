@@ -1,5 +1,6 @@
 package As
 {
+	import ascb.drawing.Pen;
 	import com.dncompute.graphics.GraphicsUtil;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
@@ -44,6 +45,8 @@ package As
 				_thicknessNum = 25;
 				_colorNum = 16776960;
 				_panel.gotoAndStop(2);
+			}else if (_penType == "c") {
+				_typeNum = 5;
 			}else {
 				_thicknessNum = 5;
 				_colorNum = 0;
@@ -95,6 +98,8 @@ package As
 		
 		private function onMouseMove1(event:MouseEvent):void
 		{
+			var point:int = Point.distance(_point, new Point(mouseX, mouseY));
+			var pen:Pen;
 			if (_typeNum == 1) {
 				//隨便畫
 				//_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
@@ -118,6 +123,40 @@ package As
 				GraphicsUtil.drawArrow(_newSprite.graphics, _point,new Point(mouseX, mouseY),
 				{shaftThickness:1,headWidth:40,headLength:40,
 				shaftPosition:1,edgeControlPosition:.5});
+			}else if (_typeNum == 15) {
+				//畫圓圈
+				_newSprite.graphics.clear();
+				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
+				_newSprite.graphics.beginFill(0xFFFFFF);
+				_newSprite.graphics.drawCircle(_point.x, _point.y, point);
+				//_newSprite.graphics.endFill();
+			}else if (_typeNum == 15) {
+				//畫正方形
+				_newSprite.graphics.clear();
+				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
+				_newSprite.graphics.beginFill(0xFFFFFF);
+				_newSprite.graphics.drawRect(_point.x, _point.y, mouseX - _point.x, mouseY - _point.y);
+			}else if (_typeNum == 15) {
+				//畫三角形
+				pen = new Pen(_newSprite.graphics);
+				pen.clear();
+				pen.lineStyle(_thicknessNum, _colorNum);
+				pen.beginFill(0xFFFFFF);
+				pen.drawRegularPolygon(_point.x, _point.y, 3, point * 2, 30);
+			}else if (_typeNum == 15) {
+				//畫五角形
+				pen = new Pen(_newSprite.graphics);
+				pen.clear();
+				pen.lineStyle(_thicknessNum, _colorNum);
+				pen.beginFill(0xFFFFFF);
+				pen.drawRegularPolygon(_point.x, _point.y, 5, point, -18);
+			}else if (_typeNum == 5) {
+				//畫星形
+				pen = new Pen(_newSprite.graphics);
+				pen.clear();
+				pen.lineStyle(_thicknessNum, _colorNum);
+				pen.beginFill(0xFFFFFF);
+				pen.drawStar(_point.x, _point.y, 5, point/3, point);
 			}
 			
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas

@@ -57,6 +57,21 @@ package As
 			}
 			return _a;
 		}
+		
+		//全部刪除
+		public function allClear():Array {
+			var _a = [];
+			var _n:uint = this.numChildren; 
+			for (var i:int = 0; i < _n; i++) {		//取得所有場景物件
+				var _m:Memo = this.getChildAt(i) as Memo;
+				//若visible == false表示答案貼被撕除,alpha < 0表示答案貼撕除中
+				if (_m.visible == true && _m.alpha == 1) {	
+					_m.visible = false;
+					_a.push(_m);
+				}
+			}
+			return _a;
+		}
 	}
 
 }

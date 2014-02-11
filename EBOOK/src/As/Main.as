@@ -6,13 +6,13 @@ package As
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.display.StageDisplayState;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.net.SharedObject;
-	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.system.Capabilities;
 	import flash.ui.Mouse;
@@ -193,12 +193,41 @@ package As
 			close_btn.addEventListener(MouseEvent.CLICK, goClose);
 			pageList_btn.addEventListener(MouseEvent.CLICK, goPageList);
 			bookmark_btn.addEventListener(MouseEvent.CLICK, goBookMark);
+			allClear_btn.addEventListener(MouseEvent.CLICK, goAllClear);
+			windowsMode_btn.addEventListener(MouseEvent.CLICK, goWindowsMode);
+			drawCircle_btn.addEventListener(MouseEvent.CLICK, drawStart);
+		}
+		
+		private function goDrawCircle(e:MouseEvent):void 
+		{
+			
+		}
+		
+		//視窗模式切換
+		private function goWindowsMode(e:MouseEvent):void 
+		{
+			if (stage.displayState == StageDisplayState.NORMAL) {
+				stage.displayState = StageDisplayState.FULL_SCREEN;
+				//stage.nativeWindow.maximize();
+			}else {
+				stage.nativeWindow.restore();
+				//stage.displayState = StageDisplayState.NORMAL; 
+			}
+		}
+		
+		//全部刪除
+		private function goAllClear(e:MouseEvent):void 
+		{
+			var _a = canvas_mc.allClear().concat(floating.allClear());
+			var operation:TransformOperation = new TransformOperation(_a, 0, 0, 0, 0, true, false);
+			stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
 		}
 		
 		//書籤
 		private function goBookMark(e:MouseEvent):void 
 		{
-			
+			var bm:BookMark = new BookMark(loadingPage.bookNowPage);
+			this.addChild(bm);
 		}
 		
 		//目錄
@@ -253,6 +282,7 @@ package As
 			eBookDataSharedObject.flush()*/;	//存入SharedObject
 			
 			changeTool();
+			//把goSave()得到的array再包起來,配合現在頁面的編號存在相對應的array格子裡
 			allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
 			saveFileWindows_mc.saveArray = allPageData;
 			saveFileWindows_mc.initLine();
@@ -351,12 +381,18 @@ package As
 			if (pencil) {
 				pencil.visible = true;
 				if (e.currentTarget.name == "lightPen_btn") { //螢光筆
+					changeMouse("lightPen");
 					pencil.changePenType("b");
+				}else if (e.currentTarget.name == "drawCircle_btn") { //圓
+					pencil.changePenType("c");
 				}else {
 					pencil.changePenType("a");
 				}
 			}else if (e.currentTarget.name == "lightPen_btn") { //螢光筆
+				changeMouse("lightPen");
 				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "b", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
+			}else if (e.currentTarget.name == "drawCircle_btn") { //圓
+				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "c", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
 			}else {
 				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
 			}
