@@ -36,8 +36,8 @@ package As
         public static var _redo:UndoManager = new UndoManager();   
 		private var loadingPage:LoadingPage;	//載入書本頁面
 		private var allPageData:Array = [];
+		private var bm:BookMark;	//書籤功能
 		
-		//private var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
 		private var saveFile:File;
 		
 		public function Main():void 
@@ -58,15 +58,26 @@ package As
 			
 			trace(Capabilities.version, Capabilities.isDebugger, Capabilities.manufacturer);
 			
-			/*bookLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loader_complete);
-			bookLoader.load(bookUrl);
-			pdf_mc.addChild(bookLoader);*/
-			
 			//載入書本
 			loadingPage = new LoadingPage();
 			loadingPage.x = 17;
 			loadingPage.y = 10;
 			addChild(loadingPage);
+			
+			//書籤功能
+			bm = new BookMark();
+			bm.addEventListener("go_page", bookMarkGoPage); //前往書籤
+			bm.addEventListener("renew_list", goPageListBookMark); //按確定關閉新增書籤面板bookMarkPanel_mc
+			bm.addEventListener("delete_list", checkBookMark); //刪除打勾或全部書籤
+			tag_mc.addEventListener(MouseEvent.CLICK, showBookMark);
+			bm.visible = tag_mc.visible = false;
+			bm.x = (stage.stageWidth - bm.width) / 2;
+			bm.y = (stage.stageHeight - bm.height) / 2;
+			this.addChild(bm);
+			this.addChild(tag_mc);
+			
+			bookListAndMark_mc.pageList_btn.addEventListener(MouseEvent.CLICK, goPageList);
+			bookListAndMark_mc.bookmark_btn.addEventListener(MouseEvent.CLICK, goPageListBookMark);
 			
 			canvas_mc = new Canvas();
 			addChild(canvas_mc);
@@ -78,7 +89,7 @@ package As
 			
 			followMouse_mc.mouseEnabled = false;
 			
-			addChild(new Stats());
+			//addChild(new Stats());
 			
 			goEvent();
 			
@@ -94,7 +105,7 @@ package As
 		private function hideCanvas(e:LoadingPageEvent):void 
 		{
 			changeTool();
-			floating.visible = canvas_mc.visible = false;
+			floating.visible = canvas_mc.visible = tag_mc.visible = false;
 			allPageData = loadFileWindows_mc.saveArray;	 
 			if (allPageData) {
 				allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
@@ -103,6 +114,8 @@ package As
 		private function showCanvas(e:LoadingPageEvent):void 
 		{
 			floating.visible = canvas_mc.visible = true;
+			//檢查有無書籤,有就顯示
+			checkBookMark();
 		}
 		
 		//顯示/隱藏載入中圖示
@@ -116,65 +129,17 @@ package As
 			_bar.visible = false;
 		}
 		
-		//還原存檔的繪圖
-		/*private function goCheckSave():void 
-		{
-			saveFile = new File(File.applicationDirectory.resolvePath("save/eBookData.ebk").nativePath);
-			trace("還原存檔繪圖=============", saveFile.exists, File.applicationStorageDirectory.nativePath, File.applicationDirectory.nativePath);
-			if (saveFile.exists) {	 //如果檔案存在
-				var fileStream:FileStream = new FileStream(); 
-				//開啟為讀取狀態
-				fileStream.open(saveFile, FileMode.READ); 
-				//讀檔
-				var _a:Array = fileStream.readObject(); 
-				fileStream.close();
-				//還原存檔的繪圖
-				if (_a[0].length > 0) {
-					canvas_mc.reDrawSave(_a[0]);
-				}
-				if (_a[1].length > 0) {
-					floating.reDrawSave(_a[1]);
-				}
-			}
-		}	*/
-			
+		//增加可復原的步驟紀錄
 		private function goPushUndo(e:UndoManagerEvent):void 
 		{	
 			if(_redo.canRedo()) _redo.clearRedo();
 			_undo.pushUndo(e.tfo);
 		}
-		
+		//刪除可重作的步驟紀錄
 		private function goClearRedo(e:UndoManagerEvent):void 
 		{
 			_redo.clearRedo();
 		}
-		
-		//還原存檔的繪圖
-		/*private function goCheckSave():void 
-		{
-			var eBookDataSharedObject:SharedObject = SharedObject.getLocal("eBookData");
-			if (eBookDataSharedObject.data.graphicsData) {
-				canvas_mc.reDrawSave(eBookDataSharedObject.data.graphicsData);
-			}
-			if (eBookDataSharedObject.data.memoData) {
-				floating.reDrawSave(eBookDataSharedObject.data.memoData);
-			}
-		}
-		
-		private function loader_complete(e:Event):void 
-		{
-			var _lmc:MovieClip = e.currentTarget.content as MovieClip;
-			var _n:uint = _lmc.numChildren;		
-			for (var i = 0; i < _n; i++) {
-				var _mc:Object = _lmc.getChildAt(i) as Object;
-				//trace(getQualifiedSuperclassName(_mc));
-				if (getQualifiedSuperclassName(_mc) == "flash.display::InteractiveObject") {
-					trace(_mc.name);
-				}else if (getQualifiedSuperclassName(_mc) == "flash.display::MovieClip") {
-					trace(_mc.name);
-				}
-			}
-		}*/
 		
 		private function goEvent():void {
 			zoomIn_btn.addEventListener(MouseEvent.CLICK, zoomInStart);
@@ -226,8 +191,31 @@ package As
 		//書籤
 		private function goBookMark(e:MouseEvent):void 
 		{
-			var bm:BookMark = new BookMark(loadingPage.bookNowPage);
+			changeTool();
+			bm.visible = true
 			this.addChild(bm);
+			bm.pageNumber = loadingPage.bookNowPage;
+			bm.showMode = "";
+			bm.loadBookMark();
+		}
+		private function bookMarkGoPage(e:Event):void 
+		{
+			loadingPage.gotoPage(e.currentTarget.showPageNumber);
+			bm.visible = false;
+		}
+		//顯示書籤內容
+		private function showBookMark(e:MouseEvent):void 
+		{
+			bm.showMode = "only";
+			bm.lookbookMark(loadingPage.bookNowPage);
+		}
+		//檢查有無書籤,有就顯示
+		private function checkBookMark(e:Event = null):void {
+			if (bm.getMarkXML.list.bookmark.(@pageNumber == loadingPage.bookNowPage).length() > 0) {
+				tag_mc.visible = true;
+			}else {
+				tag_mc.visible = false;
+			}
 		}
 		
 		//目錄
@@ -235,6 +223,8 @@ package As
 		{
 			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.START_TURN_PAGE));
 			loadingPage.visible = false;
+			clearList();
+			bookListAndMark_mc.bg_mc.gotoAndStop(1);
 			var _n:int = loadingPage.pageDataXML.list.lesson.length();
 			var _i:int;
 			for (var i:int = 0; i < _n; i++) {
@@ -251,7 +241,13 @@ package As
 			}
 		}
 		private function listBtnClick(e:MouseEvent):void 
-		{
+		{	
+			//若點選書籤的"備忘"按鈕
+			if (e.target.name == "show_btn") {
+				bm.showMode = "only";
+				bm.lookbookMark(e.currentTarget.name);
+				return;
+			}
 			loadingPage.visible = true;
 			loadingPage.gotoPage(int(e.currentTarget.name));
 		}
@@ -262,6 +258,37 @@ package As
 		private function listBtnMOut(e:MouseEvent):void 
 		{
 			e.currentTarget.gotoAndStop(1);
+		}
+		
+		//目錄頁的書籤
+		private function goPageListBookMark(e:Event):void 
+		{
+			clearList();
+			bookListAndMark_mc.bg_mc.gotoAndStop(2);
+			var _n:int = bm.getMarkXML.list.bookmark.length();
+			var _i:int;
+			for (var i:int = 0; i < _n; i++) {
+				var _l:PageMarkListBtn = new PageMarkListBtn();
+				_l.title_txt.text = bm.getMarkXML.list.bookmark[i].@title;
+				_l.date_txt.text = bm.getMarkXML.list.bookmark[i].@thisDate;
+				_i = int(bm.getMarkXML.list.bookmark[i].@pageNumber);
+				_l.pageNumber_txt.text = String(_i+1);
+				_l.name = bm.getMarkXML.list.bookmark[i].@pageNumber;
+				_l.y = 45 * i;
+				bookListAndMark_mc.list_mc.addChild(_l);
+				_l.addEventListener(MouseEvent.MOUSE_OVER, listBtnMOver);
+				_l.addEventListener(MouseEvent.MOUSE_OUT, listBtnMOut);
+				_l.addEventListener(MouseEvent.CLICK, listBtnClick);
+			}
+		}
+		
+		//清除bookListAndMark_mc.list_mc
+		private function clearList():void {
+			var _n:int = bookListAndMark_mc.list_mc.numChildren;
+			for (var i:int = 0; i < _n; i++) {
+				var _mc:MovieClip = bookListAndMark_mc.list_mc.getChildAt(0);
+				bookListAndMark_mc.list_mc.removeChild(_mc);
+			}
 		}
 		
 		//上一頁/下一頁
@@ -277,11 +304,8 @@ package As
 		//存檔
 		private function saveCanvas(e:MouseEvent):void 
 		{
-			/*eBookDataSharedObject.data.graphicsData = canvas_mc.goSave();
-			eBookDataSharedObject.data.memoData = floating.goSave();
-			eBookDataSharedObject.flush()*/;	//存入SharedObject
-			
 			changeTool();
+			saveFileWindows_mc.bookMark = bm;
 			//把goSave()得到的array再包起來,配合現在頁面的編號存在相對應的array格子裡
 			allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
 			saveFileWindows_mc.saveArray = allPageData;
@@ -294,6 +318,7 @@ package As
 		private function loadCanvas(e:MouseEvent):void 
 		{
 			changeTool();
+			loadFileWindows_mc.bookMark = bm;
 			loadFileWindows_mc.initLine();
 			addChild(loadFileWindows_mc);
 			loadFileWindows_mc.visible = true;
@@ -317,6 +342,7 @@ package As
 			}
 		}
 		
+		//答案貼
 		private function memoStart(e:MouseEvent):void 
 		{
 			changeTool();
@@ -326,13 +352,13 @@ package As
 			floating.addChild(_m);
 		}
 		
+		//橡皮擦
 		private function eraserStart(e:MouseEvent):void 
 		{
 			changeTool();
 			changeMouse("eraser");
 			addEventListener(Event.ENTER_FRAME, goHitTest);
 		}
-		
 		private function goHitTest(e:Event):void 
 		{
 			if (canvas_mc.hitTestPoint(mouseX, mouseY, true)) {
@@ -371,7 +397,6 @@ package As
 		{	
 			changeTool();
 			changeMouse("draw");
-			//draw_btn.removeEventListener(MouseEvent.CLICK, drawStart);
 			canvas_mc.mouseChildren = false;
 			canvas_mc.mouseEnabled = false;
 			floating.mouseChildren = false;
@@ -384,6 +409,7 @@ package As
 					changeMouse("lightPen");
 					pencil.changePenType("b");
 				}else if (e.currentTarget.name == "drawCircle_btn") { //圓
+					changeMouse("drawCircle");
 					pencil.changePenType("c");
 				}else {
 					pencil.changePenType("a");
@@ -392,6 +418,7 @@ package As
 				changeMouse("lightPen");
 				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "b", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
 			}else if (e.currentTarget.name == "drawCircle_btn") { //圓
+				changeMouse("drawCircle");
 				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "c", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
 			}else {
 				pencil = new MouseDraw(loadingPage, canvas_mc, 10, "a", drawPanel_mc); trace("Main:", pdf_mc.numChildren);
@@ -420,7 +447,6 @@ package As
 		{	
 			try 
 			{ 
-				//pdf_mc.removeChild(pencil);
 				pencil.visible = false;
 			} 
 			catch (err:Error) 

@@ -22,6 +22,7 @@ package As
 		private var allListArray:Array = new Array();		//存檔欄位列表
 		private var saveFile:File;
 		private var fileStream:FileStream = new FileStream();
+		private var _bookMark:BookMark;
 		
 		public function SaveFileWindows() 
 		{
@@ -150,6 +151,7 @@ package As
 				if (tempFileLine.fileTime_txt.text.length == 0) {	//表示該欄位原本沒有資料
 					tempFileLine.fileName_txt.text = "";
 				}
+				saveFile.addEventListener(Event.OPEN, getUrl);
 				var ba:ByteArray = new ByteArray();
 				ba.writeObject(_saveArray);
 				saveFile.save(ba);
@@ -176,6 +178,11 @@ package As
 			renewAllListArray();
 			
 			parent.removeChild(this);
+		}
+		private function getUrl(e:Event):void 
+		{
+			trace("===:::getUrl:", e.currentTarget.url);
+			_bookMark.fireNameSave = e.currentTarget.url;
 		}
 		
 		//初始化存檔欄位
@@ -270,6 +277,12 @@ package As
 		public function set saveArray(value:Array):void 
 		{
 			_saveArray = value;
+		}
+		
+		//接收bookmark物件,這樣存檔時才能傳存檔路徑給書籤
+		public function set bookMark(value:BookMark):void 
+		{
+			_bookMark = value;
 		}
 		
 		//關閉自己

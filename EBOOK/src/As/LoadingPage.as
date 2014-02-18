@@ -28,7 +28,7 @@ package As
 		private var bookLoader:Loader = new Loader();
 		private var bookUrl:URLRequest = new URLRequest();
 		private var bookNum:int = 0;		//紀錄目前載入到第幾頁,每次載入六頁(顯示的頁面及前後兩頁)
-		private var _bookNowPage:int = 4;	//目前頁面號碼
+		private var _bookNowPage:int = 6;	//目前頁面號碼
 		
 		//放載入進來的頁面
 		private var bookVector:Vector.<MovieClip> = new Vector.<MovieClip>();
@@ -201,6 +201,7 @@ package As
 		//顯示下一頁,繪製翻頁畫面,開始翻頁時要做的事情
 		private function turnLeft():void 
 		{
+			if (backRightPage.numChildren > 0) backRightPage.removeChildAt(0);
 			backRightPage.addChild(bookVector[5]);
 			page0.draw(frontRightPage);
 			if(frontRightPage.numChildren > 0) frontRightPage.removeChildAt(0);
@@ -212,10 +213,11 @@ package As
 			autoTurnPagePoint.y = page0.height;
 		}
 		private function turnRight():void 
-		{
-			backLeftPage.addChild(bookVector[0]);
+		{	
+			if (backLeftPage.numChildren > 0) backLeftPage.removeChildAt(0);
+			backLeftPage.addChild(bookVector[0]);	
 			page0.draw(frontLeftPage);
-			if(frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
+			if (frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
 			page1.draw(bookVector[1]);
 			
 			dragPoint = new Point(0, 1);
@@ -326,7 +328,6 @@ package As
 		{
 			stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_OPEN));
 			bookUrl.url = pageXML.book.page[_bookNowPage].@pageUrl;
-			trace("=====",bookUrl.url,_bookNowPage);
 			bookLoader.load(bookUrl);
 		}
 		
@@ -334,16 +335,17 @@ package As
 		{	
 			bookVector[bookNum] = bookLoader.content as MovieClip;
 			//addChild(bookVector[_bookNowPage]);
-			
 			if (bookNum == 2) {
+				if (frontLeftPage.numChildren > 0) frontLeftPage.removeChildAt(0);
 				frontLeftPage.addChild(bookVector[bookNum]);
 				frontLeftPage.name = String(_bookNowPage);
 			}else if (bookNum == 3) {
+				if (frontRightPage.numChildren > 0) frontRightPage.removeChildAt(0);
 				frontRightPage.addChild(bookVector[bookNum]);
 				frontRightPage.name = String(_bookNowPage);
 			}
-			
-			if (bookNum < 5) {
+			//載入未滿六頁而且還有頁面可以載入
+			if (bookNum < 5 && _bookNowPage+1 < pageXML.book.page.length()) {
 				bookNum++;
 				_bookNowPage++;
 				startLoadingPage();
@@ -353,6 +355,7 @@ package As
 				bookNum = 1;
 				bookLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, bookLoaderComplete);
 				stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.LOAD_COMPLETE));
+				stage.dispatchEvent(new LoadingPageEvent(LoadingPageEvent.STOP_TURN_PAGE));
 			}
 		}
 		

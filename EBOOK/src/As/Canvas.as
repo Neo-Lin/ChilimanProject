@@ -154,9 +154,14 @@ package As
 		//劃出存檔的繪圖物件
 		public function reDrawSave(soArray:Array):void {
 			graphicsDataArray = soArray;
-			var _i:uint = graphicsDataArray.length;
+			var _i:uint = graphicsDataArray.length;	
 			for (var i:uint = 0; i < _i; i++) { //陣列內容:[thickness(筆粗),color,alpha,commands(動作代號),data(動作路徑),x,y]
 				var _s:Sprite = new Sprite();
+				if (graphicsDataArray[i].length == 6) {	//形狀會多帶一筆填色
+					var gf = graphicsDataArray[i].pop();
+					//trace("還原填色");
+					_s.graphics.beginFill(gf[0], gf[1]);
+				}
 				_s.graphics.lineStyle(graphicsDataArray[i][0], graphicsDataArray[i][1], graphicsDataArray[i][2]);
 				//_s.graphics.drawPath(graphicsDataArray[i][2], graphicsDataArray[i][3]); 
 				//_s.x = graphicsDataArray[i][4];
@@ -177,28 +182,38 @@ package As
 			for (var i:int = 0; i < _n; i++) {		//取得所有場景物件的IGraphicsData
 				var _s:Sprite = this.getChildAt(i) as Sprite;
 				if (_s.visible == true) {	//若visible == false表示繪圖物件被undo或被橡皮擦掉
-					var v:Vector.<IGraphicsData> = _s.graphics.readGraphicsData();
+					var v:Vector.<IGraphicsData> = _s.graphics.readGraphicsData();	
 					var graphicsDataTemp:Array = new Array();	//一個陣列對應一個繪圖物件,[thickness(筆粗),color,alpha,commands(動作代號),data(動作路徑),x,y]
 					var j:uint = v.length;
+					if (j == 7) {	//表示是形狀物件,形狀物件前三個是填色資料,後四筆才是筆劃資料
+						//取得填色資料
+						var gf:GraphicsSolidFill = v[0] as GraphicsSolidFill;
+						v = v.slice(3);
+						j = 4;
+					}
 					for (var _j:int = 0; _j < j; _j++) {
 						if (v[_j] as GraphicsPath) {	//判斷是否為GraphicsPath
 							var p:GraphicsPath = v[_j] as GraphicsPath;	//取出commands(動作代號)跟data(動作路徑))
 							graphicsDataTemp.push(p.commands,p.data);
-							//trace("graphicsDataTemp::::::",p.commands,p.data);
+							//trace("graphicsDataTemp1::::::",p.commands,p.data);
 						}else if (v[_j] as GraphicsStroke && _j < 3) {  //只取一次,虛線會有很多筆一樣的
 							var gs:GraphicsStroke = v[_j] as GraphicsStroke;
 							if (gs.fill) {		//一組筆劃很奇怪的會帶兩個GraphicsStroke,其中一個才有正確的fill屬性,所以要判斷
 								var gsf:GraphicsSolidFill = gs.fill as GraphicsSolidFill;	//取出thickness(筆粗),color,alpha)
 								graphicsDataTemp.push(gs.thickness, gsf.color, gsf.alpha);
-								//trace("graphicsDataTemp::::::",gs.thickness, gsf.color, gsf.alpha);
+								//trace("graphicsDataTemp2::::::",gs.thickness, gsf.color, gsf.alpha);
 							}
-							//trace(gs.caps,gs.fill,gs.joints,gs.miterLimit,gs.pixelHinting,gs.scaleMode,gs.thickness);
+							//trace(":::",gs.caps,gs.fill,gs.joints,gs.miterLimit,gs.pixelHinting,gs.scaleMode,gs.thickness);
 						}
+					}
+					if (gf) {	//如果有填色資料就加在最後一筆
+						graphicsDataTemp.push([gf.color, gf.alpha]);
+						gf = null;
 					}
 					//graphicsDataTemp.push(_s.x, _s.y);	//取出x跟y
 					graphicsDataArray.push(graphicsDataTemp);	
 					//trace("graphicsDataTemp:",graphicsDataTemp.length, graphicsDataTemp);
-				}
+				} 
 			}
 			//trace("graphicsDataArray:", graphicsDataArray.length, graphicsDataArray);
 			return graphicsDataArray;

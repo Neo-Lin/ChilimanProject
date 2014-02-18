@@ -23,6 +23,7 @@ package As
 		private var allListArray:Array = new Array();		//存檔欄位列表
 		private var saveFile:File;
 		private var fileStream:FileStream = new FileStream();
+		private var _bookMark:BookMark;
 		
 		public function LoadFileWindows() 
 		{
@@ -249,6 +250,12 @@ package As
 		public function get saveArray():Array 
 		{
 			return _saveArray;
+		}
+		
+		//接收bookmark物件,這樣存檔時才能傳存檔路徑給書籤
+		public function set bookMark(value:BookMark):void 
+		{
+			_bookMark = value;
 		}
 		
 		//關閉自己

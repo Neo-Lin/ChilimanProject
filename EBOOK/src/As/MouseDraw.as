@@ -41,13 +41,15 @@ package As
 		
 		public function changePenType(penType:String):void {
 			_penType = penType;		//畫筆類型
-			if (_penType == "b") {
+			if (_penType == "b") {	//螢光筆
 				_thicknessNum = 25;
 				_colorNum = 16776960;
 				_panel.gotoAndStop(2);
-			}else if (_penType == "c") {
+			}else if (_penType == "c") {  //形狀
 				_typeNum = 5;
-			}else {
+				_panel.gotoAndStop(3);
+			}else {	//畫筆
+				_typeNum = 1;
 				_thicknessNum = 5;
 				_colorNum = 0;
 				_panel.gotoAndStop(1);
@@ -123,34 +125,34 @@ package As
 				GraphicsUtil.drawArrow(_newSprite.graphics, _point,new Point(mouseX, mouseY),
 				{shaftThickness:1,headWidth:40,headLength:40,
 				shaftPosition:1,edgeControlPosition:.5});
-			}else if (_typeNum == 15) {
+			}else if (_typeNum == 6) {
 				//畫圓圈
 				_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
 				_newSprite.graphics.beginFill(0xFFFFFF);
 				_newSprite.graphics.drawCircle(_point.x, _point.y, point);
 				//_newSprite.graphics.endFill();
-			}else if (_typeNum == 15) {
+			}else if (_typeNum == 7) {
 				//畫正方形
 				_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
 				_newSprite.graphics.beginFill(0xFFFFFF);
 				_newSprite.graphics.drawRect(_point.x, _point.y, mouseX - _point.x, mouseY - _point.y);
-			}else if (_typeNum == 15) {
+			}else if (_typeNum == 5) {
 				//畫三角形
 				pen = new Pen(_newSprite.graphics);
 				pen.clear();
 				pen.lineStyle(_thicknessNum, _colorNum);
 				pen.beginFill(0xFFFFFF);
 				pen.drawRegularPolygon(_point.x, _point.y, 3, point * 2, 30);
-			}else if (_typeNum == 15) {
+			}else if (_typeNum == 8) {
 				//畫五角形
 				pen = new Pen(_newSprite.graphics);
 				pen.clear();
 				pen.lineStyle(_thicknessNum, _colorNum);
 				pen.beginFill(0xFFFFFF);
 				pen.drawRegularPolygon(_point.x, _point.y, 5, point, -18);
-			}else if (_typeNum == 5) {
+			}else if (_typeNum == 9) {
 				//畫星形
 				pen = new Pen(_newSprite.graphics);
 				pen.clear();
