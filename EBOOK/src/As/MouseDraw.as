@@ -77,10 +77,12 @@ package As
 				_point = new Point(mouseX, mouseY);
 				var _s:Sprite = new Sprite
 				_newSprite = _s; 
+				_newSprite.x = _point.x;
+				_newSprite.y = _point.y;
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
-				_newSprite.graphics.moveTo(_point.x, _point.y);
+				_newSprite.graphics.moveTo(0, 0);
 				
-				if (_penType == "b") {
+				if (_penType == "b") {	//螢光筆
 					stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove2);
 				}else{
 					stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
@@ -94,71 +96,81 @@ package As
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove1);
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove2);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp1);
-			if(_newSprite.width > 0) _canvas.canvasAdded();		//如果有畫,請Canvas更新步驟陣列stepArray
+			if(_newSprite.width > 0) _canvas.canvasAdded(_penType);		//如果有畫,請Canvas更新步驟陣列stepArray
 			trace("MouseDraw:", _drawArea.numChildren, _canvas.numChildren);
 		}
 		
 		private function onMouseMove1(event:MouseEvent):void
 		{
-			var point:int = Point.distance(_point, new Point(mouseX, mouseY));
+			var point:int = Point.distance(new Point(), new Point(mouseX - _point.x, mouseY - _point.y));
 			var pen:Pen;
 			if (_typeNum == 1) {
 				//隨便畫
 				//_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
-				_newSprite.graphics.lineTo(mouseX, mouseY);
+				_newSprite.graphics.lineTo(mouseX - _point.x, mouseY - _point.y);
 			}else if (_typeNum == 2) {
 				//畫直虛線
 				_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
-				drawDashed(_newSprite.graphics, _point, new Point(mouseX, mouseY), 5 * _thicknessNum, 5 * _thicknessNum);
+				drawDashed(_newSprite.graphics, new Point(), new Point(mouseX - _point.x, mouseY - _point.y), 5 * _thicknessNum, 5 * _thicknessNum);
 			}else if (_typeNum == 3) {
 				//畫直實線
 				_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
-				_newSprite.graphics.moveTo(_point.x, _point.y);
-				_newSprite.graphics.lineTo(mouseX, mouseY);
+				_newSprite.graphics.moveTo(0, 0);
+				_newSprite.graphics.lineTo(mouseX - _point.x, mouseY - _point.y);
 			}else if (_typeNum == 4) {
 				//畫箭頭
 				_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
 				
-				GraphicsUtil.drawArrow(_newSprite.graphics, _point,new Point(mouseX, mouseY),
+				GraphicsUtil.drawArrow(_newSprite.graphics, new Point(), new Point(mouseX - _point.x, mouseY - _point.y),
 				{shaftThickness:1,headWidth:40,headLength:40,
 				shaftPosition:1,edgeControlPosition:.5});
 			}else if (_typeNum == 6) {
 				//畫圓圈
-				_newSprite.graphics.clear();
+				/*_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
 				_newSprite.graphics.beginFill(0xFFFFFF);
-				_newSprite.graphics.drawCircle(_point.x, _point.y, point);
+				_newSprite.graphics.drawCircle(mouseX - _point.x, mouseY - _point.y, point);*/
 				//_newSprite.graphics.endFill();
+				pen = new Pen(_newSprite.graphics);
+				pen.clear();
+				pen.lineStyle(_thicknessNum, _colorNum);
+				pen.beginFill(0xFFFFFF);
+				pen.drawEllipse(0, 0, point, point);
 			}else if (_typeNum == 7) {
 				//畫正方形
-				_newSprite.graphics.clear();
+				/*_newSprite.graphics.clear();
 				_newSprite.graphics.lineStyle(_thicknessNum, _colorNum);
 				_newSprite.graphics.beginFill(0xFFFFFF);
-				_newSprite.graphics.drawRect(_point.x, _point.y, mouseX - _point.x, mouseY - _point.y);
+				_newSprite.graphics.drawRect(0, 0, mouseX - _point.x, mouseY - _point.y);*/
+				pen = new Pen(_newSprite.graphics);
+				pen.clear();
+				pen.lineStyle(_thicknessNum, _colorNum);
+				pen.beginFill(0xFFFFFF);
+				pen.drawRegularPolygon(0, 0, 4, point, 45);
 			}else if (_typeNum == 5) {
 				//畫三角形
 				pen = new Pen(_newSprite.graphics);
 				pen.clear();
 				pen.lineStyle(_thicknessNum, _colorNum);
 				pen.beginFill(0xFFFFFF);
-				pen.drawRegularPolygon(_point.x, _point.y, 3, point * 2, 30);
+				pen.drawRegularPolygon(0, 0, 3, point * 2, 30);
 			}else if (_typeNum == 8) {
 				//畫五角形
 				pen = new Pen(_newSprite.graphics);
 				pen.clear();
 				pen.lineStyle(_thicknessNum, _colorNum);
 				pen.beginFill(0xFFFFFF);
-				pen.drawRegularPolygon(_point.x, _point.y, 5, point, -18);
+				pen.drawRegularPolygon(0, 0, 5, point, -18);
 			}else if (_typeNum == 9) {
 				//畫星形
 				pen = new Pen(_newSprite.graphics);
 				pen.clear();
 				pen.lineStyle(_thicknessNum, _colorNum);
 				pen.beginFill(0xFFFFFF);
-				pen.drawStar(_point.x, _point.y, 5, point/3, point);
+				pen.drawStar(0, 0, 5, point/3, point);
 			}
 			
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas
@@ -169,8 +181,8 @@ package As
 			//畫螢光直實線
 			_newSprite.graphics.clear();
 			_newSprite.graphics.lineStyle(_thicknessNum, _colorNum, .4);
-			_newSprite.graphics.moveTo(_point.x, _point.y);
-			_newSprite.graphics.lineTo(mouseX, mouseY);
+			_newSprite.graphics.moveTo(0, 0);
+			_newSprite.graphics.lineTo(mouseX - _point.x, mouseY - _point.y);
 			_canvas.addChild(_newSprite);		//把繪圖物件放入Canvas
 		}
 		

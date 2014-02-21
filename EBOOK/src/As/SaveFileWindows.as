@@ -31,7 +31,6 @@ package As
 		}
 		
 		private function init(e:Event = null):void {
-			changeName_mc.visible = q_mc.visible = q2_mc.visible = changeName_btn.visible = delete_btn.visible = save_btn.visible = saveAs_btn.visible = false;
 			close_btn.addEventListener(MouseEvent.CLICK, goClose);
 			save_btn.addEventListener(MouseEvent.CLICK, goSave);
 			//確認覆蓋存檔的詢問框
@@ -89,6 +88,11 @@ package As
 				saveFile = new File(File.applicationDirectory.resolvePath("save/" + changeName_mc.fileName_txt.text + ".ebk").nativePath);
 				savePcFile(saveFile, _a);
 				
+				//書籤
+				saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + "Bookmark.xml").nativePath);
+				saveFile.deleteFile();
+				_bookMark.fireNameSave = "save/" + changeName_mc.fileName_txt.text + ".ebk";
+				
 				tempFileLine.fileName_txt.text = changeName_mc.fileName_txt.text;
 				changeName_mc.visible = false;
 				
@@ -111,6 +115,8 @@ package As
 			if (e.target.name == "ok_btn") {
 				q_mc.visible = false;
 				saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
+				saveFile.deleteFile();
+				saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + "Bookmark.xml").nativePath);
 				saveFile.deleteFile();
 				delete_btn.visible = save_btn.visible = saveAs_btn.visible = changeName_btn.visible = false;
 				tempFileLine.fileNameInput_txt.visible = true;
@@ -170,6 +176,7 @@ package As
 		//進行存檔及修改日期,關閉儲存檔案視窗
 		private function saveAndDate():void {
 			saveFile = new File(File.applicationDirectory.resolvePath("save/" + tempFileLine.fileName_txt.text + ".ebk").nativePath);
+			_bookMark.fireNameSave = saveFile.url;
 			savePcFile(saveFile, _saveArray);
 			var myDate:Date = new Date();
 			tempFileLine.fileTime_txt.text = myDate.fullYear + "/" + (myDate.month + 1) + "/" + myDate.date + "   " + myDate.hours + ":" + myDate.minutes + ":" + (myDate.seconds + 1);
@@ -187,6 +194,7 @@ package As
 		
 		//初始化存檔欄位
 		public function initLine():void {
+			changeName_mc.visible = q_mc.visible = q2_mc.visible = changeName_btn.visible = delete_btn.visible = save_btn.visible = false;
 			saveFile = new File(File.applicationDirectory.resolvePath("save/ebkList").nativePath);
 			if (saveFile.exists) {	 //如果檔案存在
 				allListArray = loadPcFile(saveFile);

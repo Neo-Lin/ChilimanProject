@@ -161,11 +161,14 @@ package As
 			allClear_btn.addEventListener(MouseEvent.CLICK, goAllClear);
 			windowsMode_btn.addEventListener(MouseEvent.CLICK, goWindowsMode);
 			drawCircle_btn.addEventListener(MouseEvent.CLICK, drawStart);
+			link_btn.addEventListener(MouseEvent.CLICK, linkStart);
 		}
 		
-		private function goDrawCircle(e:MouseEvent):void 
+		//連結
+		private function linkStart(e:MouseEvent):void 
 		{
-			
+			var _l:Link = new Link();
+			addChild(_l);
 		}
 		
 		//視窗模式切換
@@ -280,6 +283,7 @@ package As
 				_l.addEventListener(MouseEvent.MOUSE_OUT, listBtnMOut);
 				_l.addEventListener(MouseEvent.CLICK, listBtnClick);
 			}
+			if(loadingPage.visible)	checkBookMark();
 		}
 		
 		//清除bookListAndMark_mc.list_mc

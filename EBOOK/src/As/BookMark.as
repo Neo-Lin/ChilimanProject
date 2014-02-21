@@ -59,6 +59,9 @@ package As
 		{
 			xmlLoader.removeEventListener(Event.COMPLETE, xmlComplete);
 			markXML = XML(xmlLoader.data);
+			if (xmlURL.url == "Bookmark.xml") {
+				delete markXML.list.*;
+			}
 			//trace("BookMark:::::", markXML.list.length(), markXML.list.bookmark.length(), markXML.list.bookmark.(@pageNumber == _pageNumber).length());
 			
 			deleteMark_btn.addEventListener(MouseEvent.CLICK, deleteMark);
@@ -288,6 +291,7 @@ package As
 		{
 			_fireName = value.slice(0,value.indexOf("."));
 			initBookMark(_fireName);
+			loadBookMark();
 		}
 		
 		private function errorHandler(e:IOErrorEvent):void {

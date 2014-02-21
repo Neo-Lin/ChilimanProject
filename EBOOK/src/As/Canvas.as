@@ -1,12 +1,14 @@
 package As 
 {
 	import As.Events.UndoManagerEvent;
+	import flash.display.DisplayObject;
 	import flash.display.GraphicsPath;
 	import flash.display.GraphicsSolidFill;
 	import flash.display.GraphicsStroke;
 	import flash.display.IGraphicsData;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
 	import flash.events.MouseEvent;
 	import flash.net.SharedObject;
 	import flashx.undo.UndoManager;
@@ -19,6 +21,8 @@ package As
 	{
 		private var nowStep:uint = 0;
 		private var stepArray:Array = new Array();		//新增物件會放入此陣列,對應步驟數nowStep
+		
+		private var mt:MorphTool;
 		
 		//public static var _undo:UndoManager=new UndoManager();
         //public static var _redo:UndoManager=new UndoManager();     
@@ -33,7 +37,7 @@ package As
 			
 		}
 		
-		public function canvasAdded():void 
+		public function canvasAdded(_penType:String = null):void 
 		{	
 			if (nowStep != stepArray.length) {	//步驟數與陣列數量不相等,表示undo過
 				goClear();
@@ -46,6 +50,9 @@ package As
 			stage.dispatchEvent(new UndoManagerEvent(UndoManagerEvent.PUSH_UNDO, false, operation));
 			_shape.addEventListener(MouseEvent.MOUSE_DOWN, goDrag);
 			_shape.addEventListener(MouseEvent.MOUSE_UP, finishDrag);		
+			if (_penType == "c") {	//若是形狀物件,要加入變色變形的功能
+				_shape.addEventListener(MouseEvent.MOUSE_DOWN, goShapeDrag);
+			}
 		}
 		
 		public function canvasRemove():void {
@@ -71,6 +78,14 @@ package As
 		}
 		
 		//移動繪圖物件====================================
+		//形狀
+		private function goShapeDrag(e:MouseEvent):void 
+		{	
+			mt = new MorphTool();
+			addChild(mt);
+			mt.init(e.currentTarget as DisplayObject);
+		}
+		
 		private function goDrag(e:MouseEvent):void 
 		{	
 			e.currentTarget.startDrag();
@@ -157,20 +172,23 @@ package As
 			var _i:uint = graphicsDataArray.length;	
 			for (var i:uint = 0; i < _i; i++) { //陣列內容:[thickness(筆粗),color,alpha,commands(動作代號),data(動作路徑),x,y]
 				var _s:Sprite = new Sprite();
-				if (graphicsDataArray[i].length == 6) {	//形狀會多帶一筆填色
+				_s.x = graphicsDataArray[i][0];
+				_s.y = graphicsDataArray[i][1];
+				var _type:String = "";
+				if (graphicsDataArray[i].length == 8) {	//形狀會多帶一筆填色
 					var gf = graphicsDataArray[i].pop();
 					//trace("還原填色");
 					_s.graphics.beginFill(gf[0], gf[1]);
+					_type = "c";	//標示為形狀
 				}
-				_s.graphics.lineStyle(graphicsDataArray[i][0], graphicsDataArray[i][1], graphicsDataArray[i][2]);
+				_s.graphics.lineStyle(graphicsDataArray[i][2], graphicsDataArray[i][3], graphicsDataArray[i][4]);
 				//_s.graphics.drawPath(graphicsDataArray[i][2], graphicsDataArray[i][3]); 
-				//_s.x = graphicsDataArray[i][4];
-				//_s.y = graphicsDataArray[i][5];
-				for (var j:int = 3; j < graphicsDataArray[i].length; j+=2) {	//虛線會有好幾個動作代號跟路徑,其他則只會有一組
+				
+				for (var j:int = 5; j < graphicsDataArray[i].length; j+=2) {	//虛線會有好幾個動作代號跟路徑,其他則只會有一組
 					_s.graphics.drawPath(graphicsDataArray[i][j], graphicsDataArray[i][j+1]);
 				}
 				addChild(_s);
-				canvasAdded();
+				canvasAdded(_type);
 			}
 		}
 		
@@ -184,6 +202,7 @@ package As
 				if (_s.visible == true) {	//若visible == false表示繪圖物件被undo或被橡皮擦掉
 					var v:Vector.<IGraphicsData> = _s.graphics.readGraphicsData();	
 					var graphicsDataTemp:Array = new Array();	//一個陣列對應一個繪圖物件,[thickness(筆粗),color,alpha,commands(動作代號),data(動作路徑),x,y]
+					graphicsDataTemp.push(_s.x, _s.y);	//取出x跟y
 					var j:uint = v.length;
 					if (j == 7) {	//表示是形狀物件,形狀物件前三個是填色資料,後四筆才是筆劃資料
 						//取得填色資料
@@ -210,7 +229,7 @@ package As
 						graphicsDataTemp.push([gf.color, gf.alpha]);
 						gf = null;
 					}
-					//graphicsDataTemp.push(_s.x, _s.y);	//取出x跟y
+					
 					graphicsDataArray.push(graphicsDataTemp);	
 					//trace("graphicsDataTemp:",graphicsDataTemp.length, graphicsDataTemp);
 				} 
