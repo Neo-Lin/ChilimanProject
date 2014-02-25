@@ -85,7 +85,7 @@ package As
 				_typeNum = int(_s.substr(_s.indexOf("_") - 1, 1));
 				this.dispatchEvent(new Event("Change_Type"));
 			}else if (_s == "close_btn") {		//關閉
-				colorPanel_mc.visible = false;
+				if(currentFrame != 3) colorPanel_mc.visible = false;
 				this.visible = false;
 			}else if (_s == "colseColorPanel_btn") {	//關閉顏色面板
 				colorPanel_mc.visible = false;

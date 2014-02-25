@@ -1,1 +1,1 @@
-C:\Users\chiliman\Desktop\音效\A5_02041.wav
+C:\Users\chiliman\Desktop\DSC_8155.jpg

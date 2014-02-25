@@ -5,6 +5,7 @@ package As
 	import avmplus.getQualifiedSuperclassName;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
+	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.display.StageDisplayState;
 	import flash.events.Event;
@@ -28,6 +29,7 @@ package As
 	{
 		private var canvas_mc:Canvas;	//畫布,undo,redo
 		private var floating:FloatingMemo;	//覆蓋在畫布上:便利貼
+		private var linkManage:LinkManage;
 		private var rz:RectangleZoom;	//放大功能
 		private var pencil:MouseDraw;	//畫筆功能
 		private var bookLoader:Loader = new Loader();
@@ -87,6 +89,9 @@ package As
 			floating = new FloatingMemo();
 			addChild(floating);
 			
+			linkManage = new LinkManage();
+			addChild(linkManage);
+			
 			followMouse_mc.mouseEnabled = false;
 			
 			//addChild(new Stats());
@@ -105,15 +110,15 @@ package As
 		private function hideCanvas(e:LoadingPageEvent):void 
 		{
 			changeTool();
-			floating.visible = canvas_mc.visible = tag_mc.visible = false;
+			linkManage.visible = floating.visible = canvas_mc.visible = tag_mc.visible = false;
 			allPageData = loadFileWindows_mc.saveArray;	 
 			if (allPageData) {
-				allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
+				allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave(), linkManage.goSave()];
 			}
 		}
 		private function showCanvas(e:LoadingPageEvent):void 
 		{
-			floating.visible = canvas_mc.visible = true;
+			linkManage.visible = floating.visible = canvas_mc.visible = true;
 			//檢查有無書籤,有就顯示
 			checkBookMark();
 		}
@@ -160,15 +165,23 @@ package As
 			bookmark_btn.addEventListener(MouseEvent.CLICK, goBookMark);
 			allClear_btn.addEventListener(MouseEvent.CLICK, goAllClear);
 			windowsMode_btn.addEventListener(MouseEvent.CLICK, goWindowsMode);
+			changeBtnView(windowsMode_btn);
 			drawCircle_btn.addEventListener(MouseEvent.CLICK, drawStart);
 			link_btn.addEventListener(MouseEvent.CLICK, linkStart);
+			spotlight_btn.addEventListener(MouseEvent.CLICK, goSpotlight);
+		}
+		
+		private function goSpotlight(e:MouseEvent):void 
+		{
+			var sl:Spotlight = new Spotlight(18, 10, 990, 675);
+			addChild(sl);
 		}
 		
 		//連結
 		private function linkStart(e:MouseEvent):void 
 		{
 			var _l:Link = new Link();
-			addChild(_l);
+			linkManage.addChild(_l);
 		}
 		
 		//視窗模式切換
@@ -181,6 +194,7 @@ package As
 				stage.nativeWindow.restore();
 				//stage.displayState = StageDisplayState.NORMAL; 
 			}
+			changeBtnView(e.currentTarget as SimpleButton);
 		}
 		
 		//全部刪除
@@ -311,7 +325,7 @@ package As
 			changeTool();
 			saveFileWindows_mc.bookMark = bm;
 			//把goSave()得到的array再包起來,配合現在頁面的編號存在相對應的array格子裡
-			allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave()];
+			allPageData[loadingPage.bookNowPage] = [canvas_mc.goSave(), floating.goSave(), linkManage.goSave()];
 			saveFileWindows_mc.saveArray = allPageData;
 			saveFileWindows_mc.initLine();
 			addChild(saveFileWindows_mc);
@@ -335,6 +349,7 @@ package As
 			_redo.clearAll();
 			canvas_mc.canvasRemove();
 			floating.memosRemove();
+			linkManage.memosRemove();
 			//還原存檔的繪圖
 			if (allPageData && allPageData[loadingPage.bookNowPage]) {
 				if (allPageData[loadingPage.bookNowPage][0].length > 0) {
@@ -342,6 +357,9 @@ package As
 				}
 				if (allPageData[loadingPage.bookNowPage][1].length > 0) {
 					floating.reDrawSave(allPageData[loadingPage.bookNowPage][1]);
+				}
+				if (allPageData[loadingPage.bookNowPage][2].length > 0) {
+					linkManage.reDrawSave(allPageData[loadingPage.bookNowPage][2]);
 				}
 			}
 		}
@@ -507,6 +525,26 @@ package As
 		{
 			stage.nativeWindow.minimize();
 		}
+		
+		//依據目前視窗模式來改變windowsMode_btn按鈕外觀
+		private function changeBtnView(_b:SimpleButton):void {
+			if (stage.displayState == StageDisplayState.NORMAL) {
+				(((_b.upState as Sprite).getChildAt(2)) as MovieClip).visible = false;
+				(((_b.overState as Sprite).getChildAt(2)) as MovieClip).visible = false;
+				(((_b.downState as Sprite).getChildAt(2)) as MovieClip).visible = false;
+				(((_b.upState as Sprite).getChildAt(1)) as MovieClip).visible = true;
+				(((_b.overState as Sprite).getChildAt(1)) as MovieClip).visible = true;
+				(((_b.downState as Sprite).getChildAt(1)) as MovieClip).visible = true;
+			}else {
+				(((_b.upState as Sprite).getChildAt(2)) as MovieClip).visible = true;
+				(((_b.overState as Sprite).getChildAt(2)) as MovieClip).visible = true;
+				(((_b.downState as Sprite).getChildAt(2)) as MovieClip).visible = true;
+				(((_b.upState as Sprite).getChildAt(1)) as MovieClip).visible = false;
+				(((_b.overState as Sprite).getChildAt(1)) as MovieClip).visible = false;
+				(((_b.downState as Sprite).getChildAt(1)) as MovieClip).visible = false;
+			}
+		}
+		
 	}
 	
 }
