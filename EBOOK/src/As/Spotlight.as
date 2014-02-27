@@ -56,6 +56,7 @@ package As
 			
 			_maskBmd.draw(parent, _m);
 			_maskBm = new Bitmap(_maskBmd);
+			_maskBm.smoothing = true;
 			_maskBm.mask = _mask;
 			addChild(_alphaBm);
 			addChild(_maskBm);

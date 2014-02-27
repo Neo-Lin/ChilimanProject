@@ -16,6 +16,7 @@ package As
 	import flash.net.SharedObject;
 	import flash.net.URLRequest;
 	import flash.system.Capabilities;
+	import flash.text.TextFieldAutoSize;
 	import flash.ui.Mouse;
 	import flash.utils.ByteArray;
 	import net.hires.debug.Stats;
@@ -51,6 +52,7 @@ package As
 		private function init(e:Event = null):void 
 		{
 			//stage.nativeWindow.maximize();
+			stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.addEventListener(LoadingPageEvent.LOAD_OPEN, showLoadingBar);
 			stage.addEventListener(LoadingPageEvent.LOAD_COMPLETE, hideLoadingBar);
@@ -94,11 +96,9 @@ package As
 			
 			followMouse_mc.mouseEnabled = false;
 			
-			//addChild(new Stats());
+			addChild(new Stats());
 			
 			goEvent();
-			
-			//goCheckSave();
 		}
 		
 		//載入頁面繪圖及答案貼
@@ -169,8 +169,17 @@ package As
 			drawCircle_btn.addEventListener(MouseEvent.CLICK, drawStart);
 			link_btn.addEventListener(MouseEvent.CLICK, linkStart);
 			spotlight_btn.addEventListener(MouseEvent.CLICK, goSpotlight);
+			textMemo_btn.addEventListener(MouseEvent.CLICK, goTextMemo);
 		}
 		
+		//便利貼
+		private function goTextMemo(e:MouseEvent):void 
+		{
+			var tmo:TextMemo = new TextMemo();
+			linkManage.addChild(tmo);
+		}
+		
+		//聚光燈
 		private function goSpotlight(e:MouseEvent):void 
 		{
 			var sl:Spotlight = new Spotlight(18, 10, 990, 675);
@@ -188,11 +197,11 @@ package As
 		private function goWindowsMode(e:MouseEvent):void 
 		{
 			if (stage.displayState == StageDisplayState.NORMAL) {
-				stage.displayState = StageDisplayState.FULL_SCREEN;
+				stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
 				//stage.nativeWindow.maximize();
 			}else {
-				stage.nativeWindow.restore();
-				//stage.displayState = StageDisplayState.NORMAL; 
+				//stage.nativeWindow.restore();
+				stage.displayState = StageDisplayState.NORMAL; 
 			}
 			changeBtnView(e.currentTarget as SimpleButton);
 		}
@@ -358,7 +367,7 @@ package As
 				if (allPageData[loadingPage.bookNowPage][1].length > 0) {
 					floating.reDrawSave(allPageData[loadingPage.bookNowPage][1]);
 				}
-				if (allPageData[loadingPage.bookNowPage][2].length > 0) {
+				if (allPageData[loadingPage.bookNowPage][2].length > 0) {	//連結,便利貼
 					linkManage.reDrawSave(allPageData[loadingPage.bookNowPage][2]);
 				}
 			}
@@ -528,7 +537,7 @@ package As
 		
 		//依據目前視窗模式來改變windowsMode_btn按鈕外觀
 		private function changeBtnView(_b:SimpleButton):void {
-			if (stage.displayState == StageDisplayState.NORMAL) {
+			if (stage.displayState == StageDisplayState.FULL_SCREEN_INTERACTIVE) {
 				(((_b.upState as Sprite).getChildAt(2)) as MovieClip).visible = false;
 				(((_b.overState as Sprite).getChildAt(2)) as MovieClip).visible = false;
 				(((_b.downState as Sprite).getChildAt(2)) as MovieClip).visible = false;
