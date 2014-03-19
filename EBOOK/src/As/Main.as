@@ -96,7 +96,7 @@ package As
 			
 			followMouse_mc.mouseEnabled = false;
 			
-			addChild(new Stats());
+			//addChild(new Stats());
 			
 			goEvent();
 		}

@@ -317,8 +317,8 @@ package As
 			backRightPage.x = pageXML.@width;
 			frontRightPage.x = pageXML.@width;
 			
-			page0 = new BitmapData(pageXML.@width, pageXML.@height);
-			page1 = new BitmapData(pageXML.@width, pageXML.@height);
+			page0 = new BitmapData(pageXML.@width, pageXML.@height, false);
+			page1 = new BitmapData(pageXML.@width, pageXML.@height, false);
 			//開始載入頁面
 			startLoadingPage();
 		}
