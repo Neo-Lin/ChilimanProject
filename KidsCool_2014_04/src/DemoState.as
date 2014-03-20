@@ -42,13 +42,10 @@ package  {
 		private var tmpStr:String;
 		private var tmpXML:XML;
 		
-		private var _jewelMeter:JewelMeter;
 		private var _bird:Bird;
 		private var _tool:Tool;
 		private var _objectsMC:MovieClip;
 		//private var _loadScreen:LoadScreen;
-		private var _clickScreen:ClickScreen;
-		private var _signMessage:SignMessage;
 		private var _hero:Hero;
 		private var _sign:Sensor;
 		private var _jewels:Vector.<CitrusObject>;
@@ -67,7 +64,7 @@ package  {
 			super();
 			_objectsMC = objectsMC;
 			
-			var objects:Array = [Platform, Hero, CitrusSprite, Sensor, Coin, Enemy, WindmillArms, Crate];
+			var objects:Array = [Platform, Hero, CitrusSprite, Sensor, Coin, Enemy, Crate];
 		}
 
 		override public function initialize():void {
@@ -130,7 +127,7 @@ package  {
 			e.currentTarget.removeEventListener("goStore", goStore);
 			Loader(e.currentTarget).unloadAndStop(true);
 			_ce.sound.stopSound("Game1");
-			var store:Store = new Store(_ce.gameData);
+			var store:Store = new Store(_ce);
 			addChild(store);
 			store.addEventListener("goBack", storeGoIndex);	//回主選單
 			store.addEventListener("changeGameData", storeChangeGameData);	//儲藏箱更新禮物資訊
@@ -290,7 +287,7 @@ package  {
 			}
 		}
 		
-		private function checkWin():void {	trace("_tool._altitude.currentFrame:",_tool.getHight(),_tool.life);
+		private function checkWin():void {	//trace("_tool._altitude.currentFrame:",_tool.getHight(),_tool.life);
 			if (_tool.getHight() >= 100) {
 				//過關
 				stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_KeyboardDownHandler);
@@ -420,8 +417,8 @@ package  {
 
 		private function checkHeight():void {
 			//依據疊的數量來計算高度,以便讓camera可以對位(狗的高度不同所以要另外算)
-			_sign.setParams(_sign, { y: 600 - 110 * (_amount - _dog) - (55 * _dog) } ); 
-			if (_tool) _tool.goHight((_amount - _dog) * 10 + _dog * 5);
+			_sign.setParams(_sign, { y: 600 - 130 * (_amount - _dog) - (70 * _dog) } ); 
+			if (_tool) _tool.goHight((_amount - _dog) * 10 + _dog * 7);
 			//trace("checkHeight::::::",_amount, _dog, _sign.y, view.camera.camPos.y);
 		}
 		

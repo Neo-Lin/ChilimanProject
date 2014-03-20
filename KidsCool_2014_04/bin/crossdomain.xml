@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-
-<cross-domain-policy>
-
-　　<allow-access-from domain="*.chiliman.com.tw"/>
-
-　　<allow-access-from domain=kidscool2013.chiliman.com.tw/>
-
-</cross-domain-policy>

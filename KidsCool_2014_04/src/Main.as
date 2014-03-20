@@ -29,13 +29,17 @@ package  {
 			sound.addSound("Yb", {sound:"sounds/yayayb.mp3", group:CitrusSoundGroup.SFX}); //要掉下來哀哀叫
 			sound.addSound("Yc", {sound:"sounds/yayayc.mp3", group:CitrusSoundGroup.SFX}); //要掉下來哀哀叫
 			sound.addSound("Wuan", {sound:"sounds/wuan.mp3", group:CitrusSoundGroup.SFX}); //狗要掉下來哀哀叫
-			sound.addSound("Walk", { sound:"sounds/walk.mp3",loops: -1, volume:1, group:CitrusSoundGroup.SFX } );
+			sound.addSound("gift1", { sound:"sounds/gift1.mp3", volume:1, group:CitrusSoundGroup.SFX } ); //獲得禮物
+			sound.addSound("gift2", { sound:"sounds/gift2.mp3", volume:1, group:CitrusSoundGroup.SFX } );	//獲得可樂豆
+			sound.addSound("gift3", { sound:"sounds/gift3.mp3", volume:1, group:CitrusSoundGroup.SFX } ); //沒有獲得禮物
 			
 
 			var loader:Loader = new Loader();
 			loader.load(new URLRequest("levels/SoundPatchDemo/SoundPatchDemo.swf"));
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, handleSWFLoadComplete, false, 0, true);
 
+			console.enabled = false;
+			tabChildren = false;
 			/*var websiteFrame:WebsiteFrame = new WebsiteFrame();
 			addChild(websiteFrame);*/
 		}

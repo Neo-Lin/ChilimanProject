@@ -39,7 +39,7 @@ package
 		private var _content:MovieClip;
 		private var _aHeight:int = 100;
 		private var _dHeight:int = 75;
-		private var _allow:int = 20;	//越小越難
+		private var _allow:int = 25;	//越小越難
 		
 		public function HeroCrate(ce:CitrusEngine, _name:String, floor:DisplayObject, box:DisplayObject, params:Object=null) 
 		{

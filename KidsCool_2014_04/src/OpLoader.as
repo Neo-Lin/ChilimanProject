@@ -48,7 +48,7 @@ package
 		}
 		
 		private function cardClick(e:MouseEvent):void 
-		{	trace(e.target.name);
+		{	//trace(e.target.name);
 			if (e.target.name == "_btn") { //跳過
 				dispatchEvent(new Event("goNext"));
 			}else if (e.target.name == "back_btn") { //回選單
@@ -58,7 +58,7 @@ package
 			}else if (e.target.name == "again_btn") { //再一次
 				dispatchEvent(new Event("goAgain"));
 			}else if (e.target.name == "store_btn") { //到儲藏室
-				trace("儲藏室");
+				//trace("儲藏室");
 				dispatchEvent(new Event("goStore"));
 			}else if (e.target.name == "game1_btn") { //第一關
 				_gameNumber = 1;

@@ -84,6 +84,7 @@ package
 		//切換腳色
 		private function roleClick(e:MouseEvent):void 
 		{
+			if (_roleName) return;
 			e.currentTarget.gotoAndStop(2);
 			_roleName = e.currentTarget.name;
 			dispatchEvent(new Event("changeRole"));

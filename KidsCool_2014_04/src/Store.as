@@ -1,5 +1,6 @@
 package  
 {
+	import citrus.core.CitrusEngine;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.SimpleButton;
@@ -18,12 +19,13 @@ package
 		private var _gameData:Object;
 		private var store:MovieClip;
 		private var gainGift:MovieClip;
+		private var _ce:CitrusEngine;
 		
-		
-		public function Store(gameData:Object) 
+		public function Store(ce) 
 		{	
 			super();
-			_gameData = gameData;
+			_gameData = ce.gameData;
+			_ce = ce;
 			this.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
 			load(new URLRequest("levels/SoundPatchDemo/store.swf"));
 		}
@@ -123,6 +125,7 @@ package
 				//顯示輸入錯誤字卡
 				store.LevelGiftPanel_mc.gotoAndStop(2);
 				store.LevelGiftPanel_mc.visible = true;
+				_ce.sound.playSound("Miss");
 			}
 			//按確定後關閉字卡
 			store.LevelGiftPanel_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeLevelGiftPanel);
@@ -136,6 +139,7 @@ package
 		private function startInput(e:Event):void 
 		{
 			e.currentTarget.text = "";
+			e.currentTarget.parent.t_mc.visible = false;
 		}
 		
 		private function openGift(e:MouseEvent):void 
@@ -147,6 +151,13 @@ package
 			//顯示開禮物畫面,亂數決定禮物
 			_gameData.send_gift = Math.ceil(Math.random() * gainGift.allGift_mc.totalFrames);
 			gainGift.allGift_mc.gotoAndStop(_gameData.send_gift);
+			if (_gameData.send_gift < 11) {
+				_ce.sound.playSound("gift1");
+			}else if (_gameData.send_gift < 15) {
+				_ce.sound.playSound("gift2");
+			}else {
+				_ce.sound.playSound("gift3");
+			}
 			//存檔
 			_gameData.mode = 3;
 			dispatchEvent(new Event("changeGameData"));
