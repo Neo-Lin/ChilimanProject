@@ -13,6 +13,8 @@ package  {
 	import flash.net.URLRequest;
 	import flash.net.URLVariables;
 	import flash.system.Capabilities;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
 	import flash.utils.Timer;
 
 	import citrus.core.CitrusObject;
@@ -44,10 +46,13 @@ package  {
 		
 		private var _bird:Bird;
 		private var _tool:Tool;
+		//private var _mb:CitrusSprite;
+		private var _mb:MovieClip;
 		private var _objectsMC:MovieClip;
 		//private var _loadScreen:LoadScreen;
 		private var _hero:Hero;
-		private var _sign:Sensor;
+		//private var _sign:Sensor;
+		private var _sign:MovieClip;
 		private var _jewels:Vector.<CitrusObject>;
 		private var _timer:Timer;
 		private var _amount:int = 0; //疊起來的總數
@@ -59,6 +64,8 @@ package  {
 		private var _opening:OpLoader;
 		private var _tempBox:HeroCrate;
 		private var _heroCrateContent:Sprite = new Sprite();
+		private var _version:TextField = new TextField();
+		private var _cameraY:Number = 0;
 
 		public function DemoState(objectsMC:MovieClip) {
 			super();
@@ -79,10 +86,19 @@ package  {
 			//載入完成移除載入畫面
 			view.loadManager.onLoadComplete.addOnce(handleLoadComplete);*/
 
-			var box2D:Box2D = new Box2D("box2D");
+			/*var box2D:Box2D = new Box2D("box2D");
 			//box2D.visible = true;
 			box2D.gravity.y = 3;
 			add(box2D);
+			
+			ObjectMaker2D.FromMovieClip(_objectsMC);
+			addChildAt(_objectsMC.load_txt_mc, 0);
+			addChildAt(_objectsMC.bg_mc, 1);*/
+			
+			addChild(_objectsMC.floor_mc);
+			addChild(_objectsMC.bg_mc);
+			addChild(_objectsMC.load_txt_mc);
+			//addChild(_objectsMC.height_txt);
 			
 			//首頁遊戲說明
 			_opening = new OpLoader("levels/SoundPatchDemo/index_help.swf");
@@ -90,16 +106,26 @@ package  {
 			_opening.addEventListener("goNext", goIndex);
 			_opening.addEventListener("finishMovie", goIndex);
 
-			ObjectMaker2D.FromMovieClip(_objectsMC);
-			
 			//對位用高度標示,隨堆疊高度升高或降低,讓camera對位用
-			_sign = getObjectByName("signSensor") as Sensor;
-			view.camera.setUp(_sign, new Rectangle(0, -600, 800, 1200), null, new Point(.25, .05));
+			_sign = _objectsMC.signSensor as MovieClip;
+			//view.camera.setUp(_sign, new Rectangle(0, -600, 800, 1200), null, new Point(.25, .05));
 			
+			//遊戲背景
+			//_mb = getObjectByName("_mb") as CitrusSprite;
+			_mb = _objectsMC.bg_mc;
+			_mb.visible = false;
 			//測試掉落的箱子
 			/*_timer = new Timer(1000);
 			_timer.addEventListener(TimerEvent.TIMER, _onTick);
 			_timer.start();*/
+			//顯示版本號碼
+			var format:TextFormat = new TextFormat();
+            format.color = 0xFFFFFF;
+            format.size = 8;
+			_version.defaultTextFormat = format;
+			_version.y = 588;
+			_version.text = "V3.6";
+			addChild(_version);
 		}
 		
 		//首頁選單
@@ -110,6 +136,7 @@ package  {
 			if (e) {
 				Loader(e.currentTarget).unloadAndStop(true);
 				e.currentTarget.removeEventListener("goBack", goIndex);
+				//removeChild(_version);
 			}
 			_opening = new OpLoader("levels/SoundPatchDemo/index.swf");
 			_opening.contentLoaderInfo.addEventListener(Event.COMPLETE, indexComplete);
@@ -135,12 +162,6 @@ package  {
 		
 		private function storeChangeGameData(e:Event):void 
 		{	
-			/*sendAsp("Level1=" + e.currentTarget.gameData.level1 + 
-					"&Level2=" + e.currentTarget.gameData.level2 + 
-					"&Level3=" + e.currentTarget.gameData.level3 + 
-					"&Level4=" + e.currentTarget.gameData.level4 + 
-					"&send_gift=" + e.currentTarget.gameData.send_gift
-					);*/
 			if (e.currentTarget.gameData.mode == 2) {
 				sendAsp("L=" + e.currentTarget.gameData.L + 
 						"&S=" + e.currentTarget.gameData["level" + e.currentTarget.gameData.L]
@@ -217,6 +238,8 @@ package  {
 			//恢復初始值,"再玩一次"用=================
 			_amount = 0;
 			_dog = 0;
+			_cameraY = 0;
+			_mb.y = 600;
 			checkHeight();
 			_ce.sound.stopSound("Fail");
 			//=======================恢復初始值,"再玩一次"用
@@ -232,8 +255,10 @@ package  {
 			addChild(_tool);
 			
 			//依據不同遊戲載入佈景
-			var _mb:CitrusSprite = getObjectByName("_mb") as CitrusSprite;
-			_mb.view = "levels/SoundPatchDemo/game" + _gameNumber + "_mb.swf";
+			//_mb.view = "levels/SoundPatchDemo/game" + _gameNumber + "_mb.swf";
+			_mb.gotoAndStop(_gameNumber);
+			_mb.visible = true;
+			_objectsMC.load_txt_mc.visible = false;
 		}
 		
 		private function goBackIndex(e:Event):void 
@@ -255,11 +280,11 @@ package  {
 		private function fl_KeyboardDownHandler(event:KeyboardEvent):void
 		{
 			//trace("已按下按鍵碼: " + event.keyCode);
-			if (event.keyCode == 32 && _tool.roleName) {
+			if ((event.keyCode == 32 || event.keyCode == 229) && _tool.roleName) {
 				stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_KeyboardDownHandler);
 				_ce.sound.playSound("Skid");
 				if (_tool.roleName == "_gift") {
-					var gift:HeroCrate = new HeroCrate(_ce, "gift"+_amount, _objectsMC.floor_mc, _tempBox, {view:_tool.roleName+".png", registration:"center", width:83, height:45, x:_bird.getX, y:_bird.getY - view.camera.camPos.y});
+					var gift:HeroCrate = new HeroCrate(_ce, "gift"+_amount, _objectsMC.floor_mc, _tempBox, {view:_tool.roleName+".png", registration:"center", width:83, height:45, x:_bird.getX, y:_bird.getY - _cameraY});
 					gift.sp.addEventListener("touch", getEventStatic);
 					gift.sp.addEventListener("getGift", getGift);
 					_heroCrateContent.addChild(gift);
@@ -273,10 +298,10 @@ package  {
 					var path:String = "";
 					if (_gameNumber == 4) path = "_Ice";
 					if (_tool.roleName != "_d") {
-						muffin = new HeroCrate(_ce, "muffin"+_amount, _objectsMC.floor_mc, _tempBox, {view:_tool.roleName+path+".png", registration:"center", width:120, height:90, x:_bird.getX, y:_bird.getY - view.camera.camPos.y});
+						muffin = new HeroCrate(_ce, "muffin"+_amount, _objectsMC.floor_mc, _tempBox, {view:_tool.roleName+path+".png", registration:"center", width:120, height:90, x:_bird.getX, y:_bird.getY - _cameraY});
 					}else {
 						_dog ++;
-						muffin = new HeroCrate(_ce, "muffin"+_amount, _objectsMC.floor_mc, _tempBox, {view:_tool.roleName+path+".png", registration:"center", width:120, height:45, x:_bird.getX, y:_bird.getY - view.camera.camPos.y});
+						muffin = new HeroCrate(_ce, "muffin"+_amount, _objectsMC.floor_mc, _tempBox, {view:_tool.roleName+path+".png", registration:"center", width:120, height:45, x:_bird.getX, y:_bird.getY - _cameraY});
 					}
 					_tempBox = muffin;
 					muffin.sp.addEventListener("kill", getEvent);
@@ -291,15 +316,8 @@ package  {
 			if (_tool.getHight() >= 100) {
 				//過關
 				stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_KeyboardDownHandler);
-				_ce.sound.playSound("Win");
-				finishGame();
-				//紀錄關卡狀態=0沒過 1過關 2已兌換
-				if(_ce.gameData["level" + _gameNumber] != 2) _ce.gameData["level" + _gameNumber] = 1;
-				//過關動畫
-				var _win:OpLoader = new OpLoader("levels/SoundPatchDemo/game" + _gameNumber + "_pass.swf");
-				_win.contentLoaderInfo.addEventListener(Event.COMPLETE, setGiftNumber);
-				_win.addEventListener("goStore", goStore);
-				addChild(_win);
+				Tweener.addTween(this, { time:3, onComplete:goWin } );
+				_bird.setRole("1");
 			}else if (_tool.life == 0) {
 				//失敗
 				stage.removeEventListener(KeyboardEvent.KEY_DOWN, fl_KeyboardDownHandler);
@@ -317,11 +335,26 @@ package  {
 			}
 		}
 		
+		private function goWin():void {
+			_ce.sound.playSound("Win");
+			finishGame();
+			//紀錄關卡狀態=0沒過 1過關 2已兌換
+			if(_ce.gameData["level" + _gameNumber] != 2) _ce.gameData["level" + _gameNumber] = 1;
+			//過關動畫
+			var _win:OpLoader = new OpLoader("levels/SoundPatchDemo/game" + _gameNumber + "_pass.swf");
+			_win.contentLoaderInfo.addEventListener(Event.COMPLETE, setGiftNumber);
+			_win.addEventListener("goStore", goStore);
+			addChild(_win);
+		}
+		
 		private function finishGame():void {
 			//_bird.unloadAndStop(true);
 			//_tool.unloadAndStop(true);
 			removeChild(_bird);
 			removeChild(_tool);
+			_mb.visible = false;
+			_objectsMC.load_txt_mc.visible = true;
+			_sign.y  600;
 			//刪除所有堆疊
 			/*trace("刪除所有堆疊");
 			_heroCrate = getObjectsByType(HeroCrate);
@@ -359,11 +392,13 @@ package  {
 					"&G=" + _tool.giftNum
 					, 2);
 			if (_tool.giftNum > 9) {
-				card_mc._a.gotoAndStop("_f"+String(_tool.giftNum).charAt(1));
-				card_mc._b.gotoAndStop("_f"+String(_tool.giftNum).charAt(0));
+				card_mc._a.gotoAndStop("_f" + String(_tool.giftNum).charAt(1));
+				card_mc._b.gotoAndStop("_f" + String(_tool.giftNum).charAt(0));
+				card_mc._b.visible = true;
 			}else {
 				card_mc._a.gotoAndStop("_f"+_tool.giftNum);
 				card_mc._b.gotoAndStop(1);
+				card_mc._b.visible = false;
 			}
 			//判斷男女,男1女2
 			if (_ce.gameData.sex == "boy") {
@@ -387,9 +422,8 @@ package  {
 		{	//trace("Touch:::::",e.currentTarget.name, e.target.name);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, fl_KeyboardDownHandler);
 			checkHeight();
-			checkWin();
-			//亂數產生禮物
-			if (Math.random() < .2 ) {	
+			//亂數產生禮物&禮物最多只能99個
+			if (Math.random() < .2 && _tool.giftNum + int(_ce.gameData.gift) < 99) {	
 				//設定鳥抓取禮物
 				_tool.roleName = "_gift";
 				_bird.setRole(_tool.roleName);
@@ -398,6 +432,7 @@ package  {
 				_tool.roleName = _tempRoleName;
 				_bird.setRole(_tool.roleName);
 			}
+			checkWin();
 		}
 		
 		//沒接好掉到地上了
@@ -417,22 +452,30 @@ package  {
 
 		private function checkHeight():void {
 			//依據疊的數量來計算高度,以便讓camera可以對位(狗的高度不同所以要另外算)
-			_sign.setParams(_sign, { y: 600 - 130 * (_amount - _dog) - (70 * _dog) } ); 
+			//_sign.setParams(_sign, { y: 600 - 130 * (_amount - _dog) - (70 * _dog) } ); 
+			_sign.y = 600 - 130 * (_amount - _dog) - (70 * _dog); 
 			if (_tool) _tool.goHight((_amount - _dog) * 10 + _dog * 7);
-			//trace("checkHeight::::::",_amount, _dog, _sign.y, view.camera.camPos.y);
+			//_objectsMC.height_txt.appendText(String(_sign.y + "-" + _amount + "-" + _dog + "\n"));
+			//trace("checkHeight::::::", _amount, _dog, _sign.y, view.camera.camPos.y);
+			if (_sign.y < 300 && _cameraY < 600) _cameraY = 300 - _sign.y;
+			if (_cameraY > 600) _cameraY = 600;
+			Tweener.addTween(_heroCrateContent, {time:1, y: _cameraY} );
+			Tweener.addTween(_mb, {time:1, y: 600 + _cameraY} );
+			Tweener.addTween(_objectsMC.floor_mc, {time:1, y: 600 + _cameraY} );
 		}
 		
-		override public function update(timeDelta:Number):void {
+		/*override public function update(timeDelta:Number):void {
 			super.update(timeDelta);
-			_heroCrateContent.y = view.camera.camPos.y;
-			_objectsMC.floor_mc.y = 600 + view.camera.camPos.y;
-			/*if (_heroCrateContent.rotation > 1) {
+			_heroCrateContent.y = _cameraY;
+			_mb.y = _objectsMC.floor_mc.y = 600 + _cameraY;
+			
+			if (_heroCrateContent.rotation > 1) {
 				_heroCrateContent.rotation = - (_amount + _dog) / 2;
 				trace(_heroCrateContent.rotation);
 			}else if (_heroCrateContent.rotation < 1) {
 				_heroCrateContent.rotation = (_amount + _dog) / 2;
-			}*/
-		}
+			}
+		}*/
 
 		//關閉視窗
 		private function closeWindow(e:Event):void {
@@ -445,16 +488,16 @@ package  {
 			Uldr = new URLLoader();
 			Ureq = new URLRequest(DataName);
 			Udata = new URLVariables();
-			tmpStr = "mode=1";
+			tmpStr = "mode=1&Date=" + new Date().time;
 			Udata.decode(tmpStr);
 			Ureq.data = Udata;
 			//trace("playerType:", Capabilities.playerType);
+			Uldr.addEventListener(Event.COMPLETE, DataLoaded);
 			if (Capabilities.playerType == "External" || Capabilities.playerType == "StandAlone") {
 				Uldr.load(new URLRequest('Act201404.xml'));
 			} else {
 				Uldr.load(Ureq);
 			}
-			Uldr.addEventListener(Event.COMPLETE, DataLoaded);
 		}
 		//Data載入完成
 		private function DataLoaded(e:Event):void {
@@ -480,25 +523,23 @@ package  {
 			Uldr = new URLLoader();
 			Ureq = new URLRequest(DataName);
 			Udata = new URLVariables();
-			/*var _v:String = "Gift=" + _ce.gameData.gift +
-							"&Level1=" + _ce.gameData.level1 + 
-							"&Level2=" + _ce.gameData.level2 + 
-							"&Level3=" + _ce.gameData.level3 + 
-							"&Level4=" + _ce.gameData.level4;
-			if (e) {
-				_v + "&send_gift=" + _ce.gameData.level4;
-			}*/
-			tmpStr = "mode=" + m + "&" + v;
+			
+			tmpStr = "mode=" + m + "&" + v + "&Date=" + new Date().time;
 			Udata.decode(tmpStr);
 			Ureq.data = Udata;
 			//trace("playerType:", Capabilities.playerType);
+			Uldr.addEventListener(Event.COMPLETE, DataSend);
 			if (Capabilities.playerType == "External" || Capabilities.playerType == "StandAlone") {
 				Uldr.load(new URLRequest('Act201404.xml'));
 			} else {
 				Uldr.load(Ureq);
 			}
+		}
+		
+		private function DataSend(e:Event):void 
+		{
+			e.currentTarget.removeEventListener(Event.COMPLETE, DataSend);
 			loadData();
-			//Uldr.addEventListener(Event.COMPLETE, DataLoaded);
 		}
 		/*private function _onTick(tEvt:TimerEvent):void {
 			_amount ++;

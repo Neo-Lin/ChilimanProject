@@ -44,12 +44,21 @@ package
 		
 		//檢查禮物數量
 		private function checkGiftNumber():void {
+			if (_gameData.gift == 99) {
+				//顯示99個字卡
+				store.LevelGiftPanel_mc.gotoAndStop(3);
+				store.LevelGiftPanel_mc.visible = true;
+				//按確定後關閉字卡
+				store.LevelGiftPanel_mc.ok_btn.addEventListener(MouseEvent.CLICK, closeLevelGiftPanel);
+			}
 			if (_gameData.gift > 9) {
 				store._a.gotoAndStop("_f"+String(_gameData.gift).charAt(1));
 				store._b.gotoAndStop("_f"+String(_gameData.gift).charAt(0));
+				store._b.visible = true;
 			}else {
 				store._a.gotoAndStop("_f" + _gameData.gift);
 				store._b.gotoAndStop(1);
+				store._b.visible = false;
 			}
 		}
 		
@@ -74,6 +83,7 @@ package
 			}else if (_gameData.level1 == 2) { //第一關已兌換
 				store.level1Pic_mc.gotoAndStop(3);
 				store.level1_mc.gotoAndStop(3);
+				store.level1_btn.visible = false;
 			}
 			if (_gameData.level2 == 1) { //第二關過關
 				store.level2Pic_mc.gotoAndStop(3);
@@ -83,6 +93,7 @@ package
 			}else if (_gameData.level2 == 2) { //第二關已兌換
 				store.level2Pic_mc.gotoAndStop(3);
 				store.level2_mc.gotoAndStop(3);
+				store.level2_btn.visible = false;
 			}
 			if (_gameData.level3 == 1) { //第三關過關
 				store.level3Pic_mc.gotoAndStop(3);
@@ -92,6 +103,7 @@ package
 			}else if (_gameData.level3 == 2) { //第三關已兌換
 				store.level3Pic_mc.gotoAndStop(3);
 				store.level3_mc.gotoAndStop(3);
+				store.level3_btn.visible = false;
 			}
 			if (_gameData.level4 == 1) { //第四關過關
 				store.level4Pic_mc.gotoAndStop(3);
@@ -101,6 +113,7 @@ package
 			}else if (_gameData.level4 == 2) { //第四關已兌換
 				store.level4Pic_mc.gotoAndStop(3);
 				store.level4_mc.gotoAndStop(3);
+				store.level4_btn.visible = false;
 			}
 		}
 		
@@ -121,6 +134,7 @@ package
 				store["level" + _level + "Pic_mc"].gotoAndStop(3);
 				store["level" + _level + "_mc"].gotoAndStop(3);
 				store["level" + _level + "_btn"].removeEventListener(MouseEvent.CLICK, checkLevelGift);
+				e.currentTarget.visible = false;
 			}else {
 				//顯示輸入錯誤字卡
 				store.LevelGiftPanel_mc.gotoAndStop(2);

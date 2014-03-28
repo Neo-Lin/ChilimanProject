@@ -99,13 +99,14 @@ package
 				//狗的偏差值
 				if (HeroCrate(_box)._params.view.indexOf("_d") > -1) y += 20;
 				removeEventListener(Event.ENTER_FRAME, onEF);
-				_sp.dispatchEvent(new Event("touch"));
 				if (name.indexOf("gift") > -1) {
 					_sp.dispatchEvent(new Event("getGift"));
+					_sp.dispatchEvent(new Event("touch"));
 					_ce.sound.playSound("Beep");
 					kill();
 					return;
 				}
+				_sp.dispatchEvent(new Event("touch"));
 				//判斷有沒有放歪
 				if (x > _box.x + _allow) {
 					playFallSound();

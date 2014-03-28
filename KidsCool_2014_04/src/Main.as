@@ -54,5 +54,10 @@ package  {
 
 			e.target.loader.unloadAndStop();
 		}
+		
+		override protected function handleStageDeactivated(e:Event):void 
+		{
+			//super.handleStageDeactivated(e);
+		}
 	}
 }

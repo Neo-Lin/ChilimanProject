@@ -38,6 +38,8 @@ package
 			_altitude = MovieClip(content)._altitude;
 			back_btn = MovieClip(content).back_btn;
 			
+			checkGiftNum();
+			
 			if (_roleSex == "boy") {
 				_role._aBoy.addEventListener(MouseEvent.CLICK, roleClick);
 			}else {
@@ -58,18 +60,25 @@ package
 		public function getGift():void {
 			_giftNum++;
 			//trace(_giftNum);
+			checkGiftNum();
+		}
+		
+		private function checkGiftNum():void {
 			if (_giftNum > 9) {
 				_gift._a.gotoAndStop("_f"+String(_giftNum).charAt(1));
-				_gift._b.gotoAndStop("_f"+String(_giftNum).charAt(0));
+				_gift._b.gotoAndStop("_f" + String(_giftNum).charAt(0));
+				_gift._b.visible = true;
 			}else {
 				_gift._a.gotoAndStop("_f"+_giftNum);
 				_gift._b.gotoAndStop(1);
+				_gift._b.visible = false;
 			}
 		}
 		
 		//高度計
 		public function goHight(_n:int):void {
 			if (_altitude) {
+				if (_n > 100) _n = 100;
 				_altitude.gotoAndStop(_n);
 			}
 		}
