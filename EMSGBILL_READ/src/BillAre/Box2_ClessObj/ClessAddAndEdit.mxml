@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="356" height="116"
+		 creationComplete="AACB_ClessKind_Init()"
+		 >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			public function AACB_ClessKind_Init():void{
+				Text_Name.addEventListener(FocusEvent.FOCUS_IN,focusIn_AACB_CK_Fun);
+				Text_Name.addEventListener(FocusEvent.FOCUS_OUT,focusOut_AACB_CK_Fun);
+			}
+			protected function focusIn_AACB_CK_Fun(e:FocusEvent):void{
+				if(Text_Name.text=='請輸入費用類別名稱'){
+					Text_Name.text='';
+				}
+			}
+			protected function focusOut_AACB_CK_Fun(e:FocusEvent):void{
+				if(Text_Name.text==''){
+					Text_Name.text='請輸入費用類別名稱';
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Button x="14" y="80" label="新增" width="169" id="Btn_Add"/>
+	<s:Button x="191" y="81" label="修改" width="158" id="Btn_Edit"/>
+	<mx:TextInput x="66" y="10" width="278" text="請輸入費用類別名稱" id="Text_Name"/>
+	<s:DropDownList x="66" y="41" width="278" selectedIndex="0" id="IO_Kind"/> 
+	<s:Label x="10" y="14" text="類別名稱"/>
+	<s:Label x="10" y="44" text="收支類型"/>
+</s:Group>

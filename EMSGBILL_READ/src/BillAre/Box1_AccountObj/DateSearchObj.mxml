@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="780" height="510">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			public var TempDate:Date=new Date();
+			[Bindable]
+			public var OpenFirst:Boolean=true;
+		]]>
+	</fx:Script>
+	<s:BorderContainer x="0" y="0" width="780" height="510" backgroundColor="#828282" backgroundAlpha="0.8">
+		<s:Button x="259" y="468" label="確定" width="127" id="Btn_Ture"/>
+		<s:Button x="395" y="469" label="取消" width="127" id="Btn_False"/>
+		<mx:DateChooser x="119" y="136" width="261" height="300" id="SearchStart" showToday="false" selectedDate="{new Date((new Date()).setMonth(-1))}"/>
+		<mx:DateChooser x="402" y="136" width="261" height="300" symbolColor="#000000" focusColor="#70B2EE" rollOverColor="#CEDBEF" borderVisible="true" id="SearchEnd" showToday="false" selectedDate="{new Date()}"/>
+		<s:Label x="232" y="113" text="開始日期" fontSize="16"/>
+		<s:Label x="501" y="113" text="結束日期" fontSize="16"/>
+	</s:BorderContainer>
+</s:Group>

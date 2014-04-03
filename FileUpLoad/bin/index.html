@@ -6,10 +6,21 @@
 	<meta name="description" content="" />
 	
 	<script src="js/swfobject.js"></script>
+	<script language="JavaScript">
+		function ul_cb_select(a,b,c,d){
+		   alert('回傳已選擇檔案 : '+a+', '+b+', '+c+', '+d);
+		};
+		function ul_cb_status(a,b){
+		   alert('回傳上傳狀態 : '+a+', '+b);
+		};
+		function ul_cb_kb(a,b){
+		   alert('回傳已傳大小 : '+a+', '+b);
+		};
+	</script>
 	<script>
 		var flashvars = {
 			ul_type:"1",	
-			ul_q:"1",	
+			ul_q:"5",	
 			ul_ex:"*.jpg;*.png",	
 			ul_size:"",	
 			ul_:"1"	

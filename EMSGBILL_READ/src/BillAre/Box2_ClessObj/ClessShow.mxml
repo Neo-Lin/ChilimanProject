@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="380" height="515"
+		 >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:DataGrid x="5" y="5" width="371" height="508" id="ClessList">
+		<mx:columns>
+			<mx:DataGridColumn headerText="動作" width="35" dataField="X" id="DltAct" itemRenderer="BillAre.Box2_ClessObj.DltBtn"/>
+			<mx:DataGridColumn headerText="名稱" dataField="ClessName" width="250"/>
+			<mx:DataGridColumn headerText="收支" dataField="IOPutId"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:Group>

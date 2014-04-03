@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="69" height="20" currentState="up"
+		 creationComplete="ASB_NewSteBtn_Init()">
+	<fx:Script>
+		<![CDATA[
+			public var state:Number=0;
+			
+			public function ASB_NewSteBtn_Init():void{
+				if(state==0){
+					this.currentState = 'up';
+				}else{
+					this.currentState = 'up_slt';
+				}
+				this.addEventListener(MouseEvent.MOUSE_OVER,MOUSE_OVERDo);
+				this.addEventListener(MouseEvent.MOUSE_OUT,MOUSE_OUTDo);
+				this.addEventListener(MouseEvent.MOUSE_DOWN,MOUSE_DOWNDo);
+				this.addEventListener(MouseEvent.MOUSE_UP,MOUSE_OUTDo);
+			}
+			public function MOUSE_OVERDo(e:MouseEvent):void{
+				if(state==0){
+					this.currentState = 'over';
+				}else{
+					this.currentState = 'over_slt';
+				}
+				
+			}
+			public function MOUSE_OUTDo(e:MouseEvent):void{
+				if(state==0){
+					this.currentState = 'up';
+				}else{
+					this.currentState = 'up_slt';
+				}
+				
+			}
+			public function MOUSE_DOWNDo(e:MouseEvent):void{
+				if(state==0){
+					this.currentState = 'down';
+				}else{
+					this.currentState = 'down_slt';
+				}
+				
+			}
+			public function StateChange(TNumber:Number):void{
+				state=TNumber;
+				if(state==0){
+					this.currentState = 'up';
+				}else{
+					this.currentState = 'up_slt';
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+		<s:State name="up_slt"/>
+		<s:State name="over_slt"/>
+		<s:State name="down_slt"/>
+		<s:State name="disabled_slt"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Rect id="shadow" left="-1" right="-1" top="-1" bottom="-1" radiusX="2">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="0x000000" 
+								 color.down="0xFFFFFF"
+								 alpha="0.01"
+								 alpha.down="0" />
+				<s:GradientEntry color="0x000000" 
+								 color.down="0xFFFFFF" 
+								 alpha="0.07"
+								 alpha.down="0.5" />
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="fill" left="0" right="0" top="0" bottom="0" radiusX="0" top.up="0" left.up="0" bottom.up="0" right.up="0">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color.up="#f3fbf4"
+								 color.disabled="#f3fbf4" 
+								 color.over="#dfecdc" 
+								 color.down="#6aa95f" 
+								 color.up_slt="#F3E2EE"
+								 color.disabled_slt="#F3E2EE" 
+								 color.over_slt="#DFD0D9" 
+								 color.down_slt="#AA7EC9" 
+								 alpha="0.85" />
+				<s:GradientEntry color.up="#d4f1d8" 
+								 color.disabled="#d4f1d8" 
+								 color.over="#dfecdc" 
+								 color.down="#dfecdc" 
+								 color.up_slt="#D4D2D9" 
+								 color.disabled_slt="#D4D2D9" 
+								 color.over_slt="#DFD0DB" 
+								 color.down_slt="#DFCBDB" 
+								 alpha="0.85" 
+								 />
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	<s:Rect id="border" left="0" right="0" top="0" bottom="0" width="69" height="20" radiusX="2">
+		<s:stroke>
+			<s:SolidColorStroke color="#8eb394" alpha="1"
+								alpha.disabled="0.5"/>
+		</s:stroke>
+	</s:Rect>
+	<s:Label id="labelDisplay"
+			 textAlign="center"
+			 verticalAlign="middle"
+			 maxDisplayedLines="1"
+			 horizontalCenter="0" verticalCenter="1"
+			 left="10" right="10" top="2" bottom="2">
+	</s:Label>
+</s:Group>

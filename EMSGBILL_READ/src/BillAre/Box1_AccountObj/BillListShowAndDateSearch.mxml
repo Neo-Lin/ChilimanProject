@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="370" height="473"
+		 creationComplete="BLShowAndSearch()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			[Bindable]
+			public var Today:Date=new Date();
+			public var Startday:Date=new Date(new Date().setMonth(-1));
+			public var TempDateText:String=Startday.getFullYear()+'/'+(Startday.getMonth()+1)+'/'+Startday.getDate()+" ~ "+Today.getFullYear()+'/'+(Today.getMonth()+1)+'/'+Today.getDate();
+			public function BLShowAndSearch():void{
+				DateRange.text=TempDateText;
+				//BillList.addEventListener(ListEvent.CHANGE,BillList_changeHandler);
+			}
+
+			/* protected function BillList_changeHandler(event:ListEvent):void{
+				// TODO Auto-generated method stub
+				var F:DataGrid=new DataGrid();
+				//F.selectedIndex
+				Alert.show(""+event.target.selectedIndex);
+			} */
+
+		]]>
+	</fx:Script>
+	<mx:DataGrid x="4" y="25" width="390" height="445" id="BillList">
+		<mx:columns>
+			<mx:DataGridColumn headerText="刪除" itemRenderer="BillAre.Box0_TopObj.DltBtn" width="35"/>
+			<mx:DataGridColumn headerText="記帳日期" dataField="InputDate" width="80"/>
+			<mx:DataGridColumn headerText="記帳類型" dataField="ClessId" width="60"/>
+			<mx:DataGridColumn headerText="收支類型" dataField="IOId" width="60"/>
+			<mx:DataGridColumn headerText="帳目金額" width="60" dataField="Money"/>
+			<mx:DataGridColumn headerText="備註" width="60" dataField="Note" itemRenderer="mx.controls.Label"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<s:Label x="73" y="2" text="Date" width="168" height="20" textAlign="center" verticalAlign="middle" id="DateRange"/>
+	<s:Button x="4" y="0" label="檢索範圍" id="Obj_DSearchRange"/>
+	<s:Button x="328" y="0" label="新增帳單" id="AddNewBill" visible="false"/>
+</s:Group>

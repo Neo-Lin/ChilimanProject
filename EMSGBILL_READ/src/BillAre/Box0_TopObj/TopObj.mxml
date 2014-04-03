@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="772" height="50" xmlns:ns3="BillAre.Box0_TopObj.*"
+		 creationComplete="TopInit()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			public function TopInit():void{
+				Btn_AccountGo.selected=true;
+			}
+			protected function tog1_btn_clickHandler(event:MouseEvent):void{
+				Btn_ClessGo.selected=false
+				Btn_SumGo.selected=false
+				Btn_AccountGo.selected=false
+				Btn_eToolGo.selected=false
+				Btn_Export.selected=false
+				Btn_Import.selected=false
+				ToggleButton(event.target).selected=true;
+			}
+		]]>
+	</fx:Script>
+	<s:Label x="0" y="3.55" text="{parentApplication.serviceInfo.userLoginObj.userName+'的記帳本'}" fontSize="18" width="169" id="Text_Name"/>
+	<s:Button x="670" y="0" label="關閉" width="100" id="Btn_Close"/>
+	<ns3:TimeShow x="418" y="0" id="Obj_Time">
+	</ns3:TimeShow>
+	<s:HGroup y="22" >
+		<s:ToggleButton id="Btn_AccountGo" label="帳戶管理" click="tog1_btn_clickHandler(event)"/>
+		<s:ToggleButton id="Btn_ClessGo" label="類別管理" click="tog1_btn_clickHandler(event)"/>		
+		<s:ToggleButton id="Btn_eToolGo" label="e管家通知費用統計" click="tog1_btn_clickHandler(event)"/>
+		<s:ToggleButton id="Btn_SumGo" label="費用統計" click="tog1_btn_clickHandler(event)"/>
+		<s:ToggleButton id="Btn_Export" label="匯出費用" click="tog1_btn_clickHandler(event)"/>
+		<s:ToggleButton id="Btn_Import" label="匯入費用" click="tog1_btn_clickHandler(event)"/>
+	</s:HGroup>
+</s:Group>

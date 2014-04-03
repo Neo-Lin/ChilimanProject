@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100" height="30">
+	<s:states>
+		<s:State name="Common"/>
+		<s:State name="RollOver"/>
+		<s:State name="Slt"/>
+		<s:State name="MouseDown"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:Image x="-10" y="0" width="100" source="BillAre/PicBox/Btn_D1.png"/>
+	<mx:Image x="-10" y="0" width="100" source="BillAre/PicBox/Btn_D2.png" visible.Common="false"/>
+	<mx:Image x="-10" y="0" width="100" source="BillAre/PicBox/Btn_D3.png" visible.RollOver="false" visible.Common="false"/>
+	<mx:Image x="-10" y="0" width="100" source="BillAre/PicBox/Btn_D4.png" visible.Common="false" visible.RollOver="false" visible.Slt="false"/>
+</s:Group>

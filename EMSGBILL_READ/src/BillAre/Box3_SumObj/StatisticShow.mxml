@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="380" height="505"
+		 creationComplete="TempInit()">
+
+	<fx:Script>
+		<![CDATA[
+			import BillAre.ASBox.DBBox;
+			import mx.collections.HierarchicalData;
+			//---
+			private var arrData:Array=[
+				{name: "User A", dob: "04/14/1980"}, 
+				{name: "User B", dob: "01/02/1975"}, 
+				{name: "Group A", children: [
+					{name: "User E", dob: "09/13/1972"}, 
+					{name: "User F", dob: "11/22/1993"}]}, 
+				{name: "Group B",dob: "11/22/1993", children: [
+					{name: "Group B1", children: [
+						{name: "User I", dob: "01/23/1984"}, 
+						{name: "User J", dob: "11/10/1948"}]}, 
+					{name: "User G", dob: "04/09/1989"}, 
+					{name: "User H", dob: "06/20/1963"}]}, 
+				{name: "User C", dob: "12/30/1977"}, 
+				{name: "User D", dob: "10/27/1968"}];
+			//---
+			protected function TempInit():void{
+				//InputData(arrData);
+			}
+			protected function Btn_Statistics1_clickHandler(event:MouseEvent):void{
+				/* var TempObj:BillAre.ASBox.DBBox=new DBBox();
+				TempObj.TxtBack(TXT_Back); */
+			}
+			protected function TXT_Back(e:SQLEvent):void{
+			}
+			public function InputData(aryData:Array):void{
+				Tree_MsgSum.dataProvider=new HierarchicalData(aryData);
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<mx:AdvancedDataGrid x="10" y="0" id="Tree_MsgSum" designViewDataType="tree" width="360" height="504" displayItemsExpanded="true">
+		<mx:columns>
+			<mx:AdvancedDataGridColumn headerText="統計列表" dataField="name"/>
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+</s:Group>

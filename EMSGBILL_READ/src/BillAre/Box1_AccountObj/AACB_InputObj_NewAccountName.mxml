@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="170" height="20" currentState="Common"
+		 creationComplete="AACB_IONAN_Init()" width.Common="175" height.EditPage="35" height.Common="35">
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var NowState:String='Common';
+			public function AACB_IONAN_Init():void{
+				//Btn_AddStart.addEventListener(MouseEvent.CLICK,click_AACB_IONAN_Fun);
+				this.addEventListener(MouseEvent.ROLL_OUT,rollOut_AACB_IONAN_Fun);
+				EditText.addEventListener(FocusEvent.FOCUS_IN,focusIn_AACB_IONAN_Fun);
+				EditText.addEventListener(FocusEvent.FOCUS_OUT,focusOut_AACB_IONAN_Fun);
+				EditText.text='請輸入新帳戶名稱';
+			}
+			protected function click_AACB_IONAN_Fun(e:MouseEvent):void{
+				this.currentState='EditPage';
+				NowState=this.currentState;
+			}
+			public function click_AddStartGo_Fun():void{
+				this.currentState='EditPage';
+				NowState=this.currentState;
+			}
+			protected function rollOut_AACB_IONAN_Fun(e:MouseEvent):void{
+				this.currentState='Common';
+				NowState=this.currentState;
+			}
+			protected function focusIn_AACB_IONAN_Fun(e:FocusEvent):void{
+				if(EditText.text=='請輸入新帳戶名稱'){
+					EditText.text='';
+				}
+			}
+			protected function focusOut_AACB_IONAN_Fun(e:FocusEvent):void{
+				if(EditText.text==''){
+					EditText.text='請輸入新帳戶名稱';
+				}
+			}
+			protected function Btn_Add_clickHandler(event:MouseEvent):void{
+				this.currentState='Common';
+				NowState=this.currentState;
+			}
+
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="Common"/>
+		<s:State name="EditPage"/>
+	</s:states>
+	<s:transitions>
+		<s:Transition fromState="Common" toState="EditPage">
+			<s:Parallel duration="300" effectEnd="{Btn_Add.x=133;}">
+				<s:Move target="{Btn_AddStart}" xFrom="7" xTo="133"/>
+				<s:Move target="{Btn_Add}" xFrom="7" xTo="133"/>
+				<s:Fade target="{EditText}" alphaFrom="0" alphaTo="1" startDelay="200"/>
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="EditPage" toState="Common">
+			<s:Parallel duration="300" effectEnd="{Btn_AddStart.x=7}">
+				<s:Move target="{Btn_AddStart}" xFrom="133" xTo="7" startDelay="200"/>
+				<s:Move target="{Btn_Add}" xFrom="133" xTo="7" startDelay="200"/>
+				<s:Fade target="{EditText}" alphaFrom="1" alphaTo="0"/>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<mx:TextInput x="3" y="0" height="20" color="#969696" id="EditText" enabled.Common="false" contentBackgroundAlpha.Common="1.0" visible.Common="false" x.EditPage="3" y.EditPage="7"/>
+	<s:Button label="+" width="33" color="#969696" id="Btn_AddStart" x="7" y="7" includeIn="Common"/>
+	<s:Button label="+" width="33" color="#969696" x="133" y="7" id="Btn_Add" click="Btn_Add_clickHandler(event)" visible.Common="false"/>
+</s:Group>

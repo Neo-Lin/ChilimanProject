@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="784" height="520" xmlns:ns4="BillAre.Box2_ClessObj.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var OpenFirst:Boolean=true;
+		]]>
+	</fx:Script>
+	<ns4:ClessShow x="6" y="2" id="Obj_CAAE"/>
+	<ns4:ClessAddAndEdit x="420" y="5" id="ClessCtrl">
+	</ns4:ClessAddAndEdit>
+</s:Group>

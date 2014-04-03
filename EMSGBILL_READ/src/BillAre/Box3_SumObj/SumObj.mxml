@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="790" height="520" xmlns:ns5="BillAre.Box3_SumObj.*"
+		 creationComplete="SumObj_Init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			public var MC_BillLoad:MC_BillLoading;
+			[Bindable]
+			public var OpenFirst:Boolean=true;
+			public function SumObj_Init():void{
+				MC_BillLoad=new MC_BillLoading();
+				LoadBox.addChild(MC_BillLoad);
+				MC_BillLoad.x=400;
+				MC_BillLoad.y=270;
+			}
+			public function StateToPage():void{
+				this.currentState = 'Page';
+				MC_BillLoad.visible=false;
+			}
+			public function StateToLoading():void{
+				this.currentState = 'Loading';
+				MC_BillLoad.visible=true;
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="Loading"/>
+		<s:State name="Page"/>
+	</s:states>
+	<s:SpriteVisualElement id='LoadBox'/>
+	<ns5:StatisticSeting x="10" y="13" id="Obj_SC" visible.Loading="false"/>
+	<ns5:StatisticShow x="401" y="10" id="Obj_SS" visible.Loading="false"/>
+</s:Group>

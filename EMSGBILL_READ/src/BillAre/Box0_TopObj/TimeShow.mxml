@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="230" height="20"
+		 creationComplete="TimeShow_init()">
+	<fx:Script>
+		<![CDATA[
+			public var timer:Timer = new Timer(10000);
+			public function TimeShow_init():void{
+				TimeGet();
+				timer.addEventListener(TimerEvent.TIMER,TimeRun);
+				timer.start();
+			}
+			protected function TimeGet():void{
+				var NowTime:Date=new Date();
+				var NowHour:Number=NowTime.getHours();
+				var NowMinutes:Number=NowTime.getMinutes();
+				T_Year.text=String(NowTime.getFullYear());
+				T_Month.text=String(NowTime.getMonth()+1);
+				T_Date.text=String(NowTime.getDate());
+				T_APM.text=(NowHour<12)?"AM":"PM";
+				NowHour=(NowHour<12)?NowHour:NowHour-12;
+				var THoure_Str:String=(NowHour<10)?("0"+String(NowHour)):(String(NowHour));
+				var TMinutes_Str:String=(NowMinutes<10)?("0"+String(NowMinutes)):String(NowMinutes);
+				T_Time.text=THoure_Str+":"+TMinutes_Str;
+			}
+			protected function TimeRun(e:TimerEvent):void{
+				TimeGet();
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Label x="43" y="1" text="年" fontSize="18"/>
+	<s:Label x="1" y="2" text="2000" fontSize="18" id="T_Year" textAlign="center"/>
+	<s:Label x="61" y="3" text="1" fontSize="18" verticalAlign="top" id="T_Month" textAlign="center" width="24"/>
+	<s:Label x="100" y="3" text="1" fontSize="18" textAlign="center" id="T_Date" width="28"/>
+	<s:Label x="149" y="3" text="AM" fontSize="18" textAlign="center" id="T_APM"/>
+	<s:Label x="180" y="3" text="12:00" fontSize="18" textAlign="center" id="T_Time"/>
+	<s:Label x="85" y="1" text="月" fontSize="18"/>
+	<s:Label x="126" y="1" text="日" fontSize="18"/>
+</s:Group>

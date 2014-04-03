@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="30" height="24"
+		 >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import BillAre.ASBox.ObjCtrlBox;
+			
+			import mx.controls.Alert;
+			protected function Btn_Dlt_clickHandler(event:MouseEvent):void{
+				//var TempMC:Object=this.parent.parent.parent.parent.parent.parent.parent.parent;
+				var TempMC:Object=this.parentDocument.parentDocument.parent;
+				//Alert.show(""+data.ClessId);
+				data.Fun(TempMC.ClessSearch_GetDBDo,data.ClessId);
+				//Alert.show(""+data.ClessId+" : "+data.ClessName+" : "+data.IOPutId);
+			}
+
+		]]>
+	</fx:Script>
+	<s:Button label="X" width="30" id="Btn_Dlt" click="Btn_Dlt_clickHandler(event)"/>
+</mx:VBox>

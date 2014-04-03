@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="786" height="515" xmlns:local="*" xmlns:ns="BillAre.Box3_SumObj.*"
+		 creationComplete="eToolObj_Init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import BillAre.Box1_AccountObj.AACB_AccountSltBtn;
+			import mx.collections.ArrayCollection;
+			import Date;
+			
+			public var MC_BillLoad:MC_BillLoading;
+			[Bindable]
+			public var OpenFirst:Boolean=true;
+			[Bindable]
+			private var Month_modes:ArrayCollection = new ArrayCollection(["全部", "successive", "on-time"]);
+			[Bindable]
+			private var Year_modes:ArrayCollection = new ArrayCollection(["全部", "1", "2"]);
+			public function eToolObj_Init():void{
+				MC_BillLoad=new MC_BillLoading();
+				LoadBox.addChild(MC_BillLoad);
+				MC_BillLoad.x=400;
+				MC_BillLoad.y=270;
+			}
+			public function StateToPage():void{
+				this.currentState = 'Page';
+				MC_BillLoad.visible=false;
+			}
+			public function StateToLoading():void{
+				this.currentState = 'Loading';
+				MC_BillLoad.visible=true;
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="Loading"/>
+		<s:State name="Page"/>
+	</s:states>
+	<s:SpriteVisualElement id='LoadBox'/>
+	<mx:DataGrid x="6" y="380" height="130" width="169" visible.Loading="false" id="DateGrid_Kind" variableRowHeight.Page="true">
+		<mx:columns>
+			<mx:DataGridColumn headerText="e管家帳單分類" dataField="name" width="100" resizable.Page="false" sortable.Page="false" draggable.Page="false"/>
+			<mx:DataGridColumn headerText="分類金額" dataField="money" resizable.Page="false" sortable.Page="false" wordWrap.Page="false" editable.Page="false"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:DataGrid x="182" y="7" width="599" height="480" visible.Loading="false" id="DateGrid_Show" >
+		<mx:columns>
+			<mx:DataGridColumn headerText="名稱" dataField="title" width="550"/>
+			<mx:DataGridColumn headerText="費用" dataField="Money"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<s:Label x="185" y="495" text="總額" visible.Loading="false"/>
+	<s:Label x="210" y="495" text="$" width="566" visible.Loading="false" id="Txt_SumMoney" x.Page="212"/>
+	<s:Button x="6" y="6" label="更新資料" width="112" id="Btn_DataChange" visible="false" includeIn="Loading"/>
+	<mx:DateChooser x="6" y="30" width="169" height="161" showToday="false" id="Date_Start" selectedDate="{new Date((new Date()).setMonth(-1))}" visible.Loading="false"/>
+	<mx:DateChooser x="6" y="215" width="169" height="161" showToday="false" id="Date_End" selectedDate="{new Date()}" visible.Loading="false"/>
+	<s:Label includeIn="Page" x="10" y="12" text="起始日期"/>
+	<s:Label x="10" y="198" text="結束日期" includeIn="Page"/>
+</s:Group>

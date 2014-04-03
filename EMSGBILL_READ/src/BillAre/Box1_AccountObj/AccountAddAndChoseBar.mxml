@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="780" height="35" xmlns:ObjBox="BillAre.ObjBox.*" xmlns:ns="BillAre.Box1_AccountObj.*"
+		 creationComplete="AACB_Init()">
+	<fx:Script>
+		<![CDATA[
+			import BillAre.Box1_AccountObj.AACB_AccountSltBtn;
+			
+			import mx.events.FlexEvent;
+			[Bindable]
+			public var ListAry:Array = new Array();
+			public var AACB_timer:Timer = new Timer(50);
+			private var TempState:String;
+			public function AACB_Init():void{
+				Obj_AddBtn.addEventListener(MouseEvent.ROLL_OVER,rollOver_Obj_AddBtn_Fun);
+				AACB_timer.addEventListener(TimerEvent.TIMER,AACB_TimeRun);
+			}
+			protected function rollOver_Obj_AddBtn_Fun(e:MouseEvent):void{
+				AACB_timer.start();
+				this.currentState='State_Common';
+				TempState=this.currentState;
+			}
+			protected function rollOut_Obj_AddBtn_Fun(e:MouseEvent):void{
+				AACB_timer.stop();
+				this.currentState='State_Common';
+			}
+			protected function AACB_TimeRun(e:TimerEvent):void{
+				if(TempState=='State_Add'&&Obj_AddBtn.NowState=='Common'){
+					this.currentState='State_Common';
+					AACB_timer.stop();
+				}else if(Obj_AddBtn.NowState=='EditPage'){
+					this.currentState='State_Add';
+					TempState=this.currentState;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="State_Common"/>
+		<s:State name="State_Add"/>
+	</s:states>
+	<s:transitions>
+		<s:Transition fromState="State_Common" toState="State_Add">
+			<s:Parallel duration="300">
+				<s:Move target="{SltBtn_Box}" xFrom="46" xTo="173"/>
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="State_Add" toState="State_Common">
+			<s:Parallel duration="300" startDelay="200">
+				<s:Move target="{SltBtn_Box}" xFrom="173" xTo="46"/>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<ns:AACB_InputObj_NewAccountName x="8" y="6" id="Obj_AddBtn" x.State_Common="0" y.State_Common="0" y.State_Add="0" x.State_Add="0"/>
+	<s:Group x="47" y="0" width="100" height="35" id="SltBtn_Box" x.State_Add="173" y.State_Add="-1" x.State_Common="46" y.State_Common="0">
+		<s:SpriteVisualElement id='BtnBox'>
+			
+		</s:SpriteVisualElement>
+		<!--<ns:AACB_AccountSltBtn x="0" y="-2" x.State_Add="1" y.State_Add="-2" x.State_Common="0" y.State_Common="-2"/>-->
+	</s:Group>
+</s:Group>

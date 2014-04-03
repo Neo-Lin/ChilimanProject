@@ -25,7 +25,8 @@ package
 		private var _ul_q:int;		//上傳數量限制
 		private var _ul_ex:String;	//上傳型別(副檔名)
 		private var _ul_size:int;	//上傳檔案大小限制
-		private var _ul_:int;		//上傳型態 1:立即上傳 2:按下確認鍵才上傳
+		private var _ul_:int = 1;	//上傳型態 1:立即上傳 2:按下確認鍵才上傳
+		private var _fileList = [];
 		
 		public function FileUpLoad() 
 		{
@@ -35,9 +36,12 @@ package
 			_ul_q = root.loaderInfo.parameters.ul_q;
 			_ul_ex = root.loaderInfo.parameters.ul_ex;
 			_ul_size = root.loaderInfo.parameters.ul_size;
-			_ul_ = root.loaderInfo.parameters.ul_;
+			if (root.loaderInfo.parameters.ul_) {
+				_ul_ = root.loaderInfo.parameters.ul_;
+			}
 			
 			//測試用
+			//if(ExternalInterface.available) ExternalInterface.call("ul_cb_select","test");
 			_ul_ex = "*.jpg"; _ul_type = 2;
 			var _txt:TextField = new TextField();
 			_txt.height = 300;
@@ -70,10 +74,27 @@ package
 		
 		private function Select_Many_Handler(e:Event):void 
 		{
-			trace("Select_Many_Handler");
-			var _a = e.currentTarget.fileList;
+			trace("Select_Many_Handler", _ul_);
+			_fileList = e.currentTarget.fileList;
+			
+			//回傳已選擇檔案-序號,檔名,大小,狀態
+			if (ExternalInterface.available) {
+				var _i:int;
+				for each(var f:FileReference in _fileList) {
+					_i++;
+					ExternalInterface.call("ul_cb_select", _i, f.name, f.size, "1");
+				}
+			}
+			
+			if (_ul_ == 1) {	//立即上傳
+				load_Many();
+			}
+		}
+		
+		//上傳檔案
+		private function load_Many():void {
 			var _i:int;
-			for each(var f:FileReference in _a) {
+			for each(var f:FileReference in _fileList) {
 				_i++;
 				trace(_i, f.name, f.size);
 				f.addEventListener(Event.OPEN, manyUpLoadStart);
@@ -91,12 +112,15 @@ package
 		private function manyUpLoading(e:ProgressEvent):void 
 		{
 			trace(e.currentTarget.name + " 上傳中....");
-			trace("已上傳:"+e.bytesLoaded, "總大小:"+e.bytesTotal, "進度:"+e.bytesLoaded/e.bytesTotal*100);
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", e.currentTarget.name, "1");
+			trace("已上傳:" + e.bytesLoaded, "總大小:" + e.bytesTotal, "進度:" + e.bytesLoaded / e.bytesTotal * 100);
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_kb", e.currentTarget.name, e.bytesLoaded / e.bytesTotal * 100);
 		}
 		
 		private function manyUpLoadComplete(e:DataEvent):void 
 		{
 			trace(e.currentTarget.name + " 上傳完畢!!");
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", e.currentTarget.name, "2");
 		}
 		
 		private function SelectFile(e:MouseEvent):void  {

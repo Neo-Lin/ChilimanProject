@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<application xmlns="http://ns.adobe.com/air/application/3.7">
+  <id>EMSGBILLREAD</id>
+  <versionNumber>1.0</versionNumber>
+  <filename>e管家記帳本匯出工具</filename>
+  <name>e管家記帳本匯出工具</name>
+  <initialWindow>
+    <title>e管家記帳本匯出工具</title>
+    <content>EMSGBILLREAD.swf</content>
+    <systemChrome>standard</systemChrome>
+    <transparent>false</transparent>
+    <visible>true</visible>
+    <minimizable>true</minimizable>
+    <maximizable>true</maximizable>
+    <resizable>true</resizable>
+  </initialWindow>
+  <icon>
+				<image16x16>icon/eToolIcon16.png</image16x16>
+				<image32x32>icon/eToolIcon32.png</image32x32>
+				<image48x48>icon/eToolIcon48.png</image48x48>
+				<image128x128>icon/eToolIcon128.png</image128x128>
+	</icon> 
+	<supportedProfiles>extendedDesktop desktop</supportedProfiles>
+  <!-- 
+	More options:
+	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
+	-->
+</application>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="75" height="40" currentState="RollOut" width.RollOver="95" width.RollOut="95" width.Edit="95"
+		 creationComplete="AACB_ASB_init()"
+		  chromeColor.RollOut="#BD8282" xmlns:ns="BillAre.Box1_AccountObj.*">
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var labelText:String;
+			[Bindable]
+			public var AccountID:Number;
+			[Bindable]
+			public var SSDate:Date;
+			[Bindable]
+			public var SEDate:Date;
+			
+			public function AACB_ASB_init():void{
+				this.addEventListener(MouseEvent.ROLL_OVER,rollOver_AACB_ASB_Fun);
+				this.addEventListener(MouseEvent.ROLL_OUT,rollOut_AACB_ASB_Fun);
+				AccountBtn.labelDisplay.text=labelText;
+				EditTxt.text=labelText;
+			}
+			public function rollOver_AACB_ASB_Fun(e:MouseEvent):void{
+				this.currentState = 'RollOver';
+			}
+			public function rollOut_AACB_ASB_Fun(e:MouseEvent):void{
+				this.currentState = 'RollOut';
+			}
+
+			public function EditBtn_clickHandler(event:MouseEvent):void
+			{
+				this.currentState = 'Edit';
+				EditTxt.text=labelText;
+			}
+
+			public function defineBtn_clickHandler(event:MouseEvent):void
+			{
+				this.currentState = 'RollOver';
+			}
+			//AccountBtn.chromeColor
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="RollOut"/>
+		<s:State name="RollOver"/>
+		<s:State name="Edit"/>
+	</s:states>
+	<s:transitions>
+		<s:Transition fromState="RollOut" toState="RollOver">
+			<s:Parallel duration="200">
+				<s:Move target="{AccountBtn}" yFrom="{AccountBtn.y}" yTo="18"/>
+				<s:Fade target="{EditBtn}" alphaFrom="0" alphaTo="1"/>
+				<s:Fade target="{DltBtn}" alphaFrom="0" alphaTo="1"/>
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="RollOver" toState="RollOut">
+			<s:Parallel duration="200">
+				<s:Move target="{AccountBtn}" yFrom="18" yTo="{AccountBtn.y}"/>
+				<s:Fade target="{EditBtn}" alphaFrom="1" alphaTo="0"/>
+				<s:Fade target="{DltBtn}" alphaFrom="1" alphaTo="0"/>
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="RollOver" toState="Edit">
+			<s:Parallel duration="200">
+				<s:Fade target="{AccountBtn}" alphaFrom="1" alphaTo="0"/>
+				<s:Fade target="{EditBtn}" alphaFrom="1" alphaTo="0"/>
+				<s:Fade target="{DltBtn}" alphaFrom="1" alphaTo="0"/>
+				<s:Fade target="{defineBtn}" alphaFrom="0" alphaTo="1"/>
+				<s:Fade target="{EditTxt}" alphaFrom="0" alphaTo="1"/>
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="Edit" toState="RollOver">
+			<s:Parallel duration="200">
+				<s:Fade target="{AccountBtn}" alphaFrom="0" alphaTo="1"/>
+				<s:Fade target="{EditBtn}" alphaFrom="0" alphaTo="1"/>
+				<s:Fade target="{DltBtn}" alphaFrom="0" alphaTo="1"/>
+				<s:Fade target="{defineBtn}" alphaFrom="1" alphaTo="0"/>
+				<s:Fade target="{EditTxt}" alphaFrom="1" alphaTo="0"/>
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="Edit" toState="RollOut">
+			<s:Parallel duration="200">
+				<s:Fade target="{AccountBtn}" alphaFrom="0" alphaTo="1"/>
+				<s:Fade target="{defineBtn}" alphaFrom="1" alphaTo="0"/>
+				<s:Fade target="{EditTxt}" alphaFrom="1" alphaTo="0"/>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<ns:AACB_ASB_NewSetBtn y="10" x.RollOver="0" y.RollOver="18" x.Edit="0" y.Edit="18" width.Edit="0" width.RollOver="95" x.RollOut="0" width.RollOut="95" y.RollOut="10" id="AccountBtn" enabled.Edit="true" visible.Edit="false" />
+	<s:Button includeIn="RollOver" x="0" y="0" label="編輯名稱" width="72" height="19" id="EditBtn" click="EditBtn_clickHandler(event)"/>
+	<s:Button x="65" y="0" label="X" width="30" height="19" id="DltBtn" visible.RollOut="false" visible.Edit="false"/>
+	<s:TextInput x="0" y="18" width="95" id="EditTxt" visible.RollOut="false" visible.RollOver="false" textAlign.Edit="center"/>
+	<s:Button x="0" y="0" label="define" width="95" height="20" id="defineBtn" click="defineBtn_clickHandler(event)" visible.RollOver="false" visible.RollOut="false" label.Edit="確定"/>
+</s:Group>

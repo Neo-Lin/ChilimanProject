@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="370" height="475"
+		 >
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.controls.TextArea;
+			import spark.events.IndexChangeEvent;
+			protected function Btn_Cless_changeHandler(event:IndexChangeEvent):void
+			{
+				//Alert.show("111");
+				// TODO Auto-generated method stub
+				//Txt_Note.text="";
+				//Txt_Money.text="";
+			}
+
+
+			protected function Btn_NewBill_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Button x="67" y="444" label="新增" width="100" id="Btn_CopyBill" click="Btn_NewBill_clickHandler(event)"/>
+	<s:Button x="265" y="444" label="修改" width="100" id="Btn_FixBill"/>
+	<s:Button x="252" y="445" label="刪除" width="100" id="Btn_DltBill" visible="false"/>
+	<mx:TextArea width="300" height="156" x="63" y="275" id="Txt_Note" maxChars="50"/>
+	<s:Label text="備註" x="34" y="277"/>
+	<s:Label text="金額" x="34" y="252"/>
+	<s:Label text="收支類型" x="10" y="224"/>
+	<s:Label text="費用類型" x="10" y="198"/>
+	<mx:TextInput width="300" x="63" y="247" id="Txt_Money" restrict="0-9"/>
+	<s:DropDownList width="300" x="63" y="194" id="Btn_Cless" change="Btn_Cless_changeHandler(event)"></s:DropDownList>
+	<mx:DateChooser width="300" height="176" x="63" y="10" id="Obj_BillDate" showToday="false" selectedDate="{new Date}"/>
+	<s:Button label="今天日期" width="42" height="30" x="16" y="10" id="BtnToday"/>
+	<s:Label x="66" y="226" text="Label" id="Txt_IOP" width="294"/>
+</s:Group>

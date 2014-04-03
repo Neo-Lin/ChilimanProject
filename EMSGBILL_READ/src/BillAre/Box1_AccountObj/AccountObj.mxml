@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="784" height="515" xmlns:ns="BillAre.Box1_AccountObj.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var OpenFirst:Boolean=true;
+		]]>
+	</fx:Script>
+	<ns:AccountAddAndChoseBar x="3" y="3" id="Obj_AACB"/>
+	<ns:BillListShowAndDateSearch x="9" y="40" id="Obj_BLSADS"/>
+	<ns:BillEdit x="405" y="31" id="Obj_BE"/>
+</s:Group>
