@@ -3,6 +3,7 @@ package
 	import flash.display.Sprite;
 	import flash.events.DataEvent;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
 	import flash.events.ProgressEvent;
 	import flash.external.ExternalInterface;
@@ -48,7 +49,7 @@ package
 			
 			//測試用
 			//if(ExternalInterface.available) ExternalInterface.call("ul_cb_select","test");
-			_ul_ex = "*.jpg"; _ul_type = 1; _ul_url = "http://localhost";
+			/*_ul_ex = "*.jpg"; _ul_type = 2; _ul_url = "http://localhost";
 			var _txt:TextField = new TextField();
 			_txt.height = 300;
 			_txt.text = "ul_type = " + _ul_type + "\n" +
@@ -57,12 +58,12 @@ package
 						"ul_size = " + _ul_size + "\n" +
 						"ul_cb = " + _ul_cb + "\n" +
 						"ul_url = " + _ul_url;
-			addChild(_txt);
+			addChild(_txt);*/
 			
 			if (_ul_type == 1) {	//單檔
-				addEventListener(MouseEvent.CLICK, SelectFile);
+				stage.addEventListener(MouseEvent.CLICK, SelectFile);
 			}else if(_ul_type == 2) {	//多檔
-				addEventListener(MouseEvent.CLICK, SelectFiles);
+				stage.addEventListener(MouseEvent.CLICK, SelectFiles);
 			}
 			
 			this.fileBrowserMany.addEventListener(Event.SELECT, this.Select_Many_Handler);
@@ -88,8 +89,8 @@ package
 			if (ExternalInterface.available) {
 				var _i:int;
 				for each(var f:FileReference in _fileList) {
-					_i++;
 					ExternalInterface.call("ul_cb_select", _i, f.name, f.size, "1");
+					_i++;
 				}
 			}
 			
@@ -102,30 +103,37 @@ package
 		private function load_Many():void {
 			var _i:int;
 			for each(var f:FileReference in _fileList) {
-				_i++;
 				trace(_i, f.name, f.size);
 				f.addEventListener(Event.OPEN, manyUpLoadStart);
 				f.addEventListener(ProgressEvent.PROGRESS, manyUpLoading);
-				f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, manyUpLoadComplete);
-				f.upload(new URLRequest("http://localhost"));
+				//f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, manyUpLoadComplete);
+				f.addEventListener(Event.COMPLETE, manyUpLoadComplete);
+				f.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
+				f.upload(new URLRequest(this._ul_url));
+				_i++;
 			}
 		}
 		
 		private function manyUpLoadStart(e:Event):void 
 		{
-			trace(e.currentTarget.name + " 開始上傳!!");
+			trace(e.currentTarget.name + " 開始上傳!!", "序號:" + _fileList.indexOf(e.currentTarget));
 		}
 		private function manyUpLoading(e:ProgressEvent):void 
 		{
-			trace(e.currentTarget.name + " 上傳中....");
-			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", e.currentTarget.name, "1");
-			trace("已上傳:" + e.bytesLoaded, "總大小:" + e.bytesTotal, "進度:" + e.bytesLoaded / e.bytesTotal * 100);
-			if (ExternalInterface.available) ExternalInterface.call("ul_cb_kb", e.currentTarget.name, e.bytesLoaded / e.bytesTotal * 100);
+			trace(e.currentTarget.name + " 上傳中....", "序號:" + _fileList.indexOf(e.currentTarget));
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "1");
+			var _b:Number = e.bytesLoaded / e.bytesTotal * 100;
+			trace("已上傳:" + e.bytesLoaded, "總大小:" + e.bytesTotal, "進度:" + _b);
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_kb", _fileList.indexOf(e.currentTarget), e.bytesLoaded, _b);
 		}
-		private function manyUpLoadComplete(e:DataEvent):void 
+		private function manyUpLoadComplete(e:Event):void 
 		{
-			trace(e.currentTarget.name + " 上傳完畢!!");
-			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", e.currentTarget.name, "2");
+			trace(e.currentTarget.name + " 上傳完畢!!", "序號:" + _fileList.indexOf(e.currentTarget));
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "2");
+		}
+		private function manyIoError(e:IOErrorEvent):void 
+		{
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "3");
 		}
 		
 		private function SelectFile(e:MouseEvent):void  {
@@ -159,9 +167,10 @@ package
         {
             this._file.addEventListener(Event.OPEN, this.manyUpLoadStart);
             this._file.addEventListener(ProgressEvent.PROGRESS, this.manyUpLoading);
-            this._file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.manyUpLoadComplete);
+            //this._file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.manyUpLoadComplete);
+			this._file.addEventListener(Event.COMPLETE, manyUpLoadComplete);
+			this._file.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
             this._file.upload(new URLRequest(this._ul_url));
-            return;
         }
 		
 		private function DialogCancelled_Handler(e:Event):void 
