@@ -49,7 +49,7 @@ package
 			
 			//測試用
 			//if(ExternalInterface.available) ExternalInterface.call("ul_cb_select","test");
-			/*_ul_ex = "*.jpg"; _ul_type = 2; _ul_url = "http://localhost";
+			/*_ul_size = 4832796; _ul_ex = "*.jpg"; _ul_type = 2; _ul_url = "http://localhost"; _ul_q = 2;
 			var _txt:TextField = new TextField();
 			_txt.height = 300;
 			_txt.text = "ul_type = " + _ul_type + "\n" +
@@ -74,7 +74,7 @@ package
 		private function SelectFiles(e:MouseEvent):void 
 		{
 			try {
-				this.fileBrowserMany.browse([new FileFilter("Image " + _ul_ex, _ul_ex)]);
+				this.fileBrowserMany.browse([new FileFilter("Image", _ul_ex, _ul_ex)]);
 			} catch (ex:Error) {
 				this.Debug("Exception: " + ex.toString());
 			}
@@ -84,6 +84,9 @@ package
 		{
 			trace("Select_Many_Handler", _ul_cb);
 			_fileList = e.currentTarget.fileList;
+			
+			//限制檔案數量
+			if (_ul_q > 0) _fileList.splice(_ul_q);
 			
 			//回傳已選擇檔案-序號,檔名,大小,狀態
 			if (ExternalInterface.available) {
@@ -109,7 +112,10 @@ package
 				//f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, manyUpLoadComplete);
 				f.addEventListener(Event.COMPLETE, manyUpLoadComplete);
 				f.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
-				f.upload(new URLRequest(this._ul_url));
+				//限制檔案大小
+				if (_ul_size == 0 || f.size <= _ul_size) { //trace(f.size <= _ul_size);
+					f.upload(new URLRequest(this._ul_url));
+				}
 				_i++;
 			}
 		}
@@ -142,7 +148,7 @@ package
 			this.fileBrowserOne.addEventListener(Event.CANCEL,  this.DialogCancelled_Handler);
 			
 			try {
-				this.fileBrowserOne.browse([new FileFilter("Image " + _ul_ex, _ul_ex)]);
+				this.fileBrowserOne.browse([new FileFilter("Image", _ul_ex, _ul_ex)]);
 			} catch (ex:Error) {
 				this.Debug("Exception: " + ex.toString());
 			}
@@ -170,7 +176,10 @@ package
             //this._file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.manyUpLoadComplete);
 			this._file.addEventListener(Event.COMPLETE, manyUpLoadComplete);
 			this._file.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
-            this._file.upload(new URLRequest(this._ul_url));
+			//限制檔案大小
+			if (_ul_size == 0 || _file.size <= _ul_size) { //trace(f.size <= _ul_size);
+				this._file.upload(new URLRequest(this._ul_url));
+			}
         }
 		
 		private function DialogCancelled_Handler(e:Event):void 
@@ -181,14 +190,15 @@ package
 		//js呼叫檔案上傳
 		private function start_upload() : void
         {
-            if (this._ul_type == 1)
+			ExternalInterface.call("ul_cb_select", "X", "XX", ",XXX", "1");
+            /*if (this._ul_type == 1)
             {
                 this.load_One();
             }
             else if (this._ul_type == 2)
             {
                 this.load_Many();
-            }
+            }*/
 		}
 		
 		//設定讓js呼叫的函式
