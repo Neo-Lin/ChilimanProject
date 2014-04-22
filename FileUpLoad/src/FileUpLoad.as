@@ -30,6 +30,7 @@ package
         private var _ul_url:String;	//上傳網址
 		private var _fileList = [];
         private var _file:FileReference;
+		private var _remnant_kb:Number = 0;
 		
 		public function FileUpLoad() 
 		{
@@ -73,6 +74,10 @@ package
 		
 		private function SelectFiles(e:MouseEvent):void 
 		{
+			//跟js要剩下的kb數
+			ExternalInterface.call("give_Me_Kb");
+			//ExternalInterface.call("give_Me_Kb2");
+			ExternalInterface.call("test", "使用者剩下:", _remnant_kb);
 			try {
 				this.fileBrowserMany.browse([new FileFilter("Image", _ul_ex, _ul_ex)]);
 			} catch (ex:Error) {
@@ -85,14 +90,16 @@ package
 			trace("Select_Many_Handler", _ul_cb);
 			_fileList = e.currentTarget.fileList;
 			
-			//限制檔案數量
+			//限制檔案數量,多的忽略
 			if (_ul_q > 0) _fileList.splice(_ul_q);
 			
 			//回傳已選擇檔案-序號,檔名,大小,狀態
 			if (ExternalInterface.available) {
 				var _i:int;
 				for each(var f:FileReference in _fileList) {
-					ExternalInterface.call("ul_cb_select", _i, f.name, f.size, "1");
+					if (_remnant_kb - f.size >= 0) {  
+						ExternalInterface.call("ul_cb_select", _i, f.name, f.size, "1");
+					}
 					_i++;
 				}
 			}
@@ -107,14 +114,14 @@ package
 			var _i:int;
 			for each(var f:FileReference in _fileList) {
 				trace(_i, f.name, f.size);
-				f.addEventListener(Event.OPEN, manyUpLoadStart);
-				f.addEventListener(ProgressEvent.PROGRESS, manyUpLoading);
-				//f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, manyUpLoadComplete);
-				f.addEventListener(Event.COMPLETE, manyUpLoadComplete);
-				f.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
 				//限制檔案大小
-				if (_ul_size == 0 || f.size <= _ul_size) { //trace(f.size <= _ul_size);
-					f.upload(new URLRequest(this._ul_url));
+				if ((_ul_size == 0 || f.size <= _ul_size) && _remnant_kb - f.size >= 0) { //trace(f.size <= _ul_size);
+					f.addEventListener(Event.OPEN, manyUpLoadStart);
+					f.addEventListener(ProgressEvent.PROGRESS, manyUpLoading);
+					f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, manyUpLoadComplete);
+					//f.addEventListener(Event.COMPLETE, manyUpLoadComplete);
+					f.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
+					f.upload(new URLRequest(this._ul_url + "&id=" + _i));
 				}
 				_i++;
 			}
@@ -132,10 +139,12 @@ package
 			trace("已上傳:" + e.bytesLoaded, "總大小:" + e.bytesTotal, "進度:" + _b);
 			if (ExternalInterface.available) ExternalInterface.call("ul_cb_kb", _fileList.indexOf(e.currentTarget), e.bytesLoaded, _b);
 		}
-		private function manyUpLoadComplete(e:Event):void 
+		private function manyUpLoadComplete(e:DataEvent):void 
 		{
 			trace(e.currentTarget.name + " 上傳完畢!!", "序號:" + _fileList.indexOf(e.currentTarget));
-			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "2");
+			//if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "2");
+			if (e.data == "") return;
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", e.data, "2");
 		}
 		private function manyIoError(e:IOErrorEvent):void 
 		{
@@ -147,6 +156,10 @@ package
 			this.fileBrowserOne.addEventListener(Event.SELECT, this.Select_One_Handler);
 			this.fileBrowserOne.addEventListener(Event.CANCEL,  this.DialogCancelled_Handler);
 			
+			//跟js要剩下的kb數
+			ExternalInterface.call("give_Me_Kb");
+			//ExternalInterface.call("give_Me_Kb2");
+			ExternalInterface.call("test", "使用者剩下:", _remnant_kb);
 			try {
 				this.fileBrowserOne.browse([new FileFilter("Image", _ul_ex, _ul_ex)]);
 			} catch (ex:Error) {
@@ -158,9 +171,12 @@ package
 		{
 			trace("Select_One_Handler");
             this._file = e.currentTarget as FileReference;
-            if (ExternalInterface.available)
-            {
-                ExternalInterface.call("ul_cb_select", "1", this._file.name, this._file.size, "1");
+            
+			//回傳已選擇檔案-序號,檔名,大小,狀態
+			if (ExternalInterface.available) {
+                if (_remnant_kb - f.size >= 0) {
+					ExternalInterface.call("ul_cb_select", "1", this._file.name, this._file.size, "1");
+				}
             }
             if (this._ul_cb == 1)
             {
@@ -173,12 +189,12 @@ package
         {
             this._file.addEventListener(Event.OPEN, this.manyUpLoadStart);
             this._file.addEventListener(ProgressEvent.PROGRESS, this.manyUpLoading);
-            //this._file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.manyUpLoadComplete);
-			this._file.addEventListener(Event.COMPLETE, manyUpLoadComplete);
+            this._file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.manyUpLoadComplete);
+			//this._file.addEventListener(Event.COMPLETE, manyUpLoadComplete);
 			this._file.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
 			//限制檔案大小
 			if (_ul_size == 0 || _file.size <= _ul_size) { //trace(f.size <= _ul_size);
-				this._file.upload(new URLRequest(this._ul_url));
+				this._file.upload(new URLRequest(this._ul_url + "&id=" + 1));
 			}
         }
 		
@@ -190,21 +206,34 @@ package
 		//js呼叫檔案上傳
 		private function start_upload() : void
         {
-			ExternalInterface.call("ul_cb_select", "X", "XX", ",XXX", "1");
-            /*if (this._ul_type == 1)
+			if (this._ul_type == 1)
             {
                 this.load_One();
             }
             else if (this._ul_type == 2)
             {
                 this.load_Many();
-            }*/
+            }
 		}
+		
+		//js傳所剩kb數
+		private function remnant_kb(_i:Number) : void
+        {
+			this._remnant_kb = _i;
+		}
+		
+		//js通知檔案上傳完畢
+		/*private function complete_upload(_s1:String,_s2:int,_s3:Array) : void
+        {
+			ExternalInterface.call("flashCallBack", _s1, _s2, _s3);
+		}*/
 		
 		//設定讓js呼叫的函式
 		private function SetupExternalInterface():void {
 			try {
 				ExternalInterface.addCallback("start_upload", this.start_upload);
+				ExternalInterface.addCallback("remnant_kb", this.remnant_kb);
+				//ExternalInterface.addCallback("complete_upload", this.complete_upload);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set: " + ex.message);
 				return;
