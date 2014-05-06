@@ -27,10 +27,15 @@ package
 		private var conn:SQLConnection;
 		private var _accountId = [];
 		private var _clessId = [];
-		private var _ioId = ["","支出","收入"];
+		private var _ioId = ["", "支出", "收入"];
+		
+		private var tempCSV:File;
+		private var tempS:String;
 		
 		[Embed(source = "../bin/icon/msgIcon/All-3.png")]
 		private var btn:Class;
+		
+		private var ex_txt:TextField = new TextField();
 		
 		public function Main():void 
 		{
@@ -53,11 +58,20 @@ package
 			_txt.y = 20;
 			_txt.text = "請按下 \"記帳本匯出\" 按鈕，並選擇您想匯出的存檔。";
 			addChild(_txt);
+			
+			//匯出說明文字
+			ex_txt.autoSize = TextFieldAutoSize.CENTER;
+			ex_txt.border = true;
+			ex_txt.borderColor = 0xff0000;
+			ex_txt.x = stage.stageWidth / 2 - (ex_txt.width / 2);
+			ex_txt.y = 140;
 		}
 		
 		//選擇存檔
 		private function goLoad(e:Event):void 
 		{
+			if(ex_txt.parent) removeChild(ex_txt);
+			
 			var zfile:File=File.documentsDirectory;
 			//var zfile:File=File.desktopDirectory;
 			var aryType:Array=new Array(new FileFilter("匯入檔 (*.EMSGBILL)", "*.EMSGBILL"));
@@ -97,6 +111,7 @@ package
 			readDB(setAccountType, "SELECT AccountId, AccountName FROM AccountTable");
 			readDB(setClessType, "SELECT ClessId, ClessName FROM ClessTable");
 			readDB(resultHandler, "SELECT AccountId, ClessId, IOId, InputDate, Money, Note FROM BillTable");
+			conn.close();
 		}
 		
 		private function readDB(_f:Function, _selectTxt:String):void {
@@ -110,7 +125,13 @@ package
 		private function resultHandler(event:SQLEvent):void{
 			var statement:SQLStatement = event.target as SQLStatement;
 			var data:Array = statement.getResult().data;
-			var _s:String = "";
+			if (data == null) {
+				//說明文字
+				ex_txt.text = "您的存檔內無記帳本資料。";
+				addChild(ex_txt);
+				return;
+			}
+			var _s:String = "帳戶名稱, 記帳類型, 收支類型, 記帳日期, 帳目金額, 備註\n";
 			for (var i:int = 0; i < data.length; i++) {
 				_s += _accountId[data[i].AccountId] + 
 					"," + _clessId[data[i].ClessId] + 
@@ -118,27 +139,30 @@ package
 					"," + new Date(data[i].InputDate).getFullYear() + "/" + Number(new Date(data[i].InputDate).getMonth()+1) + "/" + new Date(data[i].InputDate).getDate() + 
 					"," + data[i].Money + 
 					"," + data[i].Note + "\n";
-				trace("帳戶名稱:" + _accountId[data[i].AccountId] + 
+				/*trace("帳戶名稱:" + _accountId[data[i].AccountId] + 
 					" ,記帳類型:" + _clessId[data[i].ClessId] + 
 					" ,收支類型:" + _ioId[data[i].IOId] + 
 					" ,記帳日期:" + new Date(data[i].InputDate).getFullYear() + "/" + Number(new Date(data[i].InputDate).getMonth()+1) + "/" + new Date(data[i].InputDate).getDate() + 
 					" ,帳目金額:" + data[i].Money + 
-					" ,Note:" + data[i].Note);
+					" ,Note:" + data[i].Note);*/
 			}
+			tempS = _s;
 			//匯出csv
-			var tempCSV:File =  new File(File.documentsDirectory.nativePath+"/e管家記帳本.csv");
+			tempCSV = new File(File.documentsDirectory.nativePath + "/e管家記帳本.csv");
+			tempCSV.addEventListener(Event.SELECT, saveCSV);
+			tempCSV.browseForSave("請選擇記帳本存檔匯出位置:");
+		}
+		
+		private function saveCSV(e:Event):void 
+		{
 			var csvStream:FileStream=new FileStream();
 			csvStream.open(tempCSV,FileMode.WRITE);
-			csvStream.writeMultiByte(_s,"UTF8"); 
+			csvStream.writeMultiByte(tempS,"UTF8"); 
 			csvStream.close();
 			
 			//說明文字
-			var _txt:TextField = new TextField();
-			_txt.autoSize = TextFieldAutoSize.CENTER
-			_txt.x = stage.stageWidth / 2 - (_txt.width / 2);
-			_txt.y = 140;
-			_txt.text = "您的記帳本已經匯出到：" + File.documentsDirectory.nativePath.toString() + "/e管家記帳本.csv。";
-			addChild(_txt);
+			ex_txt.text = "您的記帳本已經匯出到：" + File.documentsDirectory.nativePath.toString() + "/e管家記帳本.csv。";
+			addChild(ex_txt);
 			
 			//寫入CSV檔案路徑
 			writeTxt();

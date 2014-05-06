@@ -74,7 +74,7 @@ package
 		
 		private function SelectFiles(e:MouseEvent):void 
 		{
-			//跟js要剩下的kb數
+			//跟js要剩下的kb數,js會回call remnant_kb
 			ExternalInterface.call("give_Me_Kb");
 			//ExternalInterface.call("give_Me_Kb2");
 			ExternalInterface.call("test", "使用者剩下:", _remnant_kb);
@@ -115,7 +115,8 @@ package
 			for each(var f:FileReference in _fileList) {
 				trace(_i, f.name, f.size);
 				//限制檔案大小
-				if ((_ul_size == 0 || f.size <= _ul_size) && _remnant_kb - f.size >= 0) { //trace(f.size <= _ul_size);
+				//if ((_ul_size == 0 || f.size <= _ul_size) && _remnant_kb - f.size >= 0) { //trace(f.size <= _ul_size);
+				if (f.size <= _remnant_kb) { 
 					f.addEventListener(Event.OPEN, manyUpLoadStart);
 					f.addEventListener(ProgressEvent.PROGRESS, manyUpLoading);
 					f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, manyUpLoadComplete);
@@ -174,7 +175,7 @@ package
             
 			//回傳已選擇檔案-序號,檔名,大小,狀態
 			if (ExternalInterface.available) {
-                if (_remnant_kb - f.size >= 0) {
+                if (_remnant_kb - _file.size >= 0) {
 					ExternalInterface.call("ul_cb_select", "1", this._file.name, this._file.size, "1");
 				}
             }
@@ -193,7 +194,7 @@ package
 			//this._file.addEventListener(Event.COMPLETE, manyUpLoadComplete);
 			this._file.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
 			//限制檔案大小
-			if (_ul_size == 0 || _file.size <= _ul_size) { //trace(f.size <= _ul_size);
+			if (_file.size <= _remnant_kb) { 
 				this._file.upload(new URLRequest(this._ul_url + "&id=" + 1));
 			}
         }
