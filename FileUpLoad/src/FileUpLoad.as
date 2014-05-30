@@ -128,6 +128,7 @@ package
 			}
 		}
 		
+		//多檔上傳事件偵聽
 		private function manyUpLoadStart(e:Event):void 
 		{
 			trace(e.currentTarget.name + " 開始上傳!!", "序號:" + _fileList.indexOf(e.currentTarget));
@@ -149,7 +150,32 @@ package
 		}
 		private function manyIoError(e:IOErrorEvent):void 
 		{
-			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "3");
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", "檔名:" + _fileList.indexOf(e.currentTarget) + "errorID:" + e.errorID, "3");
+		}
+		
+		//單檔上傳事件偵聽
+		private function oneUpLoadStart(e:Event):void 
+		{
+			//trace(e.currentTarget.name + " 開始上傳!!", "序號:" + _file.indexOf(e.currentTarget));
+		}
+		private function oneUpLoading(e:ProgressEvent):void 
+		{
+			//trace(e.currentTarget.name + " 上傳中....", "序號:" + _file.indexOf(e.currentTarget));
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", "0", "1");
+			var _b:Number = e.bytesLoaded / e.bytesTotal * 100;
+			//trace("已上傳:" + e.bytesLoaded, "總大小:" + e.bytesTotal, "進度:" + _b);
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_kb", "0", e.bytesLoaded, _b);
+		}
+		private function oneUpLoadComplete(e:DataEvent):void 
+		{
+			//trace(e.currentTarget.name + " 上傳完畢!!", "序號:" + _file.indexOf(e.currentTarget));
+			//if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "2");
+			if (e.data == "") return;
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", e.data, "2");
+		}
+		private function oneIoError(e:IOErrorEvent):void 
+		{
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", "errorID:" + e.errorID, "3");
 		}
 		
 		private function SelectFile(e:MouseEvent):void  {
@@ -188,11 +214,11 @@ package
 		//上傳檔案(單檔)
 		private function load_One():void
         {
-            this._file.addEventListener(Event.OPEN, this.manyUpLoadStart);
-            this._file.addEventListener(ProgressEvent.PROGRESS, this.manyUpLoading);
-            this._file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.manyUpLoadComplete);
+            this._file.addEventListener(Event.OPEN, this.oneUpLoadStart);
+            this._file.addEventListener(ProgressEvent.PROGRESS, this.oneUpLoading);
+            this._file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.oneUpLoadComplete);
 			//this._file.addEventListener(Event.COMPLETE, manyUpLoadComplete);
-			this._file.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
+			this._file.addEventListener(IOErrorEvent.IO_ERROR, oneIoError);
 			//限制檔案大小
 			if (_file.size <= _remnant_kb) { 
 				this._file.upload(new URLRequest(this._ul_url + "&id=" + 1));
