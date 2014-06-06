@@ -19,7 +19,7 @@ package
 		private function goDrop(e:Event):void 
 		{	
 			removeEventListener(Event.ADDED_TO_STAGE, goDrop);
-			addEventListener(Event.ENTER_FRAME, drop);
+			//addEventListener(Event.ENTER_FRAME, drop);
 		}
 		
 		private function drop(e:Event):void 
