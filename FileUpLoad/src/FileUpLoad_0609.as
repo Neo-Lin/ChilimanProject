@@ -29,7 +29,6 @@ package
 		private var _ul_cb:int = 1;	//上傳型態 1:立即上傳 2:按下確認鍵才上傳
         private var _ul_url:String;	//上傳網址
 		private var _fileList = [];
-		private var _fileListNum:int = 0;
         private var _file:FileReference;
 		private var _remnant_kb:Number = 0;
 		
@@ -112,7 +111,7 @@ package
 		
 		//上傳檔案(多檔)
 		private function load_Many():void {
-			/*var _i:int;
+			var _i:int;
 			for each(var f:FileReference in _fileList) {
 				trace(_i, f.name, f.size);
 				//限制檔案大小
@@ -126,19 +125,6 @@ package
 					f.upload(new URLRequest(this._ul_url + "&id=" + _i));
 				}
 				_i++;
-			}*/
-			if (_fileListNum < _fileList.length) {
-				var f:FileReference = _fileList[_fileListNum];
-				if (f.size <= _remnant_kb) { 
-					f.addEventListener(Event.OPEN, manyUpLoadStart);
-					f.addEventListener(ProgressEvent.PROGRESS, manyUpLoading);
-					f.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, manyUpLoadComplete);
-					f.addEventListener(IOErrorEvent.IO_ERROR, manyIoError);
-					f.upload(new URLRequest(this._ul_url + "&id=" + _fileListNum));
-				}
-				_fileListNum++;
-			}else {
-				_fileListNum = 0;
 			}
 		}
 		
@@ -159,10 +145,8 @@ package
 		{
 			trace(e.currentTarget.name + " 上傳完畢!!", "序號:" + _fileList.indexOf(e.currentTarget));
 			//if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", _fileList.indexOf(e.currentTarget), "2");
-			if (e.data != "" && ExternalInterface.available) {
-				ExternalInterface.call("ul_cb_status", e.data, "2");
-			}
-			load_Many();
+			if (e.data == "") return;
+			if (ExternalInterface.available) ExternalInterface.call("ul_cb_status", e.data, "2");
 		}
 		private function manyIoError(e:IOErrorEvent):void 
 		{

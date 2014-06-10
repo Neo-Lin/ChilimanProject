@@ -18,6 +18,9 @@ package
 		private var _allTileArray:Array = new Array();
 		private var _touchTile:Array = [];
 		private var _addLineNum:int = 0;
+		//檢查連線,有連線的Tile會存入
+		private var _tArrayAllW:Array = [];
+		private var _tArrayAllH:Array = [];
 		
 		public function EliminateGame(objectsMC:MovieClip) 
 		{
@@ -70,16 +73,51 @@ package
 				var _m:MovieClip = _objectsMC.getChildByName(_touchTile[0] + "_" + _touchTile[1]) as MovieClip;
 				if ((_touchTile[0] == int(_tmpAR[0]) + 1 || _touchTile[0] == int(_tmpAR[0]) - 1) &&
 				_touchTile[1] == _tmpAR[1]) {	trace("在上下旁邊");
-					//判斷交換後能不能達成連線
+					//改變陣列中兩個圖案的位置
+					/*trace(_allTileArray[_tmpAR[0]][_tmpAR[1]].name);
+					trace(_allTileArray[_touchTile[0]][_touchTile[1]].name);*/
+					_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, _m);
+					_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, e.currentTarget);
+					/*trace(_allTileArray[_tmpAR[0]][_tmpAR[1]].name);
+					trace(_allTileArray[_touchTile[0]][_touchTile[1]].name);*/
+					//改變畫面上兩個圖案的位置
+					Tweener.addTween(e.currentTarget, { y:_m.y, time:.5 } );
+					Tweener.addTween(_m, { y:e.currentTarget.y, time:.5 } );
+					//檢查是否達成連線
 					if (chkLine()) {
-						Tweener.addTween(e.currentTarget, { y:_m.y, time:.5 } );
-						Tweener.addTween(_m, {y:e.currentTarget.y, time:.5 } );
+						//修改交換的物件名稱,因為名稱要對應陣列位置,所以換位置就要換名字
+						var _mName:String = _m.name;
+						_m.name = e.currentTarget.name
+						e.currentTarget.name = _mName;
+						//刪除連線的Tile
+						cleanLine();
+					}else { //沒有達成連線,恢復原狀
+						_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, e.currentTarget);
+						_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, _m);
+						Tweener.addTween(e.currentTarget, { y:e.currentTarget.y, time:.5, delay:.5 } );
+						Tweener.addTween(_m, { y:_m.y, time:.5, delay:.5 } );
 					}
 				}else if ((_touchTile[1] == int(_tmpAR[1]) + 1 || _touchTile[1] == int(_tmpAR[1]) - 1) &&
 				_touchTile[0] == _tmpAR[0]) {	trace("在左右旁邊");
+					//改變陣列中兩個圖案的位置
+					_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, _m);
+					_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, e.currentTarget);
+					//改變畫面上兩個圖案的位置
+					Tweener.addTween(e.currentTarget, { x:_m.x, time:.5 } );
+					Tweener.addTween(_m, { x:e.currentTarget.x, time:.5 } );
+					//檢查是否達成連線
 					if (chkLine()) {
-						Tweener.addTween(e.currentTarget, { x:_m.x, time:.5 } );
-						Tweener.addTween(_m, { x:e.currentTarget.x, time:.5 } );
+						//修改交換的物件名稱,因為名稱要對應陣列位置,所以換位置就要換名字
+						var _mName:String = _m.name;
+						_m.name = e.currentTarget.name
+						e.currentTarget.name = _mName;
+						//刪除連線的Tile
+						cleanLine();
+					}else { //沒有達成連線,恢復原狀
+						_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, e.currentTarget);
+						_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, _m);
+						Tweener.addTween(e.currentTarget, { x:e.currentTarget.x, time:.5, delay:.5 } );
+						Tweener.addTween(_m, { x:_m.x, time:.5, delay:.5 } );
 					}
 				}else {
 					trace("不在旁邊");
@@ -90,12 +128,41 @@ package
 			}
 		}
 		
+		//刪除連線的Tile
+		private function cleanLine():void {
+			//刪除橫向
+			for (var wi:int = 0; wi < _tArrayAllW.length; wi++) {
+				for each(var f:Tile in _tArrayAllW[wi]) {
+					trace(f.name);
+					_objectsMC.removeChild(f);
+					_allTileArray[f.name.charAt(0)][f.name.charAt(2)] = null;
+					trace(_tArrayAllW[wi]);
+				}
+			}
+			//刪除直向
+			for (var hi:int = 0; hi < _tArrayAllH.length; hi++) {
+				for each(var f:Tile in _tArrayAllH[hi]) {
+					trace(f.name.charAt(0), f.name.charAt(2));
+					//怕跟橫向有重複到所以多一道檢查
+					if (_allTileArray[f.name.charAt(0)][f.name.charAt(2)]) {
+						_objectsMC.removeChild(f);
+						_allTileArray[f.name.charAt(0)][f.name.charAt(2)] = null;	
+					}
+					trace(_tArrayAllH[hi]);
+				}
+			}
+			
+			for each(var af:Array in _allTileArray) {
+				trace(af.length);
+			}
+		}
+		
 		//檢查是否有連線
 		private function chkLine():Boolean {
 			var _t:MovieClip;
 			var _tArray:Array = [];
-			var _tArrayAllW:Array = [];
-			var _tArrayAllH:Array = [];
+			_tArrayAllW = [];
+			_tArrayAllH = [];
 			//檢查橫向
 			for (var i:uint = 0; i < _allTileArray.length; i++) {
 				for (var j:uint = 0; j < _allTileArray[i].length; j++) {
@@ -104,8 +171,8 @@ package
 						if (_t.currentFrameLabel == _allTileArray[i][j].currentFrameLabel) {
 							_tArray.push(_allTileArray[i][j]);
 						}else {
-							if (_tArray.length > 1) {
-								_tArray.push("++"+i);
+							if (_tArray.length > 2) {
+								//_tArray.push("++"+i);
 								_tArrayAllW.push(_tArray);
 							}
 							_t = _allTileArray[i][j];
@@ -117,12 +184,12 @@ package
 					}
 				}
 				_t = null;
-				if (_tArray.length > 1) {
-					_tArray.push("=="+i);
+				if (_tArray.length > 2) {
+					//_tArray.push("=="+i);
 					_tArrayAllW.push(_tArray);
 				}
 			}
-			trace(_tArrayAllW);
+			trace("_tArrayAllW:",_tArrayAllW);
 			//檢查直向
 			_tArray = [];
 			for (var k:uint = 0; k < _allTileArray.length; k++) {
@@ -132,8 +199,8 @@ package
 						if (_t.currentFrameLabel == _allTileArray[m][k].currentFrameLabel) {
 							_tArray.push(_allTileArray[m][k]);
 						}else {
-							if (_tArray.length > 1) {
-								_tArray.push("++"+k);
+							if (_tArray.length > 2) {
+								//_tArray.push("++"+k);
 								_tArrayAllH.push(_tArray);
 							}
 							_t = _allTileArray[m][k];
@@ -145,14 +212,18 @@ package
 					}
 				}
 				_t = null;
-				if (_tArray.length > 1) {
-					_tArray.push("=="+k);
+				if (_tArray.length > 2) {
+					//_tArray.push("=="+k);
 					_tArrayAllH.push(_tArray);
 				}
 			}
-			trace(_tArrayAllH);
+			trace("_tArrayAllH:",_tArrayAllH);
 			
-			return true;
+			if (_tArrayAllW.length > 0 || _tArrayAllH.length > 0) {
+				return true;
+			}else {
+				return false;
+			}
 		}
 		
 		private function tileMU(e:MouseEvent):void 
