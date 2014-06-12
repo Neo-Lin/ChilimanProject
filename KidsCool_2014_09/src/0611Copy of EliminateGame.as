@@ -134,94 +134,56 @@ package
 			//刪除橫向
 			for (var wi:int = 0; wi < _tArrayAllW.length; wi++) {
 				for each(var f:Tile in _tArrayAllW[wi]) {
-					trace("刪除橫向a:",f.name);
-					Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeInQuart", onComplete:function() {
-						trace("刪除橫向b:", this.name);
-						_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
-						_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;
-						rankTile();
-						//addTile(this.name.charAt(0), this.name.charAt(2));
+					trace("刪除橫向:",f.name);
+					Tweener.addTween(f, { alpha:0, time:.5, transition:"easeInQuart", onComplete:function() {
+						_objectsMC.removeChild(this);
+						addTile(this.name.charAt(0), this.name.charAt(2));
 						} } );
-					//_allTileArray[f.name.charAt(0)][f.name.charAt(2)] = f = null;
+					_allTileArray[f.name.charAt(0)][f.name.charAt(2)] = f = null;
 					
-					trace("刪除橫向:c",_tArrayAllW[wi]);
+					trace("刪除橫向:",_tArrayAllW[wi]);
 				}
 			}
 			//刪除直向
 			for (var hi:int = 0; hi < _tArrayAllH.length; hi++) {
 				for each(var f:Tile in _tArrayAllH[hi]) {
-					trace("刪除直向:", f.name);
-					Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeInQuart", onComplete:function() {
-						//怕跟橫向有重複到所以多一道檢查
-						if (_allTileArray[this.name.charAt(0)][this.name.charAt(2)]) {
-							_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
-							_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;	
-							rankTile();
-						}
-						} } );
+					trace("刪除直向:",f.name);
+					//怕跟橫向有重複到所以多一道檢查
+					if (_allTileArray[f.name.charAt(0)][f.name.charAt(2)]) {
+						_objectsMC.removeChild(f);
+						_allTileArray[f.name.charAt(0)][f.name.charAt(2)] = null;	
+					}
 					trace("刪除直向:",_tArrayAllH[hi]);
 				}
 			}
+			
+			/*for each(var af:Array in _allTileArray) {
+				trace(af.length);
+			}*/
 		}
 		
-		//排列Tile陣列
-		private function rankTile():void {
-			var _n:int = 0;
-			for (var i:int = _allTileArray.length-1; i >= 0; i--) {
-				for (var j:int = _allTileArray[i].length - 1; j >= 0; j--) {
-					if (_allTileArray[j][i] == null) {
-						_n++;
-					}else if (_n > 0 ) {
-						_allTileArray[j + _n][i] = _allTileArray[j][i];
-						_allTileArray[j][i] = null;
-						Tweener.addTween(_allTileArray[j + _n][i], { y:_allTileArray[j + _n][i].height * (j + _n), time:.5 } );
-						//_allTileArray[j + _n][i].y += _allTileArray[j + _n][i].height;
-					}
-				}
-				_n = 0;
+		private function addTile(a:String, b:String):void 
+		{	trace(a, b);
+			var _m:MovieClip;
+			for (var i:int = int(a)-1; i >= 0; i--) {
+				_m = _objectsMC.getChildByName(i + "_" + b) as MovieClip;
+				trace("addTile:",_m, i, b);
+				Tweener.addTween(_m, { y:_m.y + _m.height, time:.5, onComplete:function() {
+					trace(this.name, _m.name);
+					_m.name = a + "_" + b;
+					_allTileArray[a][b] = _t;
+					} } );
+				trace("addTile:",_m.name);
 			}
-			addTile();
-			//reNameTile();
+			var _t:Tile = new Tile();
+			_allTileArray[0][b] = _t;
+			_t.gotoAndStop(_tileName[Math.floor(Math.random() * _tileName.length)]);
+			_objectsMC.addChild(_t);
+			_t.x = _t.width * int(b);
+			_t.name = "0_" + b;
+			_t.addEventListener(MouseEvent.MOUSE_DOWN, tileMD);
+			_t.addEventListener(MouseEvent.MOUSE_UP, tileMU);
 		}
-		
-		//補滿Tile
-		private function addTile():void 
-		{	
-			//showMeAllTileArray();
-			//trace("=============================================");
-			for (var i:int = _allTileArray.length - 1; i >= 0; i--) {
-				for (var j:int = _allTileArray[i].length - 1; j >= 0; j--) {
-					if (!_allTileArray[i][j]) { 
-						var _t:Tile = new Tile();
-						_t.gotoAndStop(_tileName[Math.floor(Math.random() * _tileName.length)]);
-						_objectsMC.addChild(_t);
-						_t.x = _t.width * int(j);
-						//_t.x += 400; 
-						_t.addEventListener(MouseEvent.MOUSE_DOWN, tileMD);
-						_t.addEventListener(MouseEvent.MOUSE_UP, tileMU);
-						_allTileArray[i][j] = _t;
-					}
-					_allTileArray[i][j].name = i + "_" + j;
-				}
-			}
-			if (chkLine()) {
-				cleanLine();
-			}
-			//showMeAllTileArray();
-		}
-		
-		//編輯所有Tile的名字,對應Tile在_allTileArray裡的位置
-		/*private function reNameTile():void {
-			for (var i:int = 0; i < _hTile; i++) {
-				for (var j:int = 0; j < _wTile; j++) {
-					_allTileArray[i][j].name = i + "_" + j;
-				}
-			}
-			if (chkLine()) {
-				cleanLine();
-			}
-			//showMeAllTileArray();
-		}*/
 		
 		//檢查是否有連線
 		private function chkLine():Boolean {
@@ -289,23 +251,6 @@ package
 				return true;
 			}else {
 				return false;
-			}
-		}
-		
-		//印出_allTileArray
-		private function showMeAllTileArray():void {
-			var _s:String = "";
-			for each(var af:Array in _allTileArray) {
-				for each(var f in af) {
-					if (f) { 
-						_s += f.name += "   ";
-					}else {
-						_s += f += "                ";
-					}
-				}
-				trace(" ");
-				trace(_s);
-				_s = "";
 			}
 		}
 		
