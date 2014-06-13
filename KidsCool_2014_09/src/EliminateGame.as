@@ -22,6 +22,7 @@ package
 		//檢查連線,有連線的Tile會存入
 		private var _tArrayAllW:Array = [];
 		private var _tArrayAllH:Array = [];
+		private var _tweenerCount:int;
 		
 		public function EliminateGame(objectsMC:MovieClip) 
 		{
@@ -134,16 +135,21 @@ package
 			//刪除橫向
 			for (var wi:int = 0; wi < _tArrayAllW.length; wi++) {
 				for each(var f:Tile in _tArrayAllW[wi]) {
-					trace("刪除橫向a:",f.name);
-					Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeInQuart", onComplete:function() {
+					trace("刪除橫向a:", f.name);
+					//怕跟橫向有重複到所以多一道檢查
+					for(var i:int = 0; i < _tArrayAllW.length; i++){ 
+						if(_tArrayAllH.indexOf(_tArrayAllW[i])>-1){
+							_tArrayAllH.splice(_tArrayAllH.indexOf(_tArrayAllW[i]),1);
+						}
+					}
+					Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeOutBounce", onComplete:function() {
 						trace("刪除橫向b:", this.name);
+						_tweenerCount--;
 						_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
 						_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;
 						rankTile();
-						//addTile(this.name.charAt(0), this.name.charAt(2));
 						} } );
-					//_allTileArray[f.name.charAt(0)][f.name.charAt(2)] = f = null;
-					
+					_tweenerCount++;
 					trace("刪除橫向:c",_tArrayAllW[wi]);
 				}
 			}
@@ -151,21 +157,23 @@ package
 			for (var hi:int = 0; hi < _tArrayAllH.length; hi++) {
 				for each(var f:Tile in _tArrayAllH[hi]) {
 					trace("刪除直向:", f.name);
-					Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeInQuart", onComplete:function() {
-						//怕跟橫向有重複到所以多一道檢查
-						if (_allTileArray[this.name.charAt(0)][this.name.charAt(2)]) {
+					//怕跟橫向有重複到所以多一道檢查
+					//if (_allTileArray[f.name.charAt(0)][f.name.charAt(2)]) {
+						Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeOutBounce", onComplete:function() {
+							_tweenerCount--;
 							_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
 							_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;	
 							rankTile();
-						}
-						} } );
+							} } );
+						_tweenerCount++;
+					//}
 					trace("刪除直向:",_tArrayAllH[hi]);
 				}
 			}
 		}
 		
 		//排列Tile陣列
-		private function rankTile():void {
+		private function rankTile():void {	trace("1");
 			var _n:int = 0;
 			for (var i:int = _allTileArray.length-1; i >= 0; i--) {
 				for (var j:int = _allTileArray[i].length - 1; j >= 0; j--) {
@@ -186,7 +194,7 @@ package
 		
 		//補滿Tile
 		private function addTile():void 
-		{	
+		{		trace("2",_tweenerCount);
 			//showMeAllTileArray();
 			//trace("=============================================");
 			for (var i:int = _allTileArray.length - 1; i >= 0; i--) {
@@ -204,8 +212,10 @@ package
 					_allTileArray[i][j].name = i + "_" + j;
 				}
 			}
-			if (chkLine()) {
-				cleanLine();
+			if (_tweenerCount == 0) {
+				if (chkLine()) {
+					cleanLine();
+				}
 			}
 			//showMeAllTileArray();
 		}
