@@ -48,7 +48,7 @@ package
 			start_btn.addEventListener(MouseEvent.CLICK, goStart);
 		}
 		
-		//出題
+		//判斷結束或出題
 		private function nextTopic(e:MouseEvent):void 
 		{
 			bingo_mc.visible = false;
@@ -69,6 +69,7 @@ package
 			if ((e.currentTarget.name.charAt(0) == "o" && topic[topic_number] <= 10)
 			|| (e.currentTarget.name.charAt(0) == "x" && topic[topic_number] > 10)) {
 				bingo_mc.visible = true;
+				txt_mc.visible = true;
 				s_yes.play(0,0,this.soundTransform);
 			}else {
 				time_mc.gotoAndStop(51);
@@ -79,6 +80,7 @@ package
 		private function goTopic():void {
 			time_mc.gotoAndStop(1);
 			q_mc.gotoAndStop(topic_number + 1);
+			txt_mc.visible = false;
 			txt_mc.gotoAndStop(topic[topic_number]);
 			pic_mc.gotoAndStop(topic[topic_number]);
 			_t.start();

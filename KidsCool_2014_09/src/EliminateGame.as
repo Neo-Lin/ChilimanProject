@@ -14,7 +14,6 @@ package
 		private var _objectsMC:MovieClip;
 		private var _hTile:uint = 8;
 		private var _wTile:uint = 8;
-		//private var _tileW:uint = 
 		private var _tileName:Array = ["a", "b", "c", "d", "e", "f", "g"];
 		private var _allTileArray:Array = new Array();
 		private var _touchTile:Array = [];
@@ -69,24 +68,20 @@ package
 		}
 		
 		private function tileMD(e:MouseEvent):void 
-		{	//trace(e.currentTarget.name.split("_")[0]);
+		{	
 			var _tmpAR:Array = e.currentTarget.name.split("_");
 			if (_touchTile.length > 0) { //是否已選取了第一個圖案
 				var _m:MovieClip = _objectsMC.getChildByName(_touchTile[0] + "_" + _touchTile[1]) as MovieClip;
 				if ((_touchTile[0] == int(_tmpAR[0]) + 1 || _touchTile[0] == int(_tmpAR[0]) - 1) &&
 				_touchTile[1] == _tmpAR[1]) {	trace("在上下旁邊");
 					//改變陣列中兩個圖案的位置
-					/*trace(_allTileArray[_tmpAR[0]][_tmpAR[1]].name);
-					trace(_allTileArray[_touchTile[0]][_touchTile[1]].name);*/
 					_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, _m);
 					_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, e.currentTarget);
-					/*trace(_allTileArray[_tmpAR[0]][_tmpAR[1]].name);
-					trace(_allTileArray[_touchTile[0]][_touchTile[1]].name);*/
 					//改變畫面上兩個圖案的位置
 					Tweener.addTween(e.currentTarget, { y:_m.y, time:.5 } );
 					Tweener.addTween(_m, { y:e.currentTarget.y, time:.5 } );
 					//檢查是否達成連線
-					if (chkLine()) {
+					if (chkLine(2)) {
 						//修改交換的物件名稱,因為名稱要對應陣列位置,所以換位置就要換名字
 						var _mName:String = _m.name;
 						_m.name = e.currentTarget.name
@@ -108,7 +103,7 @@ package
 					Tweener.addTween(e.currentTarget, { x:_m.x, time:.5 } );
 					Tweener.addTween(_m, { x:e.currentTarget.x, time:.5 } );
 					//檢查是否達成連線
-					if (chkLine()) {
+					if (chkLine(2)) {
 						//修改交換的物件名稱,因為名稱要對應陣列位置,所以換位置就要換名字
 						var _mName:String = _m.name;
 						_m.name = e.currentTarget.name
@@ -132,17 +127,18 @@ package
 		
 		//刪除連線的Tile
 		private function cleanLine():void {
+			_objectsMC.mouseChildren = false;
 			//刪除橫向
 			for (var wi:int = 0; wi < _tArrayAllW.length; wi++) {
 				for each(var f:Tile in _tArrayAllW[wi]) {
 					trace("刪除橫向a:", f.name);
-					//怕跟橫向有重複到所以多一道檢查
-					for(var i:int = 0; i < _tArrayAllW.length; i++){ 
-						if(_tArrayAllH.indexOf(_tArrayAllW[i])>-1){
-							_tArrayAllH.splice(_tArrayAllH.indexOf(_tArrayAllW[i]),1);
+					//怕跟直向有重複到所以多一道檢查,把直向陣列有重複的刪除
+					for (var whi:int = 0; whi < _tArrayAllH.length; whi++) {
+						if(_tArrayAllH[whi].indexOf(f)>-1){ trace("刪:", _tArrayAllH[whi].indexOf(f), f.name);
+							_tArrayAllH[whi].splice(_tArrayAllH[whi].indexOf(f), 1);
 						}
 					}
-					Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeOutBounce", onComplete:function() {
+					Tweener.addTween(f, { alpha:0, time:.5, transition:"easeInBounce", onComplete:function() {
 						trace("刪除橫向b:", this.name);
 						_tweenerCount--;
 						_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
@@ -156,24 +152,22 @@ package
 			//刪除直向
 			for (var hi:int = 0; hi < _tArrayAllH.length; hi++) {
 				for each(var f:Tile in _tArrayAllH[hi]) {
-					trace("刪除直向:", f.name);
-					//怕跟橫向有重複到所以多一道檢查
-					//if (_allTileArray[f.name.charAt(0)][f.name.charAt(2)]) {
-						Tweener.addTween(f, { alpha:0, time:1.5, transition:"easeOutBounce", onComplete:function() {
-							_tweenerCount--;
-							_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
-							_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;	
-							rankTile();
-							} } );
-						_tweenerCount++;
-					//}
-					trace("刪除直向:",_tArrayAllH[hi]);
+					trace("刪除直向a:", f.name);
+					Tweener.addTween(f, { alpha:0, time:.5, transition:"easeInBounce", onComplete:function() {
+						trace("刪除直向b:", this.name);
+						_tweenerCount--;
+						_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
+						_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;	
+						rankTile();
+						} } );
+					_tweenerCount++;
+					trace("刪除直向c:",_tArrayAllH[hi]);
 				}
 			}
 		}
 		
 		//排列Tile陣列
-		private function rankTile():void {	trace("1");
+		private function rankTile():void {	
 			var _n:int = 0;
 			for (var i:int = _allTileArray.length-1; i >= 0; i--) {
 				for (var j:int = _allTileArray[i].length - 1; j >= 0; j--) {
@@ -183,18 +177,16 @@ package
 						_allTileArray[j + _n][i] = _allTileArray[j][i];
 						_allTileArray[j][i] = null;
 						Tweener.addTween(_allTileArray[j + _n][i], { y:_allTileArray[j + _n][i].height * (j + _n), time:.5 } );
-						//_allTileArray[j + _n][i].y += _allTileArray[j + _n][i].height;
 					}
 				}
 				_n = 0;
 			}
 			addTile();
-			//reNameTile();
 		}
 		
-		//補滿Tile
+		//補滿Tile,並且編輯所有Tile的名字,對應Tile在_allTileArray裡的位置
 		private function addTile():void 
-		{		trace("2",_tweenerCount);
+		{		
 			//showMeAllTileArray();
 			//trace("=============================================");
 			for (var i:int = _allTileArray.length - 1; i >= 0; i--) {
@@ -213,28 +205,118 @@ package
 				}
 			}
 			if (_tweenerCount == 0) {
-				if (chkLine()) {
+				if (chkLine(2)) {
 					cleanLine();
+				}else{
+					impasse();
+					_objectsMC.mouseChildren = true;
 				}
 			}
 			//showMeAllTileArray();
 		}
 		
-		//編輯所有Tile的名字,對應Tile在_allTileArray裡的位置
-		/*private function reNameTile():void {
-			for (var i:int = 0; i < _hTile; i++) {
-				for (var j:int = 0; j < _wTile; j++) {
-					_allTileArray[i][j].name = i + "_" + j;
+		private function impasse():int {
+			var _i:int = 0;	//橫向
+			var _j:int = 0;	//直向
+			var _k:int = 0;	//十字
+			var _n:int = 0;
+			var h:int;
+			var w:int;
+			if (chkLine(1)) {
+				//檢查橫向
+				for (var wi:int = 0; wi < _tArrayAllW.length; wi++) {
+					for each(var f:Tile in _tArrayAllW[wi]) {
+						h = int(f.name.charAt(0));
+						w = int(f.name.charAt(2));
+						if (_n == 0) { 
+							_n++;
+							if (w - 2 >= 0 && _allTileArray[h][w - 2].currentFrameLabel == f.currentFrameLabel) {
+								_i++;
+							}
+							if (w - 1 >= 0 && h - 1 >= 0 && _allTileArray[h - 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
+								_i++;
+							}
+							if (w - 1 >= 0 && h + 1 <= _hTile-1 && _allTileArray[h + 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
+								_i++;
+							}
+						}else { 
+							_n = 0;
+							if (w + 2 <= _wTile-1 && _allTileArray[h][w + 2].currentFrameLabel == f.currentFrameLabel) {
+								_i++;
+							}
+							if (w + 1 <= _wTile-1 && h - 1 >= 0 && _allTileArray[h - 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
+								_i++;
+							}
+							if (w + 1 <= _wTile-1 && h + 1 <= _hTile-1 && _allTileArray[h + 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
+								_i++;
+							}
+						}
+					}
+				}
+				//檢查直向
+				for (var hi:int = 0; hi < _tArrayAllH.length; hi++) {
+					for each(var f:Tile in _tArrayAllH[hi]) {
+						h = int(f.name.charAt(0));
+						w = int(f.name.charAt(2));
+						if (_n == 0) { 
+							_n++;
+							if (h - 2 >= 0 && _allTileArray[h - 2][w].currentFrameLabel == f.currentFrameLabel) {
+								_j++;
+							}
+							if (h - 1 >= 0 && w - 1 >= 0 && _allTileArray[h - 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
+								_j++;
+							}
+							if (h - 1 >= 0 && w + 1 <= _wTile-1 && _allTileArray[h - 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
+								_j++;
+							}
+						}else { 
+							_n = 0;
+							if (h + 2 <= _hTile-1 && _allTileArray[h + 2][w].currentFrameLabel == f.currentFrameLabel) {
+								_j++;
+							}
+							if (h + 1 <= _hTile-1 && w - 1 >= 0 && _allTileArray[h + 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
+								_j++;
+							}
+							if (h + 1 <= _hTile-1 && w + 1 <= _wTile-1 && _allTileArray[h + 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
+								_j++;
+							}
+						}
+					}
 				}
 			}
-			if (chkLine()) {
-				cleanLine();
+			//檢查十字
+			for (var wi:int = 0; wi < _allTileArray.length; wi++) {
+				for each(var f:Tile in _allTileArray[wi]) {
+					var _a:String = "";
+					h = int(f.name.charAt(0));
+					w = int(f.name.charAt(2));
+					if (h - 1 >= 0) {
+						_a+=_allTileArray[h - 1][w].currentFrameLabel;
+					}
+					if (h + 1 <= _hTile-1) {
+						_a+=_allTileArray[h + 1][w].currentFrameLabel;
+					}
+					if (w - 1 >= 0) {
+						_a+=_allTileArray[h][w - 1].currentFrameLabel;
+					}
+					if (w + 1 <= _wTile-1) {
+						_a += _allTileArray[h][w + 1].currentFrameLabel;
+					} 
+					for (var e:int = 0; e < _tileName.length; e++) {
+						var pattern:RegExp = new RegExp(_tileName[e],"g"); 
+						if (_a.match(pattern).length > 2) {
+							_k++;
+							break;
+						}
+					}
+				}
 			}
-			//showMeAllTileArray();
-		}*/
+			trace("檢查死路-橫:", _i, "檢查死路-直:", _j, "檢查死路-十字:", _k);
+			return _i;
+		}
 		
 		//檢查是否有連線
-		private function chkLine():Boolean {
+		private function chkLine(tileNum:int):Boolean {
 			var _t:MovieClip;
 			var _tArray:Array = [];
 			_tArrayAllW = [];
@@ -247,8 +329,7 @@ package
 						if (_t.currentFrameLabel == _allTileArray[i][j].currentFrameLabel) {
 							_tArray.push(_allTileArray[i][j]);
 						}else {
-							if (_tArray.length > 2) {
-								//_tArray.push("++"+i);
+							if (_tArray.length > tileNum) {
 								_tArrayAllW.push(_tArray);
 							}
 							_t = _allTileArray[i][j];
@@ -260,8 +341,7 @@ package
 					}
 				}
 				_t = null;
-				if (_tArray.length > 2) {
-					//_tArray.push("=="+i);
+				if (_tArray.length > tileNum) {
 					_tArrayAllW.push(_tArray);
 				}
 			}
@@ -275,8 +355,7 @@ package
 						if (_t.currentFrameLabel == _allTileArray[m][k].currentFrameLabel) {
 							_tArray.push(_allTileArray[m][k]);
 						}else {
-							if (_tArray.length > 2) {
-								//_tArray.push("++"+k);
+							if (_tArray.length > tileNum) {
 								_tArrayAllH.push(_tArray);
 							}
 							_t = _allTileArray[m][k];
@@ -288,8 +367,7 @@ package
 					}
 				}
 				_t = null;
-				if (_tArray.length > 2) {
-					//_tArray.push("=="+k);
+				if (_tArray.length > tileNum) {
 					_tArrayAllH.push(_tArray);
 				}
 			}
@@ -321,22 +399,7 @@ package
 		
 		private function tileMU(e:MouseEvent):void 
 		{
-			/*var _tmpAR:Array = e.currentTarget.name.split("_");
-			if (_touchTile.length > 0) { //是否已選取了第一個圖案
-				var _m:MovieClip = _objectsMC.getChildByName(_touchTile[0] + "_" + _touchTile[1]) as MovieClip;
-				if ((_touchTile[0] == int(_tmpAR[0]) + 1 || _touchTile[0] == int(_tmpAR[0]) - 1) &&
-				_touchTile[1] == _tmpAR[1]) {	trace("在上下旁邊");
-					Tweener.addTween(e.currentTarget, { y:_m.y, time:.5 } );
-					Tweener.addTween(_m, {y:e.currentTarget.y, time:.5 } );
-				}else if ((_touchTile[1] == int(_tmpAR[1]) + 1 || _touchTile[1] == int(_tmpAR[1]) - 1) &&
-				_touchTile[0] == _tmpAR[0]) {	trace("在左右旁邊");
-					Tweener.addTween(e.currentTarget, { x:_m.x, time:.5 } );
-					Tweener.addTween(_m, {x:e.currentTarget.x, time:.5 } );
-				}else {
-					trace("不在旁邊");
-				}
-				_touchTile.length = 0;
-			}*/
+			
 		}
 		
 	}
