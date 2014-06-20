@@ -9,11 +9,14 @@ package
 	 */
 	public class Tile extends MovieClip 
 	{
+		public var select_mc:MovieClip;
+		public var help_mc:MovieClip;
 		
 		public function Tile() 
 		{
 			stop();
 			addEventListener(Event.ADDED_TO_STAGE, goDrop);
+			select_mc.visible = false;
 		}
 		
 		private function goDrop(e:Event):void 

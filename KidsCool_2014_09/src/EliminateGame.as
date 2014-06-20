@@ -2,6 +2,7 @@ package
 {
 	import caurina.transitions.Tweener;
 	import flash.display.MovieClip;
+	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	
@@ -22,6 +23,7 @@ package
 		private var _tArrayAllW:Array = [];
 		private var _tArrayAllH:Array = [];
 		private var _tweenerCount:int;
+		private var _helpTile:Tile;
 		
 		public function EliminateGame(objectsMC:MovieClip) 
 		{
@@ -46,6 +48,14 @@ package
 					_t.addEventListener(MouseEvent.MOUSE_UP, tileMU);
 				}
 			}
+			impasse();
+			_objectsMC.help_btn.addEventListener(MouseEvent.CLICK, goHelp);
+		}
+		
+		private function goHelp(e:MouseEvent):void 
+		{
+			trace("help!!");
+			_helpTile.help_mc.play();
 		}
 		
 		private function initChk(i:int, j:int):Boolean 
@@ -72,8 +82,9 @@ package
 			var _tmpAR:Array = e.currentTarget.name.split("_");
 			if (_touchTile.length > 0) { //是否已選取了第一個圖案
 				var _m:MovieClip = _objectsMC.getChildByName(_touchTile[0] + "_" + _touchTile[1]) as MovieClip;
+				_m.select_mc.visible = false;
 				if ((_touchTile[0] == int(_tmpAR[0]) + 1 || _touchTile[0] == int(_tmpAR[0]) - 1) &&
-				_touchTile[1] == _tmpAR[1]) {	trace("在上下旁邊");
+				_touchTile[1] == _tmpAR[1]) {	
 					//改變陣列中兩個圖案的位置
 					_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, _m);
 					_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, e.currentTarget);
@@ -95,7 +106,7 @@ package
 						Tweener.addTween(_m, { y:_m.y, time:.5, delay:.5 } );
 					}
 				}else if ((_touchTile[1] == int(_tmpAR[1]) + 1 || _touchTile[1] == int(_tmpAR[1]) - 1) &&
-				_touchTile[0] == _tmpAR[0]) {	trace("在左右旁邊");
+				_touchTile[0] == _tmpAR[0]) {	
 					//改變陣列中兩個圖案的位置
 					_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, _m);
 					_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, e.currentTarget);
@@ -117,11 +128,12 @@ package
 						Tweener.addTween(_m, { x:_m.x, time:.5, delay:.5 } );
 					}
 				}else {
-					trace("不在旁邊");
+					//trace("不在旁邊");
 				}
 				_touchTile.length = 0;
 			}else {
 				_touchTile = _tmpAR;
+				e.currentTarget.select_mc.visible = true;
 			}
 		}
 		
@@ -207,12 +219,37 @@ package
 			if (_tweenerCount == 0) {
 				if (chkLine(2)) {
 					cleanLine();
-				}else{
-					impasse();
-					_objectsMC.mouseChildren = true;
+				}else {
+					//檢查是否死棋
+					if (impasse() > 0) {
+						_objectsMC.mouseChildren = true;
+					}else {	//死棋,刷新所有Tile
+						renewTile();
+					}
 				}
 			}
 			//showMeAllTileArray();
+		}
+		
+		//亂數更新所有Tile的影格
+		private function renewTile():void 
+		{
+			var _m:MovieClip;
+			for (var i:int = 0; i < _hTile; i++) {
+				for (var j:int = 0; j < _wTile; j++) {
+					_m = _objectsMC.getChildByName(i + "_" + j) as MovieClip
+					do{
+						_m.gotoAndStop(_tileName[Math.floor(Math.random() * _tileName.length)]);
+					}while (initChk(i, j)) 
+				}
+			}	
+			
+			//檢查是否死棋
+			if (impasse() > 0) {
+				_objectsMC.mouseChildren = true;
+			}else {
+				renewTile();
+			}
 		}
 		
 		private function impasse():int {
@@ -232,23 +269,29 @@ package
 							_n++;
 							if (w - 2 >= 0 && _allTileArray[h][w - 2].currentFrameLabel == f.currentFrameLabel) {
 								_i++;
+								_helpTile = _allTileArray[h][w - 2];
 							}
 							if (w - 1 >= 0 && h - 1 >= 0 && _allTileArray[h - 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
 								_i++;
+								_helpTile = _allTileArray[h - 1][w - 1];
 							}
 							if (w - 1 >= 0 && h + 1 <= _hTile-1 && _allTileArray[h + 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
 								_i++;
+								_helpTile = _allTileArray[h + 1][w - 1];
 							}
 						}else { 
 							_n = 0;
 							if (w + 2 <= _wTile-1 && _allTileArray[h][w + 2].currentFrameLabel == f.currentFrameLabel) {
 								_i++;
+								_helpTile = _allTileArray[h][w + 2];
 							}
 							if (w + 1 <= _wTile-1 && h - 1 >= 0 && _allTileArray[h - 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
 								_i++;
+								_helpTile = _allTileArray[h - 1][w + 1];
 							}
 							if (w + 1 <= _wTile-1 && h + 1 <= _hTile-1 && _allTileArray[h + 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
 								_i++;
+								_helpTile = _allTileArray[h + 1][w + 1];
 							}
 						}
 					}
@@ -262,23 +305,29 @@ package
 							_n++;
 							if (h - 2 >= 0 && _allTileArray[h - 2][w].currentFrameLabel == f.currentFrameLabel) {
 								_j++;
+								_helpTile = _allTileArray[h - 2][w];
 							}
 							if (h - 1 >= 0 && w - 1 >= 0 && _allTileArray[h - 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
 								_j++;
+								_helpTile = _allTileArray[h - 1][w - 1];
 							}
 							if (h - 1 >= 0 && w + 1 <= _wTile-1 && _allTileArray[h - 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
 								_j++;
+								_helpTile = _allTileArray[h - 1][w + 1];
 							}
 						}else { 
 							_n = 0;
 							if (h + 2 <= _hTile-1 && _allTileArray[h + 2][w].currentFrameLabel == f.currentFrameLabel) {
 								_j++;
+								_helpTile = _allTileArray[h + 2][w];
 							}
 							if (h + 1 <= _hTile-1 && w - 1 >= 0 && _allTileArray[h + 1][w - 1].currentFrameLabel == f.currentFrameLabel) {
 								_j++;
+								_helpTile = _allTileArray[h + 1][w - 1];
 							}
 							if (h + 1 <= _hTile-1 && w + 1 <= _wTile-1 && _allTileArray[h + 1][w + 1].currentFrameLabel == f.currentFrameLabel) {
 								_j++;
+								_helpTile = _allTileArray[h + 1][w + 1];
 							}
 						}
 					}
@@ -288,31 +337,59 @@ package
 			for (var wi:int = 0; wi < _allTileArray.length; wi++) {
 				for each(var f:Tile in _allTileArray[wi]) {
 					var _a:String = "";
+					var _l:String; //用來判斷少一邊的十字(因為靠牆所以只有三個)
 					h = int(f.name.charAt(0));
 					w = int(f.name.charAt(2));
+					//紀錄每個Tile上下左右的影格標籤
 					if (h - 1 >= 0) {
 						_a+=_allTileArray[h - 1][w].currentFrameLabel;
+					}else {
+						_l = "h1"; //沒有上方的Tile
 					}
 					if (h + 1 <= _hTile-1) {
 						_a+=_allTileArray[h + 1][w].currentFrameLabel;
+					}else {
+						_l = "h2";
 					}
 					if (w - 1 >= 0) {
 						_a+=_allTileArray[h][w - 1].currentFrameLabel;
+					}else {
+						_l = "w1"; //沒有左邊的Tile
 					}
 					if (w + 1 <= _wTile-1) {
 						_a += _allTileArray[h][w + 1].currentFrameLabel;
-					} 
+					} else {
+						_l = "w2";
+					}
+					//檢查有沒有兩個以上重複的影格標籤,有就成立
 					for (var e:int = 0; e < _tileName.length; e++) {
 						var pattern:RegExp = new RegExp(_tileName[e],"g"); 
 						if (_a.match(pattern).length > 2) {
-							_k++;
+							_k++;	
+							if (_a.charAt(0) != _tileName[e]) {
+								_helpTile = _allTileArray[h + 1][w];
+							}else if (_a.charAt(1) != _tileName[e]) {
+								_helpTile = _allTileArray[h - 1][w];
+							}else if (_a.charAt(2) != _tileName[e]) {
+								_helpTile = _allTileArray[h][w + 1];
+							}else if(_a.length == 3 && _l == "h1"){ //靠在上方所以沒有上面,所以一定是下面的Tile可以移動
+								_helpTile = _allTileArray[h + 1][w];
+							}else if(_a.length == 3 && _l == "h2"){
+								_helpTile = _allTileArray[h - 1][w];
+							}else if(_a.length == 3 && _l == "w1"){ //靠在左方所以沒有左邊,所以一定是右邊的Tile可以移動
+								_helpTile = _allTileArray[h][w + 1];
+							}else if(_a.length == 3 && _l == "w2"){
+								_helpTile = _allTileArray[h][w - 1];
+							}else {
+								_helpTile = _allTileArray[h][w - 1];
+							}
 							break;
 						}
 					}
 				}
 			}
 			trace("檢查死路-橫:", _i, "檢查死路-直:", _j, "檢查死路-十字:", _k);
-			return _i;
+			return _i + _j + _k;
 		}
 		
 		//檢查是否有連線
