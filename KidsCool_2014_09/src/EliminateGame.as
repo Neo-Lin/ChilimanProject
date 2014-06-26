@@ -83,14 +83,20 @@ package
 			if (_touchTile.length > 0) { //是否已選取了第一個圖案
 				var _m:MovieClip = _objectsMC.getChildByName(_touchTile[0] + "_" + _touchTile[1]) as MovieClip;
 				_m.select_mc.visible = false;
+				//上下交換
 				if ((_touchTile[0] == int(_tmpAR[0]) + 1 || _touchTile[0] == int(_tmpAR[0]) - 1) &&
 				_touchTile[1] == _tmpAR[1]) {	
 					//改變陣列中兩個圖案的位置
 					_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, _m);
 					_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, e.currentTarget);
 					//改變畫面上兩個圖案的位置
-					Tweener.addTween(e.currentTarget, { y:_m.y, time:.5 } );
-					Tweener.addTween(_m, { y:e.currentTarget.y, time:.5 } );
+					Tweener.addTween(e.currentTarget, { y:_m.y, time:.3 } );
+					Tweener.addTween(_m, { y:e.currentTarget.y, time:.3, onComplete:function() {
+						if (chkLine(2)) {
+							//動畫結束後刪除連線的Tile
+							cleanLine();
+						}
+						} } );
 					//檢查是否達成連線
 					if (chkLine(2)) {
 						//修改交換的物件名稱,因為名稱要對應陣列位置,所以換位置就要換名字
@@ -98,21 +104,27 @@ package
 						_m.name = e.currentTarget.name
 						e.currentTarget.name = _mName;
 						//刪除連線的Tile
-						cleanLine();
+						//cleanLine();
 					}else { //沒有達成連線,恢復原狀
 						_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, e.currentTarget);
 						_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, _m);
-						Tweener.addTween(e.currentTarget, { y:e.currentTarget.y, time:.5, delay:.5 } );
-						Tweener.addTween(_m, { y:_m.y, time:.5, delay:.5 } );
+						Tweener.addTween(e.currentTarget, { y:e.currentTarget.y, time:.3, delay:.3 } );
+						Tweener.addTween(_m, { y:_m.y, time:.3, delay:.3 } );
 					}
+				//左右交換
 				}else if ((_touchTile[1] == int(_tmpAR[1]) + 1 || _touchTile[1] == int(_tmpAR[1]) - 1) &&
 				_touchTile[0] == _tmpAR[0]) {	
 					//改變陣列中兩個圖案的位置
 					_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, _m);
 					_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, e.currentTarget);
 					//改變畫面上兩個圖案的位置
-					Tweener.addTween(e.currentTarget, { x:_m.x, time:.5 } );
-					Tweener.addTween(_m, { x:e.currentTarget.x, time:.5 } );
+					Tweener.addTween(e.currentTarget, { x:_m.x, time:.3 } );
+					Tweener.addTween(_m, { x:e.currentTarget.x, time:.3, onComplete:function() {
+						if (chkLine(2)) {
+							//動畫結束後刪除連線的Tile
+							cleanLine();
+						}
+						} } );
 					//檢查是否達成連線
 					if (chkLine(2)) {
 						//修改交換的物件名稱,因為名稱要對應陣列位置,所以換位置就要換名字
@@ -120,12 +132,12 @@ package
 						_m.name = e.currentTarget.name
 						e.currentTarget.name = _mName;
 						//刪除連線的Tile
-						cleanLine();
+						//cleanLine();
 					}else { //沒有達成連線,恢復原狀
 						_allTileArray[_tmpAR[0]].splice(_tmpAR[1], 1, e.currentTarget);
 						_allTileArray[_touchTile[0]].splice(_touchTile[1], 1, _m);
-						Tweener.addTween(e.currentTarget, { x:e.currentTarget.x, time:.5, delay:.5 } );
-						Tweener.addTween(_m, { x:_m.x, time:.5, delay:.5 } );
+						Tweener.addTween(e.currentTarget, { x:e.currentTarget.x, time:.3, delay:.3 } );
+						Tweener.addTween(_m, { x:_m.x, time:.3, delay:.3 } );
 					}
 				}else {
 					//trace("不在旁邊");
@@ -140,42 +152,122 @@ package
 		//刪除連線的Tile
 		private function cleanLine():void {
 			_objectsMC.mouseChildren = false;
+			var bombSkillTile:Array = [];
+			var lightningSkillTile:Array = [];
 			//刪除橫向
 			for (var wi:int = 0; wi < _tArrayAllW.length; wi++) {
 				for each(var f:Tile in _tArrayAllW[wi]) {
-					trace("刪除橫向a:", f.name);
 					//怕跟直向有重複到所以多一道檢查,把直向陣列有重複的刪除
-					for (var whi:int = 0; whi < _tArrayAllH.length; whi++) {
+					/*for (var whi:int = 0; whi < _tArrayAllH.length; whi++) {
 						if(_tArrayAllH[whi].indexOf(f)>-1){ trace("刪:", _tArrayAllH[whi].indexOf(f), f.name);
 							_tArrayAllH[whi].splice(_tArrayAllH[whi].indexOf(f), 1);
 						}
+					}*/
+					if (f.skill == "bomb") {
+						bombSkillTile.push([f.name.charAt(0), f.name.charAt(2)]);
+					}else if (f.skill == "lightning") {
+						lightningSkillTile.push([f.name.charAt(0), f.name.charAt(2)]);
 					}
-					Tweener.addTween(f, { alpha:0, time:.5, transition:"easeInBounce", onComplete:function() {
-						trace("刪除橫向b:", this.name);
-						_tweenerCount--;
-						_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
-						_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;
-						rankTile();
-						} } );
+					cleanLineTweener(f);
 					_tweenerCount++;
-					trace("刪除橫向:c",_tArrayAllW[wi]);
 				}
 			}
 			//刪除直向
 			for (var hi:int = 0; hi < _tArrayAllH.length; hi++) {
 				for each(var f:Tile in _tArrayAllH[hi]) {
-					trace("刪除直向a:", f.name);
-					Tweener.addTween(f, { alpha:0, time:.5, transition:"easeInBounce", onComplete:function() {
-						trace("刪除直向b:", this.name);
-						_tweenerCount--;
-						_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
-						_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;	
-						rankTile();
-						} } );
+					//是否有爆炸技能
+					if (f.skill == "bomb") {
+						bombSkillTile.push([f.name.charAt(0), f.name.charAt(2)]);
+					}else if (f.skill == "lightning") {
+						lightningSkillTile.push([f.name.charAt(0), f.name.charAt(2)]);
+					}
+					cleanLineTweener(f);
 					_tweenerCount++;
-					trace("刪除直向c:",_tArrayAllH[hi]);
 				}
 			}
+			trace("=====================", bombSkillTile);
+			//刪除九宮格爆炸
+			for (var i:int = 0; i < bombSkillTile.length; i++) {
+				bomb(bombSkillTile[i][0], bombSkillTile[i][1]);
+			}
+			//刪除閃電
+			for (var i:int = 0; i < lightningSkillTile.length; i++) {
+				lightning(lightningSkillTile[i][0], lightningSkillTile[i][1]);
+			}
+		}
+		
+		//刪除閃電
+		private function lightning(skillTile_h:int, skillTile_w:int):void 
+		{
+			for (var i:int = 0; i < _hTile; i++) {
+				cleanLineTweener(_allTileArray[i][skillTile_w]);
+				_tweenerCount++;
+			}
+			for (var j:int = 0; j < _wTile; j++) {
+				cleanLineTweener(_allTileArray[skillTile_h][j]);
+				_tweenerCount++;
+			}
+			//閃電效果
+			var _b:LightningMv = new LightningMv();
+			_b.x = _allTileArray[skillTile_h][skillTile_w].x;
+			_b.y = _allTileArray[skillTile_h][skillTile_w].y;
+			addChild(_b);
+		}
+		
+		//九宮格爆炸
+		private function bomb(skillTile_h:int, skillTile_w:int):void {
+			var h1:int;
+			var w1:int;
+			var h2:int;
+			var w2:int;
+			//取得九宮格範圍
+			if (skillTile_h > 0) {
+				h1 = skillTile_h - 1;
+			}else {
+				h1 = skillTile_h;
+			}
+			if (skillTile_h < _hTile-1) {
+				h2 = skillTile_h + 1;
+			}else {
+				h2 = skillTile_h;
+			}
+			if (skillTile_w > 0) {
+				w1 = skillTile_w - 1;
+			}else {
+				w1 = skillTile_w;
+			}
+			if (skillTile_w < _wTile-1) {
+				w2 = skillTile_w + 1;
+			}else {
+				w2 = skillTile_w;
+			}
+			//刪除範圍內的Tile
+			for (h1; h1 <= h2; h1++) {
+				for (var w:int = w1; w <= w2; w++) {	
+					cleanLineTweener(_allTileArray[h1][w]);
+					_tweenerCount++;
+				}
+			}
+			//爆破效果
+			var _b:BombMv = new BombMv();
+			_b.x = _allTileArray[skillTile_h][skillTile_w].x;
+			_b.y = _allTileArray[skillTile_h][skillTile_w].y;
+			addChild(_b);
+		}
+		
+		private function cleanLineTweener(f:Tile):void {
+			//略過達成連線而即將被刪除的Tile,因為tweener的關係刪除會延遲,因此多一個屬性判斷
+			if (f.readyKill) {	//trace("略過", f.name);
+				_tweenerCount--;
+				return;
+			}
+			f.readyKill = true;
+			Tweener.addTween(f, { alpha:0, time:.5, transition:"easeInBounce", onComplete:function() {
+				_tweenerCount--;
+				_objectsMC.removeChild(_allTileArray[this.name.charAt(0)][this.name.charAt(2)]);
+				_allTileArray[this.name.charAt(0)][this.name.charAt(2)] = null;	
+				rankTile();
+				} } );
 		}
 		
 		//排列Tile陣列
@@ -196,7 +288,7 @@ package
 			addTile();
 		}
 		
-		//補滿Tile,並且編輯所有Tile的名字,對應Tile在_allTileArray裡的位置
+		//補滿Tile--編輯所有Tile的名字,對應Tile在_allTileArray裡的位置--檢查是否死棋
 		private function addTile():void 
 		{		
 			//showMeAllTileArray();
@@ -252,6 +344,7 @@ package
 			}
 		}
 		
+		//檢查是否死棋
 		private function impasse():int {
 			var _i:int = 0;	//橫向
 			var _j:int = 0;	//直向
