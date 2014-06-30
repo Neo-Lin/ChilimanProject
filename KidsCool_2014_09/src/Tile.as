@@ -11,6 +11,7 @@ package
 	{
 		public static const BOMB:String = "bomb";
 		public static const LIGHTNING:String = "lightning";
+		public static const RANDOM_TILE:String = "randomTile";
 		
 		public var select_mc:MovieClip;
 		public var help_mc:MovieClip;
@@ -20,17 +21,21 @@ package
 		
 		public function Tile() 
 		{
-			stop();
+			//stop();
 			addEventListener(Event.ADDED_TO_STAGE, goDrop);
 			select_mc.visible = false;
 			//skill_mc.visible = false;
 			
-			if (Math.random() < .05) {
+			var _r:Number = Math.random();
+			if (_r < .02) {
 				skill_mc.gotoAndStop(BOMB);
 				skill = BOMB;
-			}else if (Math.random() > .95) {
+			}else if (_r > .02 && _r < .04) {
 				skill_mc.gotoAndStop(LIGHTNING);
 				skill = LIGHTNING;
+			}else if (_r > .04 && _r < .06) {
+				//skill_mc.gotoAndStop(RANDOM_TILE);
+				skill = RANDOM_TILE;
 			}
 		}
 		

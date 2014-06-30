@@ -24,6 +24,8 @@ package
 		private var _tArrayAllH:Array = [];
 		private var _tweenerCount:int;
 		private var _helpTile:Tile;
+		private var _score:int;
+		private var _scoreDouble:int = 1;	//計算分數加乘用
 		
 		public function EliminateGame(objectsMC:MovieClip) 
 		{
@@ -35,10 +37,13 @@ package
 				for (var j:int = 0; j < _wTile; j++) {
 					var _t:Tile = new Tile();
 					_allTileArray[i][j] = _t;
-					//做出不會連線的初始組合
-					do{
-						_t.gotoAndStop(_tileName[Math.floor(Math.random() * _tileName.length)]);
-					}while (initChk(i, j)) 
+					//"同色消除技能"的Tile不用指定影格
+					if (_t.skill != "randomTile") {
+						//做出不會連線的初始組合
+						do{
+							_t.gotoAndStop(_tileName[Math.floor(Math.random() * _tileName.length)]);
+						}while (initChk(i, j)) 
+					}
 					
 					_objectsMC.addChild(_t);
 					_t.x = _t.width * j;
@@ -77,9 +82,33 @@ package
 			return false;
 		}
 		
+		//使用者對調Tile
 		private function tileMD(e:MouseEvent):void 
 		{	
-			var _tmpAR:Array = e.currentTarget.name.split("_");
+			//相同圖案的Tile全部消除的特殊技能(同色消除技能)
+			if (e.currentTarget.skill == "randomTile") {
+				e.currentTarget.stop();
+				_objectsMC.mouseChildren = false;
+				for (var i:int = _allTileArray.length - 1; i >= 0; i--) {
+					for (var j:int = _allTileArray[i].length - 1; j >= 0; j--) {
+						if (_allTileArray[i][j].currentFrameLabel == e.currentTarget.currentFrameLabel
+						&& _allTileArray[i][j].skill != "randomTile") {
+							cleanLineTweener(_allTileArray[i][j]);
+							addScore(20);
+						}
+					}
+				}
+				//清除被按到的特殊技能Tile
+				cleanLineTweener(e.currentTarget as Tile);
+				if (_touchTile.length > 0) { //是否已選取了第一個圖案
+					var _m:MovieClip = _objectsMC.getChildByName(_touchTile[0] + "_" + _touchTile[1]) as MovieClip;
+					_m.select_mc.visible = false;
+				}
+				_touchTile.length = 0;
+				return;
+			}else {
+				var _tmpAR:Array = e.currentTarget.name.split("_");
+			}
 			if (_touchTile.length > 0) { //是否已選取了第一個圖案
 				var _m:MovieClip = _objectsMC.getChildByName(_touchTile[0] + "_" + _touchTile[1]) as MovieClip;
 				_m.select_mc.visible = false;
@@ -149,6 +178,22 @@ package
 			}
 		}
 		
+		//判斷要加多少分數
+		private function countScore(cs:int):void {
+			if (cs == 3) {	trace("分數計算:50 * " + _scoreDouble + " = " + 50 * _scoreDouble)
+				addScore(50 * _scoreDouble);
+			}else if (cs == 4) {	trace("分數計算:100 * " + _scoreDouble + " = " + 100 * _scoreDouble)
+				addScore(100 * _scoreDouble);
+			}else if (cs == 5) {	trace("分數計算:150 * " + _scoreDouble + " = " + 150 * _scoreDouble)
+				addScore(150 * _scoreDouble);
+			}
+		}
+		//加分並顯示
+		private function addScore(s:int):void {	trace("分數加 "+s+" 分::::");
+			_score += s;
+			_objectsMC.score_txt.text = _score;
+		}
+		
 		//刪除連線的Tile
 		private function cleanLine():void {
 			_objectsMC.mouseChildren = false;
@@ -156,6 +201,7 @@ package
 			var lightningSkillTile:Array = [];
 			//刪除橫向
 			for (var wi:int = 0; wi < _tArrayAllW.length; wi++) {
+				countScore(_tArrayAllW[wi].length);
 				for each(var f:Tile in _tArrayAllW[wi]) {
 					//怕跟直向有重複到所以多一道檢查,把直向陣列有重複的刪除
 					/*for (var whi:int = 0; whi < _tArrayAllH.length; whi++) {
@@ -169,11 +215,11 @@ package
 						lightningSkillTile.push([f.name.charAt(0), f.name.charAt(2)]);
 					}
 					cleanLineTweener(f);
-					_tweenerCount++;
 				}
 			}
 			//刪除直向
 			for (var hi:int = 0; hi < _tArrayAllH.length; hi++) {
+				countScore(_tArrayAllH[hi].length);
 				for each(var f:Tile in _tArrayAllH[hi]) {
 					//是否有爆炸技能
 					if (f.skill == "bomb") {
@@ -182,17 +228,17 @@ package
 						lightningSkillTile.push([f.name.charAt(0), f.name.charAt(2)]);
 					}
 					cleanLineTweener(f);
-					_tweenerCount++;
 				}
 			}
-			trace("=====================", bombSkillTile);
 			//刪除九宮格爆炸
 			for (var i:int = 0; i < bombSkillTile.length; i++) {
 				bomb(bombSkillTile[i][0], bombSkillTile[i][1]);
+				addScore(300);
 			}
 			//刪除閃電
 			for (var i:int = 0; i < lightningSkillTile.length; i++) {
 				lightning(lightningSkillTile[i][0], lightningSkillTile[i][1]);
+				addScore(500);
 			}
 		}
 		
@@ -201,11 +247,9 @@ package
 		{
 			for (var i:int = 0; i < _hTile; i++) {
 				cleanLineTweener(_allTileArray[i][skillTile_w]);
-				_tweenerCount++;
 			}
 			for (var j:int = 0; j < _wTile; j++) {
 				cleanLineTweener(_allTileArray[skillTile_h][j]);
-				_tweenerCount++;
 			}
 			//閃電效果
 			var _b:LightningMv = new LightningMv();
@@ -245,7 +289,6 @@ package
 			for (h1; h1 <= h2; h1++) {
 				for (var w:int = w1; w <= w2; w++) {	
 					cleanLineTweener(_allTileArray[h1][w]);
-					_tweenerCount++;
 				}
 			}
 			//爆破效果
@@ -258,9 +301,9 @@ package
 		private function cleanLineTweener(f:Tile):void {
 			//略過達成連線而即將被刪除的Tile,因為tweener的關係刪除會延遲,因此多一個屬性判斷
 			if (f.readyKill) {	//trace("略過", f.name);
-				_tweenerCount--;
 				return;
 			}
+			_tweenerCount++;
 			f.readyKill = true;
 			Tweener.addTween(f, { alpha:0, time:.5, transition:"easeInBounce", onComplete:function() {
 				_tweenerCount--;
@@ -297,7 +340,10 @@ package
 				for (var j:int = _allTileArray[i].length - 1; j >= 0; j--) {
 					if (!_allTileArray[i][j]) { 
 						var _t:Tile = new Tile();
-						_t.gotoAndStop(_tileName[Math.floor(Math.random() * _tileName.length)]);
+						//"同色消除技能"的Tile不用指定影格
+						if (_t.skill != "randomTile") {
+							_t.gotoAndStop(_tileName[Math.floor(Math.random() * _tileName.length)]);
+						}
 						_objectsMC.addChild(_t);
 						_t.x = _t.width * int(j);
 						//_t.x += 400; 
@@ -308,10 +354,12 @@ package
 					_allTileArray[i][j].name = i + "_" + j;
 				}
 			}
-			if (_tweenerCount == 0) {
+			if (_tweenerCount == 0) {	trace("=====================檢查是否死棋");
 				if (chkLine(2)) {
+					_scoreDouble++;  //連鎖反應分數加乘
 					cleanLine();
 				}else {
+					_scoreDouble = 1;  //分數加乘歸零
 					//檢查是否死棋
 					if (impasse() > 0) {
 						_objectsMC.mouseChildren = true;
@@ -429,10 +477,15 @@ package
 			//檢查十字
 			for (var wi:int = 0; wi < _allTileArray.length; wi++) {
 				for each(var f:Tile in _allTileArray[wi]) {
-					var _a:String = "";
-					var _l:String; //用來判斷少一邊的十字(因為靠牆所以只有三個)
 					h = int(f.name.charAt(0));
 					w = int(f.name.charAt(2));
+					//十字無論如何都會檢查,所以只要有"同色消除技能"的Tile,就直接指定為"提示"功能要顯示的Tile
+					if (_allTileArray[h][w].skill == "randomTile") {
+						_helpTile = _allTileArray[h][w];
+						return 1;
+					}
+					var _a:String = "";
+					var _l:String; //用來判斷少一邊的十字(因為靠牆所以只有三個)
 					//紀錄每個Tile上下左右的影格標籤
 					if (h - 1 >= 0) {
 						_a+=_allTileArray[h - 1][w].currentFrameLabel;
@@ -494,6 +547,14 @@ package
 			//檢查橫向
 			for (var i:uint = 0; i < _allTileArray.length; i++) {
 				for (var j:uint = 0; j < _allTileArray[i].length; j++) {
+					//若Tile有"同色消除技能"就跳過
+					if (_allTileArray[i][j].skill == "randomTile") {
+						_t = null;
+						if (_tArray.length > tileNum) {
+							_tArrayAllW.push(_tArray);
+						}
+						continue;
+					}
 					if (_t) {
 						//若跟上一個相同
 						if (_t.currentFrameLabel == _allTileArray[i][j].currentFrameLabel) {
@@ -520,6 +581,14 @@ package
 			_tArray = [];
 			for (var k:uint = 0; k < _allTileArray.length; k++) {
 				for (var m:uint = 0; m < _allTileArray[k].length; m++) {
+					//若Tile有"同色消除技能"就跳過
+					if(_allTileArray[m][k].skill == "randomTile") {
+						_t = null;
+						if (_tArray.length > tileNum) {
+							_tArrayAllW.push(_tArray);
+						}
+						continue;
+					}
 					if (_t) {
 						//若跟上一個相同
 						if (_t.currentFrameLabel == _allTileArray[m][k].currentFrameLabel) {
